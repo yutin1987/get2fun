@@ -1,0 +1,51 @@
+@import "compass"
+
+$template: "green"
+
+.temp-green
+  .reload
+    background-image: inline-image($template+'/btn_reload.png')
+    &:hover
+      background-image: inline-image($template+'/btn_reload_hover.png')
+    &:active
+      background-image: inline-image($template+'/btn_reload_active.png')
+  .cancel
+    background-image: inline-image($template+'/btn_cancel.png')
+    &:hover
+      background-image: inline-image($template+'/btn_cancel_hover.png')
+    &:active
+      background-image: inline-image($template+'/btn_cancel_active.png')
+
+  .legend
+    color: #3b4c57
+
+  #group
+    background: #4b7384
+    .item
+      border-bottom: 1px solid #243541
+      .total
+        background: #1d2c35
+      &:hover
+        +background-image(linear-gradient(#5dc0ea, #286f8d))
+    .wrapper-filter
+      .term
+        background-image: inline-image($template+'/filter_body.png')
+        .arrow
+          background-image: inline-image($template+'/filter_drop.png')
+        .left
+          background-image: inline-image($template+'/filter_left.png')
+        .right
+          background-image: inline-image($template+'/filter_right.png')
+        &:hover
+          background-image: inline-image($template+'/filter_hover_body.png')
+          .arrow
+            background-image: inline-image($template+'/filter_hover_drop.png')
+          .left
+            background-image: inline-image($template+'/filter_hover_left.png')
+          .right
+            background-image: inline-image($template+'/filter_hover_right.png')
+        &:active
+          .arrow
+            background-image: inline-image($template+'/filter_active_drop.png')
+    .wrapper-list
+      background-image: inline-image($template+'/group_bg.png')

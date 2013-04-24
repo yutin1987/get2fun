@@ -1,0 +1,63 @@
+@import "compass"
+
+$login-w: 290px
+
+.controls.input-prepend
+  display: block
+
+.login
+  position: absolute
+  z-index: 10
+  width: $login-w
+  left: -$login-w / 2
+  top: 20px
+  padding: 30px 8px
+  .input
+    height: 50px
+    margin: 0px 12px
+    margin-bottom: 10px
+    position: relative
+    vertical-align: middle
+    input
+      height: 50px - 8px
+      width: $login-w - 24px - 20px - 12px
+      margin-left: 5px
+    .left,
+    .right
+      position: absolute
+      top: 0px
+      width: 12px
+      height: 50px
+    .left
+      left: -12px
+    .right
+      right: -12px
+  .toolbar
+    height: 42px
+    button
+      height: 42px
+      width: 132px
+    .remember
+      height: 30px
+    .remember
+      margin-top: 6px
+      padding-left: 36px
+      line-height: 30px
+      vertical-align: middle
+  .tipbox
+    display: none
+    +opacity(0)
+    position: absolute
+    top: 0px
+    left: 0px
+    width: 100%
+    height: 100%
+    text-align: center
+    line-height: 120px
+    vertical-align: middle
+  &.proceed
+    .input
+      +opacity(0)
+    .tipbox
+      display: block
+      +opacity(1)

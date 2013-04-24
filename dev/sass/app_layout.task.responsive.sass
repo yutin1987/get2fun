@@ -1,0 +1,70 @@
+@import "../sass_lib/responsive"
+
+$thumb_w: 56px
+$thumb_h: 42px
+$group_item: 58px
+$task_item: 54px
+
+
+$notebook_width: 940px
+
+$notebook_group_w: 316px
+$notebook_task_w: 624px
+
+@media (max-width: $notebook)
+  /*  Group Layout  */
+  #group
+    left: -$notebook_width / 2
+    width: $notebook_group_w
+    // Wrapper Download
+    .wrapper-download
+      .legend
+        width: $notebook_width
+    // Wrapper Filter
+    .wrapper-filter .filter
+      .term
+        width: $notebook_group_w / 3 - 40px
+
+  /*  Task Layout  */
+  .task
+    width: $notebook_task_w
+    #fixed &
+      left: -($notebook_task_w - $notebook_width / 2)
+    #content &
+      margin-left: $notebook_group_w
+    // Item
+    .item
+      .name
+        width: $notebook_task_w - $thumb_w - 16px - 112px - 32px - 76px
+      .size,
+      .sub
+        top: ($task_item - $thumb_h) / 2
+      &:not(.status-download)
+        .name
+          width: $notebook_task_w - $thumb_w - 16px - 112px - 32 - 5px
+    // Wrapper Filter
+    .wrapper-filter
+      .filter
+        margin-left: ($notebook_task_w - (78px + 32px) * 5) / 2 
+
+$tablet_width: 724px
+
+$tablet_group_w: 724px
+
+@media (max-width: $tablet)
+  /*  Group Layout  */
+  #group
+    left: -$tablet_width / 2
+    width: $tablet_group_w
+    // Wrapper Download
+    .wrapper-download
+      .legend
+        width: $tablet_width
+    // Wrapper Filter
+    .wrapper-filter .filter
+      .term
+        width: $tablet_group_w / 3 - 40px
+
+  /*  Task Layout  */
+  .task
+    display: none

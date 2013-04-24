@@ -1,0 +1,323 @@
+@import "compass"
+
+$width: 1170px
+
+$top: 69px
+
+$group-w: 386px
+$task-w: 784px
+
+$download: 82px
+$download-legend: 22px
+
+$filter: 52px
+$filter-legend: 24px
+
+$group-item: 58px
+$task-item: 54px
+
+$thumb-w: 56px
+$thumb-h: 42px
+
+/*  Button  */
+.button
+  position: absolute
+  right: 8px
+  top: ($group-item - 42px) / 2
+  .reload,
+  .cancel
+    width: 21px
+    height: 22px
+    visibility: hidden
+    margin-left: 3px
+  .status-canceled &,
+  .status-completed &,
+  .status-failed &
+    .reload
+      visibility: visible
+  .status-download &,
+  .status-failed &,
+  .status-wait &
+    .cancel
+      visibility: visible
+
+/*  Legend  */
+.legend
+  text-align: center
+
+/*  None  */
+.none
+  height: 57px
+  line-height: 57px
+  display: none
+  &:first-child:last-child
+    display: block
+
+/*  Item  */
+.task,
+#group
+  .item
+    position: relative
+  .filter-status-complete .item:not(.status-completed),
+  .filter-status-reload .item:not(.status-reloaded),
+  .filter-status-cancel .item:not(.status-canceled),
+  .filter-status-wait .item:not(.status-wait),
+  .filter-status-fail .item:not(.status-failed)
+    height: 0px
+    border: none
+
+/*  Thumb  */
+.thumb
+  position: absolute
+  width: $thumb-w
+  height: $thumb-h
+  left: 8px
+  .status-icon
+    position: absolute
+    right: -9px
+    width: 18px
+    height: 18px
+  .source
+    position: absolute
+    right: 0px
+    bottom: 0px
+  .quality
+    position: absolute
+    right: 0px
+    top: 0px
+    width: 34px
+    height: 13px
+  .img
+    overflow: hidden
+    width: $thumb-w
+    height: $thumb-h
+    img
+      max-width: 100%
+
+/*  Src Icon  */
+.src-icon
+  position: absolute
+  left: 0px
+  bottom: 0px
+  width: 12px
+  height: 12px
+
+/*  Wrapper Download  */
+.wrapper-download
+  padding-top: $download-legend
+  height: $download - $download-legend
+  .legend
+    height: $download-legend
+  .download
+    height: $download - $download-legend
+
+/*  Wrapper Filter  */
+.wrapper-filter
+  height: $filter
+  .legend
+    height: $filter-legend
+  .filter
+    height: $filter - $filter-legend
+
+/*  Wrapper List  */
+
+/*  Group Layout  */
+#group
+  position: absolute
+  top: 0px
+  left: -$width / 2
+  overflow: visible
+  width: $group-w
+  z-index: 3
+  // Item
+  .item
+    height: $group-item
+    width: 100%
+    overflow: hidden
+    .thumb
+      top: ($group-item - $thumb-h) / 2
+      .status-icon
+        bottom: -($group-item - $thumb-h) / 2 + 2
+      .source
+        position: absolute
+        right: 0px
+        bottom: 0px
+    .name
+      width: $group-w - 112px - 32px
+      line-height: $group-item
+      vertical-align: middle
+      margin-left: 56px + 16px
+    .total
+      position: absolute
+      right: 8px
+      bottom: ($group-item - $thumb-h) / 2
+      width: 60px
+      height: 16px
+      +border-radius(12px)
+      line-height: 16px
+      text-align: center
+  // Wrapper Download
+  .wrapper-download
+    .legend
+      position: absolute
+      top: 0px
+      width: $width
+  // Wrapper Filter
+  .wrapper-filter .filter
+    .term
+      float: left
+      position: relative
+      width: $group-w / 3 - 40px
+      height: 20px
+      margin: 0px 20px
+      margin-top: ($filter - $filter-legend - 22px) / 2
+    select,
+    span
+      position: absolute
+      top: 0px
+      left: 0px
+    select
+      width: 100%
+      height: 20px
+      margin: 0 -14px
+      width: $group-w / 3 - 16px
+    span
+      overflow: hidden
+      display: block
+      width: 77px
+      margin: 1px 1px 2px 1px
+      line-height: 17px
+      white-space: nowrap
+    option
+      padding: 2px 2px 3px 12px
+    .arrow
+      position: absolute
+      right: -6px
+      top: 7px
+      width: 9px
+      height: 6px
+    .left,
+    .right
+      height: 20px
+      width: 14px
+      position: absolute
+      top: 0px
+    .left
+      left: -14px
+    .right
+      right: -14px
+  .wrapper-overflow
+    overflow-y: scroll
+    overflow-x: hidden
+
+/*  Task Layout  */
+.task
+  width: $task-w
+  #fixed &
+    position: absolute
+    top: 0px
+    left: -($task-w - $width / 2)
+  #content &
+    margin-left: $group-w
+    padding-top: $download + $filter
+  // Item
+  .item
+    display: block
+    height: $task-item
+    overflow: hidden
+    .name
+      width: $task-w - $thumb-w - 16px - 112px - 32px - 71px
+      line-height: $task-item
+      vertical-align: middle
+      margin-left: $thumb-w + 20px
+    .thumb
+      top: ($task-item - $thumb-h) / 2
+      .status-icon
+        bottom: -($task-item - $thumb-h) / 2 + 2
+      .quality
+        position: absolute
+        right: 0px
+        top: 0px
+    .owner
+      position: absolute
+      right: 74px + 16px
+      bottom: ($task-item - $thumb-h) / 2
+    .time
+      position: absolute
+      right: 8px
+      bottom: ($task-item - $thumb-h) / 2
+    .size,
+    .sub
+      position: absolute
+      right: 48px + 16px + 6px
+      top: ($task-item - $thumb-h) / 2 + 1
+      line-height: 22px
+    &
+      .size
+        display: block
+      .sub
+        display: none
+    &.has-sub
+      .size
+        display: none
+      .sub
+        display: block
+    .dl-size,
+    .est-size,
+    .ok-sub,
+    .total-sub
+      float: right
+    .progress-bar
+      position: absolute
+      width: 120px
+      height: 12px
+      top: ($task-item - $thumb-h) / 2 + 4
+      right: 48px + 16px
+      .progress
+        margin-bottom: 0px
+        height: 100%
+      .bar
+        width: 0%
+      .striped
+        height: 100%
+    &.status-completed
+      .est-size
+        display: none
+    &:not(.status-download)
+      .name
+        width: $task-w - $thumb-w - 16px - 112px - 32px
+      .progress-bar
+        +opacity(0)
+  .wrapper-download
+    .item
+      margin-top: ($download - $download-legend - $task-item) / 2
+  // Wrapper Filter
+  .wrapper-filter
+    .filter
+      margin-left: ($task-w - (78px + 32px) * 5) / 2
+      ul
+        list-style: none
+        display: inline-block
+        padding: 0px
+        margin: 0px
+      li
+        float: left
+        margin: 0px 16px
+        margin-top: ($filter - $filter-legend - 21px) / 2
+        position: relative
+        width: 78px
+        text-align: center
+        .left,
+        .right
+          position: absolute
+          top: 0px
+          display: block
+          height: 21px
+          width: 10px
+        .left
+          left: -10px
+        .right
+          right: -10px
+        span
+          display: block
+          padding: 0px 6px 0px 6px

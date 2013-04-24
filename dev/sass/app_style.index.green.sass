@@ -1,0 +1,31 @@
+@import "compass"
+
+$template: "green"
+
+.temp-green
+  #header
+    .box-nav
+      a
+        &:hover
+          color: #30d3eb
+        &.nav-clear
+          &:hover
+            background-image: inline-image($template+'/nav_clear_hover.png')
+        &.nav-ext
+          &:hover
+            background-image: inline-image($template+'/nav_ext_hover.png')
+        &.nav-logout
+          &:hover
+            background-image: inline-image($template+'/nav_logout_hover.png')
+        &.nav-refresh
+          &:hover
+            background-image: inline-image($template+'/nav_refresh_hover.png')
+        &.nav-program
+          &:hover
+            background-image: inline-image($template+'/nav_program_hover.png')
+        &.nav-fb
+          &:hover
+            background-image: inline-image($template+'/nav_fb_hover.png')
+
+  #logo
+    background-image: inline-image($template+'/logo.png')

@@ -1,0 +1,223 @@
+@import "compass"
+@import "../sass_lib/jt.style"
+
++keyframes('running')
+  0%
+    +rotate(0deg)
+  50%
+    +rotate(180deg)
+    +single-box-shadow(#00ccff, 0, 0, 17px)
+  100%
+    +rotate(360deg)
+
++keyframes('stoppe')
+  0%
+    border-color: #ff0000 rgba(0, 0, 0, 0)
+  50%
+    border-color: rgba(0, 0, 0, 0) #ff0000
+  100%
+    border-color: #ff0000 rgba(0, 0, 0, 0)
+
++keyframes('paused')
+  0%
+    border-color: rgba(0, 0, 0, 0) #ff9900
+  50%
+    border-color: rgba(0, 0, 0, 0)
+  100%
+    border-color: rgba(0, 0, 0, 0) #ff9900
+
+.ui-text
+  overflow: hidden
+  white-space: nowrap
+  text-overflow: ellipsis
+  display: block
+
+html
+  height: 100%
+
+body
+  background: fixed repeat
+  background-image: radial-gradient(white 0%, rgba(255, 255, 255, 0.5) 15%, rgba(255, 255, 255, 0) 100%)
+  min-height: 100%
+  padding: 0px
+  margin: 0px
+  .login
+    display: none
+    .message
+      display: none
+      text-align: right
+      margin-bottom: 6px
+    &.invalid
+      .message
+        display: block
+  &.guest
+    #group,
+    #content,
+    .task
+      display: none
+    .login
+      display: block
+
+.container
+  position: relative
+
+#header
+  height: 70px
+  overflow: hidden
+  #logo
+    width: 385px
+    height: 68px
+    display: block
+    text-align: center
+  .box-nav
+    position: absolute
+    right: 6px
+    top: 0px
+    list-style: none
+    li
+      float: right
+      &.separation
+        background-image: inline-image('separation.png')
+        background-repeat: no-repeat
+        background-position: center 22px
+        width: 9px
+        height: 75px
+    a
+      display: block
+      padding: 42px 6px 3px 6px
+      width: 54px
+      height: 30px
+      font-size: 12px
+      text-align: center
+  .guest & .nav-logout
+    display: none
+  #control
+    margin-top: 7px
+    margin-left: 13px
+    float: left
+    .icon
+      float: left
+      position: relative
+    .img
+      width: 52px
+      height: 52px
+      background-repeat: no-repeat
+    .text
+      font-size: 24px
+      line-height: 52px
+      margin-left: 16px
+      float: left
+      display: none
+    .circle
+      background-color: rgba(0, 0, 0, 0)
+      border: 3px solid rgba(0, 0, 0, 0)
+      opacity: 0.9
+      border-radius: 46px
+      width: 46px
+      height: 46px
+      margin: 0 auto
+      position: absolute
+      top: 0px
+      left: 0px
+    &.server-running
+      .img
+        background-image: inline-image('control_pause.png')
+      &:hover .img
+        background-image: inline-image('control_pause_hover.png')
+      &:active .img
+        background-image: inline-image('control_pause_active.png')
+      .text
+        color: #2187e7
+        &.text-running
+          display: block
+      .circle
+        border-color: #00ccff rgba(0, 0, 0, 0)
+        +single-box-shadow(#2187e7, 0, 0, 35px)
+        +animation(running 3s infinite linear)
+    &.server-paused
+      .img
+        background-image: inline-image('control_run.png')
+      &:hover .img
+        background-image: inline-image('control_run_hover.png')
+      &:active .img
+        background-image: inline-image('control_run_active.png')
+      .text
+        color: #ff9900
+        &.text-paused
+          display: block
+        &.text-running
+          display: none
+      .circle
+        border-color: rgba(0, 0, 0, 0) #ff9900
+        +single-box-shadow(#666, 0, 0, 17px)
+        +animation(paused 1.8s infinite ease-in-out)
+    &.server-stopped
+      .img
+        background-image: inline-image('control_stop.png')
+      &:hover .img
+        background-image: inline-image('control_stop_hover.png')
+      &:active .img
+        background-image: inline-image('control_stop_active.png')
+      .text
+        color: #ff0000
+        &.text-stopped
+          display: block
+        &.text-running,
+        &.text-paused
+          display: none
+      .circle
+        border-color: #ff0000 rgba(0, 0, 0, 0)
+        +single-box-shadow(#666, 0, 0, 17px)
+        +animation(stoppe 1.8s infinite ease-in-out)
+
+#fixed
+  position: fixed
+  top: 69px
+  left: 50%
+  z-index: 2
+  height: 100%
+
+#content
+  padding-top: 69px
+
+#dialog-chrome,
+#dialog-qpkg,
+#dialog-error
+  display: none
+#dialog-ext
+  display: block
+
+.dialog
+  z-index: 99
+  position: absolute
+  width: 380px
+  height: 180px
+  top: 100px
+  left: -190px
+  padding: 32px
+  padding-bottom: 14px
+  .btn-bar
+    position: absolute
+    right: 6px
+    bottom: 6px
+    width: 100%
+  .btn
+    margin: 9px
+    float: right
+    margin-top: 14px
+    clear: left
+  .input
+    input,
+    span
+      float: left
+    input
+      margin-right: 6px
+
+.no-chrome #dialog-chrome
+  display: block
+.has-ext #dialog-ext
+  display: none
+.no-qpkg #dialog-qpkg
+  display: block
+.has-error #dialog-error
+  display: block

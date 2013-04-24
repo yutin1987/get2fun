@@ -1,0 +1,81 @@
+@import "compass"
+
+html
+  background-image: inline-image('bg.png')
+  background-attachment: fixed
+
+#header
+  .navbar-inner
+    background-image: inline-image('navbar-bg.png')
+  .box-ver
+    position: absolute
+    right: 0px
+    top: 0px
+  .box-nav
+    a
+      background-position: center 9px
+      background-repeat: no-repeat
+      color: #FFF
+      &:hover
+        color: #08c
+      &.nav-clear
+        background-image: inline-image('nav_clear.png')
+        &:hover
+          background-image: inline-image('nav_clear_hover.png')
+        &:active
+          background-image: inline-image('nav_clear_active.png')
+      &.nav-ext
+        background-image: inline-image('nav_ext.png')
+        &:hover
+          background-image: inline-image('nav_ext_hover.png')
+        &:active
+          background-image: inline-image('nav_ext_active.png')
+      &.nav-logout
+        background-image: inline-image('nav_logout.png')
+        &:hover
+          background-image: inline-image('nav_logout_hover.png')
+        &:active
+          background-image: inline-image('nav_logout_active.png')
+      &.nav-refresh
+        background-image: inline-image('nav_refresh.png')
+        &:hover
+          background-image: inline-image('nav_refresh_hover.png')
+        &:active
+          background-image: inline-image('nav_refresh_active.png')
+      &.nav-program
+        background-image: inline-image('nav_program.png')
+        &:hover
+          background-image: inline-image('nav_program_hover.png')
+        &:active
+          background-image: inline-image('nav_program_active.png')
+      &.nav-fb
+        background-image: inline-image('nav_fb.png')
+        &:hover
+          background-image: inline-image('nav_fb_hover.png')
+        &:active
+          background-image: inline-image('nav_fb_active.png')
+
+#logo
+  background-image: inline-image('blue_logo.png')
+  background-repeat: no-repeat
+  background-position: center center
+
+#control
+  color: fade( #fff, 50%)
+  &:hover
+    color: #fff
+
+#content
+  +box-shadow( 0px 0px 8px #000)
+
+.login
+  .tipbox
+    color: #fff
+  .message
+    color: #f00
+
+.dialog
+  background: #f7f7f7
+  border: 1px #666666 solid
+  +single-box-shadow(#000)
+  +border-radius(6px)
