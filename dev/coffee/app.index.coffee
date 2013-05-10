@@ -179,7 +179,9 @@ $ ->
       pwd: 'logout'
 
     sys.user = null
-
+    
+    $('.login').removeClass 'invalid'
+          
     $.ajax "http://" + ADDRESS + PATH + API.LOGIN + "?logout",
       type: "POST"
       data: data
@@ -228,20 +230,19 @@ $ ->
       dataType: "json"
       timeout: 4000
       success: (res) ->
-        if res.result is 'ok'
+        if String(res) is 'true'
           $('body').removeClass 'guest'
-          $('.login').removeClass 'invalid'
         else
-          $('body').addClass 'guest'
           $('.login').addClass 'invalid'
+          $('body').addClass 'guest'
 
         sys.user = user
         
         $('.login').removeClass 'proceed'
 
       error: (xhr, ajaxOptions, thrownError) ->
-        $('body').addClass 'guest'
         $('.login').removeClass 'proceed'
+        $('body').addClass 'guest'
 
 
   $('.login').keypress (e) ->

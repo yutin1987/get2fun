@@ -244,6 +244,7 @@ $(function() {
       pwd: 'logout'
     };
     sys.user = null;
+    $('.login').removeClass('invalid');
     return $.ajax("http://" + ADDRESS + PATH + API.LOGIN + "?logout", {
       type: "POST",
       data: data,
@@ -296,19 +297,18 @@ $(function() {
       dataType: "json",
       timeout: 4000,
       success: function(res) {
-        if (res.result === 'ok') {
+        if (String(res) === 'true') {
           $('body').removeClass('guest');
-          $('.login').removeClass('invalid');
         } else {
-          $('body').addClass('guest');
           $('.login').addClass('invalid');
+          $('body').addClass('guest');
         }
         sys.user = user;
         return $('.login').removeClass('proceed');
       },
       error: function(xhr, ajaxOptions, thrownError) {
-        $('body').addClass('guest');
-        return $('.login').removeClass('proceed');
+        $('.login').removeClass('proceed');
+        return $('body').addClass('guest');
       }
     });
   };
