@@ -178,7 +178,10 @@ $(function() {
     return $.ajax("http://" + ADDRESS + PATH + API.INFO, {
       type: "POST",
       dataType: "json",
-      timeout: 4000,
+      data: {
+        it: 'server'
+      },
+      timeout: 14000,
       success: function(res) {
         if (res.server != null) {
           if (res.server.qpkg_status !== 'TRUE') {
@@ -217,7 +220,7 @@ $(function() {
     return $.ajax("http://" + ADDRESS + PATH + API.LOGIN + "?check", {
       type: "POST",
       dataType: "json",
-      timeout: 4000,
+      timeout: 14000,
       success: function(res) {
         if (res.status === "true") {
           sys.user = res.user;

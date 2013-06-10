@@ -130,7 +130,8 @@ $ ->
     $.ajax "http://" + ADDRESS + PATH + API.INFO,
       type: "POST"
       dataType: "json"
-      timeout: 4000
+      data: {it: 'server'}
+      timeout: 14000
       success: (res) ->
         if res.server?
           if res.server.qpkg_status isnt 'TRUE'
@@ -159,7 +160,7 @@ $ ->
     $.ajax "http://" + ADDRESS + PATH + API.LOGIN + "?check",
       type: "POST"
       dataType: "json"
-      timeout: 4000
+      timeout: 14000
       success: (res) ->
         if res.status is "true"
           sys.user = res.user
