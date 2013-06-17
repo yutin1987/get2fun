@@ -113,10 +113,12 @@ $(function() {
   $('#logo').click(function() {
     $('body').toggleClass('temp-green');
     if ($('body').hasClass('temp-green')) {
+      _gaq.push(['_trackEvent', 'Configs', 'setColor', 'Green']);
       return $.cookie('temp', 'temp-green', {
         expiress: 365
       });
     } else {
+      _gaq.push(['_trackEvent', 'Configs', 'setColor', 'Blue']);
       return $.removeCookie('temp');
     }
   });
@@ -124,6 +126,7 @@ $(function() {
     $('body').addClass('temp-green');
   }
   $(".box-nav .nav-clear").click(function() {
+    _gaq.push(['_trackEvent', 'Operate', 'Clean', $.task.length]);
     req_server("clear_tasks", {
       time: sys.time
     });
@@ -142,11 +145,13 @@ $(function() {
     });
   });
   $(".box-nav .nav-refresh").click(function() {
+    _gaq.push(['_trackEvent', 'Operate', 'Refresh', $.task.length]);
     $.task.reset();
     sys.time = 0;
     return load();
   });
   $('#dialog-chrome a').click(function() {
+    _gaq.push(['_trackEvent', 'Check', 'Is not chrome', $('#dialog-chrome .donot').is(':checked')]);
     $('body').removeClass('no-chrome');
     if ($('#dialog-chrome .donot').is(':checked')) {
       $.cookie('donot-chrome', '1', {
@@ -159,6 +164,7 @@ $(function() {
     $('body').addClass('no-chrome');
   }
   $('#dialog-ext a').click(function() {
+    _gaq.push(['_trackEvent', 'Check', 'Not has ext', $('#dialog-ext .donot').is(':checked')]);
     $('body').addClass('has-ext');
     if ($('#dialog-ext .donot').is(':checked')) {
       $.cookie('donot-ext', '1', {

@@ -113,10 +113,12 @@ $(function() {
   $('#logo').click(function() {
     $('body').toggleClass('temp-green');
     if ($('body').hasClass('temp-green')) {
+      _gaq.push(['_trackEvent', 'Configs', 'setColor', 'Green']);
       return $.cookie('temp', 'temp-green', {
         expiress: 365
       });
     } else {
+      _gaq.push(['_trackEvent', 'Configs', 'setColor', 'Blue']);
       return $.removeCookie('temp');
     }
   });
@@ -124,6 +126,7 @@ $(function() {
     $('body').addClass('temp-green');
   }
   $(".box-nav .nav-clear").click(function() {
+    _gaq.push(['_trackEvent', 'Operate', 'Clean', $.task.length]);
     req_server("clear_tasks", {
       time: sys.time
     });
@@ -142,11 +145,13 @@ $(function() {
     });
   });
   $(".box-nav .nav-refresh").click(function() {
+    _gaq.push(['_trackEvent', 'Operate', 'Refresh', $.task.length]);
     $.task.reset();
     sys.time = 0;
     return load();
   });
   $('#dialog-chrome a').click(function() {
+    _gaq.push(['_trackEvent', 'Check', 'Is not chrome', $('#dialog-chrome .donot').is(':checked')]);
     $('body').removeClass('no-chrome');
     if ($('#dialog-chrome .donot').is(':checked')) {
       $.cookie('donot-chrome', '1', {
@@ -159,6 +164,7 @@ $(function() {
     $('body').addClass('no-chrome');
   }
   $('#dialog-ext a').click(function() {
+    _gaq.push(['_trackEvent', 'Check', 'Not has ext', $('#dialog-ext .donot').is(':checked')]);
     $('body').addClass('has-ext');
     if ($('#dialog-ext .donot').is(':checked')) {
       $.cookie('donot-ext', '1', {
@@ -1087,12 +1093,16 @@ $.task = (function() {
     */
 
     $(".item", group_wrap).live('click', function() {
-      return task.toggleGroup(group.get($(this).attr("key")));
+      var temp;
+      temp = group.get($(this).attr("key"));
+      _gaq.push(['_trackEvent', 'Group', 'See', temp.name]);
+      return task.toggleGroup(temp);
     });
     $(".cancel", group_wrap).live('click', function() {
       var group_data, target, wrap, _name;
       wrap = $(this).parents(".item:first");
       group_data = new GroupData(wrap);
+      _gaq.push(['_trackEvent', 'Group', 'Cancel', group_data.name]);
       target = [];
       $(group_data).each(function() {
         switch (this.status) {
@@ -1111,6 +1121,7 @@ $.task = (function() {
       var group_data, target, wrap, _name;
       wrap = $(this).parents(".item:first");
       group_data = new GroupData(wrap);
+      _gaq.push(['_trackEvent', 'Group', 'Reload', group_data.name]);
       target = [];
       $(group_data).each(function() {
         switch (this.status) {
@@ -1153,6 +1164,7 @@ $.task = (function() {
       var tid, wrap, _name;
       wrap = $(this).parents(".item:first");
       tid = wrap.attr("tid");
+      _gaq.push(['_trackEvent', 'Task', 'Cancel', task[tid].name]);
       if (task[tid]) {
         task[tid].status = STATUS.CANCEL;
         task[tid].time = new Date().getTime() / 1000;
@@ -1163,6 +1175,7 @@ $.task = (function() {
       var tid, wrap, _name;
       wrap = $(this).parents(".item:first");
       tid = wrap.attr("tid");
+      _gaq.push(['_trackEvent', 'Task', 'Reload', task[tid].name]);
       if (task[tid]) {
         task[tid].dl_size = 0;
         task[tid].sub_task_ok = 0;

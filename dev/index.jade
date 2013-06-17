@@ -7,6 +7,18 @@ html(lang="en")
     meta(name='author', content='')
     title Happy Get 2
     link(rel="shortcut icon", href="./favicon.ico")
+
+    script(type="text/javascript"
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-33503929-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
     // Lib
     link(rel='stylesheet', type='text/css', href='./style/bootstrap.css')
     link(rel='stylesheet', type='text/css', href='./style/bootstrap-responsive.css')
@@ -23,6 +35,7 @@ html(lang="en")
 
     link(rel='stylesheet', type='text/css', href='./style/app_layout.css')
     link(rel='stylesheet', type='text/css', href='./style/app_style.css')
+
 
     style(id='filter', type='text/css')
 

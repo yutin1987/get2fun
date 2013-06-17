@@ -567,12 +567,15 @@ $.task = ( ->
     ###
     
     $(".item", group_wrap).live 'click', ->
-      task.toggleGroup group.get $(this).attr("key")
+      temp = group.get $(this).attr("key")
+      _gaq.push ['_trackEvent', 'Group', 'See', temp.name]
+      task.toggleGroup temp
 
     # Group Cancel
     $(".cancel", group_wrap).live 'click', ->
       wrap = $(this).parents(".item:first")
       group_data = new GroupData(wrap)
+      _gaq.push ['_trackEvent', 'Group', 'Cancel', group_data.name]
       target = []
       $(group_data).each ->
         switch @status
@@ -589,6 +592,7 @@ $.task = ( ->
     $(".reload", group_wrap).live 'click', ->
       wrap = $(this).parents(".item:first")
       group_data = new GroupData wrap
+      _gaq.push ['_trackEvent', 'Group', 'Reload', group_data.name]
       target = []
       $(group_data).each ->
         switch @status
@@ -623,6 +627,7 @@ $.task = ( ->
     $(".cancel", task_wrap).live 'click', ->
       wrap = $(this).parents(".item:first")
       tid = wrap.attr("tid")
+      _gaq.push ['_trackEvent', 'Task', 'Cancel', task[tid].name]
       if task[tid]
         task[tid].status = STATUS.CANCEL
         task[tid].time = new Date().getTime() / 1000
@@ -632,6 +637,7 @@ $.task = ( ->
     $(".reload", task_wrap).live 'click', ->
       wrap = $(this).parents(".item:first")
       tid = wrap.attr("tid")
+      _gaq.push ['_trackEvent', 'Task', 'Reload', task[tid].name]
       if task[tid]
         task[tid].dl_size = 0
         task[tid].sub_task_ok = 0

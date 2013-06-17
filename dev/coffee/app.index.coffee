@@ -85,14 +85,17 @@ $ ->
   $('#logo').click ->
     $('body').toggleClass('temp-green')
     if $('body').hasClass('temp-green')
+      _gaq.push ['_trackEvent', 'Configs', 'setColor', 'Green']
       $.cookie 'temp', 'temp-green', { expiress: 365}
     else
+      _gaq.push ['_trackEvent', 'Configs', 'setColor', 'Blue']
       $.removeCookie 'temp'
 
   $('body').addClass('temp-green') if $.cookie('temp') is 'temp-green'
 
   # Clean
   $(".box-nav .nav-clear").click ->
+    _gaq.push ['_trackEvent', 'Operate', 'Clean', $.task.length]
     req_server "clear_tasks",
       time: sys.time
 
@@ -104,18 +107,21 @@ $ ->
 
   # Refresh
   $(".box-nav .nav-refresh").click ->
+    _gaq.push ['_trackEvent', 'Operate', 'Refresh', $.task.length]
     $.task.reset()
     sys.time = 0
     load()
 
   # System Check
   $('#dialog-chrome a').click () ->
+    _gaq.push ['_trackEvent', 'Check', 'Is not chrome', $('#dialog-chrome .donot').is(':checked')]
     $('body').removeClass 'no-chrome'
     $.cookie('donot-chrome', '1', { expiress: 365}) if $('#dialog-chrome .donot').is(':checked')
     return on
   $('body').addClass('no-chrome') unless $.browser.chrome is true or $.cookie('donot-chrome')?
 
   $('#dialog-ext a').click () ->
+    _gaq.push ['_trackEvent', 'Check', 'Not has ext', $('#dialog-ext .donot').is(':checked')]
     $('body').addClass 'has-ext'
     $.cookie('donot-ext', '1', { expiress: 365}) if $('#dialog-ext .donot').is(':checked')
     return on
