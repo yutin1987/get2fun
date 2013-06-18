@@ -93,6 +93,14 @@ $ ->
 
   $('body').addClass('temp-green') if $.cookie('temp') is 'temp-green'
 
+
+  # Refresh
+  $(".box-nav .nav-refresh").click ->
+    _gaq.push ['_trackEvent', 'Operate', 'Refresh', $.task.length]
+    $.task.reset()
+    sys.time = 0
+    load()
+    
   # Clean
   $(".box-nav .nav-clear").click ->
     _gaq.push ['_trackEvent', 'Operate', 'Clean', $.task.length]
@@ -104,13 +112,36 @@ $ ->
       switch @status
         when STATUS.RELOAD, STATUS.CANCEL, STATUS.COMPLETE
           @del() if sys.user is "admin" or @owner is sys.user
+    
+  # Program
+  $(".box-nav .nav-program").click ->
+    _gaq.push ['_trackEvent', 'Operate', 'Program', '']
+    
+  # Page
+  $(".box-nav .nav-fb").click ->
+    _gaq.push ['_trackEvent', 'Operate', 'Facebook', '']
+    
+  # Extension
+  $(".box-nav .nav-ext").click ->
+    _gaq.push ['_trackEvent', 'Operate', 'Extension', '']
 
-  # Refresh
-  $(".box-nav .nav-refresh").click ->
-    _gaq.push ['_trackEvent', 'Operate', 'Refresh', $.task.length]
-    $.task.reset()
-    sys.time = 0
-    load()
+  # Logout
+  $(".box-nav .nav-logout").click ->
+    _gaq.push ['_trackEvent', 'Operate', 'logout', sys.user]
+    data =
+      _ : Math.random()
+      user: 'logout'
+      pwd: 'logout'
+
+    sys.user = null
+    
+    $('.login').removeClass 'invalid'
+          
+    $.ajax "http://" + ADDRESS + PATH + API.LOGIN + "?logout",
+      type: "POST"
+      data: data
+      dataType: "json"
+      timeout: 4000
 
   # System Check
   $('#dialog-chrome a').click () ->
@@ -177,23 +208,6 @@ $ ->
         setTimeout(sys_user, 10000) if listen isnt off
 
   sys_user()
-
-  # Logout
-  $(".box-nav .nav-logout").click ->
-    data =
-      _ : Math.random()
-      user: 'logout'
-      pwd: 'logout'
-
-    sys.user = null
-    
-    $('.login').removeClass 'invalid'
-          
-    $.ajax "http://" + ADDRESS + PATH + API.LOGIN + "?logout",
-      type: "POST"
-      data: data
-      dataType: "json"
-      timeout: 4000
 
   # Group Cancel
   $.task.setListen TASK.GROUP_CANCEL, (tid) ->

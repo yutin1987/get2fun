@@ -614,6 +614,8 @@ $.task = ( ->
       val = selected.val();
       target = []
 
+      _gaq.push ['_trackEvent', 'Group', id, val]
+
       # Setting display text
       $(this).prev().text selected.text()
 
@@ -650,6 +652,8 @@ $.task = ( ->
       reg = new RegExp '^filter-status-.+'
       target = []
 
+      _gaq.push ['_trackEvent', 'Task', 'Status', $(this).attr('for')]
+      
       for item in $(doc.task.list).attr('class').split ' '
         target.push item if reg.exec item
       $(doc.task.list).removeClass target.join ' ' if target.length > 0

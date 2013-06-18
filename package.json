@@ -1,0 +1,23 @@
+{
+  "name": "yutin1987.github.com",
+  "version": "0.0.0",
+  "description": "Justin",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "",
+  "author": "YuTin",
+  "license": "BSD",
+  "readmeFilename": "README.md",
+  "gitHead": "1657c386c084b617cd11ff4105e168a09a9cd9b8",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-jade": "~0.5.0",
+    "grunt-contrib-coffee": "~0.6.7",
+    "grunt-contrib-compass": "~0.2.0",
+    "grunt-contrib-watch": "~0.3.1",
+    "grunt-contrib-uglify": "~0.2.0",
+    "grunt-contrib-cssmin": "~0.6.1"
+  }
+}
