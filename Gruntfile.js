@@ -48,8 +48,8 @@ module.exports = function(grunt) {
     cssmin: {
       combine: {
         files: {
-          './style/aoo_style.css': ['./dev/style/aoo_style.*.css'],
-          './style/app_layout.css': ['./dev/style/app_layout.*.css']
+          './style/app_layout.css': ['./dev/style/app_layout.*.css'],
+          './style/app_style.css': ['./dev/style/app_style.*.css']
         }
       }
     },
@@ -66,6 +66,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
-  grunt.registerTask('default', ['jade','coffee','compass','uglify','watch']);
+  grunt.registerTask('default', ['jade','coffee','compass','uglify','cssmin','watch']);
 
 };
