@@ -779,6 +779,7 @@ $.task = (function() {
       selected = $("option:selected", this);
       val = selected.val();
       target = [];
+      _gaq.push(['_trackEvent', 'Group', id, val]);
       $(this).prev().text(selected.text());
       _ref = $(doc.group.list).attr('class').split(' ');
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -822,6 +823,7 @@ $.task = (function() {
       var item, reg, target, _i, _len, _ref;
       reg = new RegExp('^filter-status-.+');
       target = [];
+      _gaq.push(['_trackEvent', 'Task', 'Status', $(this).attr('for')]);
       _ref = $(doc.task.list).attr('class').split(' ');
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         item = _ref[_i];
