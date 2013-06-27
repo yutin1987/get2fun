@@ -125,12 +125,6 @@ $(function() {
   if ($.cookie('temp') === 'temp-green') {
     $('body').addClass('temp-green');
   }
-  $(".box-nav .nav-refresh").click(function() {
-    _gaq.push(['_trackEvent', 'Operate', 'Refresh', $.task.length]);
-    $.task.reset();
-    sys.time = 0;
-    return load();
-  });
   $(".box-nav .nav-clear").click(function() {
     _gaq.push(['_trackEvent', 'Operate', 'Clean', $.task.length]);
     req_server("clear_tasks", {
@@ -150,31 +144,11 @@ $(function() {
       }
     });
   });
-  $(".box-nav .nav-program").click(function() {
-    return _gaq.push(['_trackEvent', 'Operate', 'Program', '']);
-  });
-  $(".box-nav .nav-fb").click(function() {
-    return _gaq.push(['_trackEvent', 'Operate', 'Facebook', '']);
-  });
-  $(".box-nav .nav-ext").click(function() {
-    return _gaq.push(['_trackEvent', 'Operate', 'Extension', '']);
-  });
-  $(".box-nav .nav-logout").click(function() {
-    var data;
-    _gaq.push(['_trackEvent', 'Operate', 'logout', sys.user]);
-    data = {
-      _: Math.random(),
-      user: 'logout',
-      pwd: 'logout'
-    };
-    sys.user = null;
-    $('.login').removeClass('invalid');
-    return $.ajax("http://" + ADDRESS + PATH + API.LOGIN + "?logout", {
-      type: "POST",
-      data: data,
-      dataType: "json",
-      timeout: 4000
-    });
+  $(".box-nav .nav-refresh").click(function() {
+    _gaq.push(['_trackEvent', 'Operate', 'Refresh', $.task.length]);
+    $.task.reset();
+    sys.time = 0;
+    return load();
   });
   $('#dialog-chrome a').click(function() {
     _gaq.push(['_trackEvent', 'Check', 'Is not chrome', $('#dialog-chrome .donot').is(':checked')]);
@@ -271,6 +245,22 @@ $(function() {
     });
   };
   sys_user();
+  $(".box-nav .nav-logout").click(function() {
+    var data;
+    data = {
+      _: Math.random(),
+      user: 'logout',
+      pwd: 'logout'
+    };
+    sys.user = null;
+    $('.login').removeClass('invalid');
+    return $.ajax("http://" + ADDRESS + PATH + API.LOGIN + "?logout", {
+      type: "POST",
+      data: data,
+      dataType: "json",
+      timeout: 4000
+    });
+  });
   $.task.setListen(TASK.GROUP_CANCEL, function(tid) {
     if (tid.length > 0) {
       return req_server("cancel_task", {

@@ -1,2462 +1,1209 @@
-/*
-Variable Initialization
-*/
+$.filesize = function(t, e) {
+    var s, r, i, a, n, o;
+    for (null == e && (e = 0), a = [ "bytes", "KB", "MB", "GB", "TB" ], s = n = 0, o = a.length; o > n; s = ++n) if (r = a[s], 
+    i = t / Math.pow(1024, s), 1024 > i) return 0 === s ? 0 === t ? "0KB" : "> 1KB" : i.toFixed(e) + a[s];
+    return (t / Math.pow(1024, a.length - 1)).toFixed(e) + a[a.length - 1];
+}, $.filesize = function(t, e) {
+    var s, r, i, a, n, o;
+    for (null == e && (e = 0), a = [ "bytes", "KB", "MB", "GB", "TB" ], s = n = 0, o = a.length; o > n; s = ++n) if (r = a[s], 
+    i = t / Math.pow(1024, s), 1024 > i) return 0 === s ? 0 === t ? "0KB" : "> 1KB" : i.toFixed(e) + a[s];
+    return (t / Math.pow(1024, a.length - 1)).toFixed(e) + a[a.length - 1];
+};
 
 var req_server, sys, watch_action;
 
 sys = {
-  time: 0,
-  watch: null,
-  user: null
-};
-
-/*
-request to server
-v: get_task, get_tasks, cancel_task, redownload_task, clear_tasks, pause_server
-*/
-
-
-req_server = function(v, data, success, failed) {
-  if (data == null) {
-    data = {};
-  }
-  data._ = Math.random();
-  return $.ajax("http://" + ADDRESS + PATH + API.TASK + "?v=" + v, {
-    type: "POST",
-    data: data,
-    dataType: "json",
-    timeout: 2000,
-    success: function(res) {
-      if (res.code < 0) {
-        return typeof failed === "function" ? failed(res) : void 0;
-      } else {
-        return typeof success === "function" ? success(res.value) : void 0;
-      }
-    },
-    error: function(xhr, ajaxOptions, thrownError) {
-      return typeof failed === "function" ? failed({
-        code: -400
-      }) : void 0;
-    }
-  });
-};
-
-/*
-Watch Action
-*/
-
-
-watch_action = function() {
-  return req_server("get_tasks", {
-    time: sys.time
-  }, function(data) {
-    $("#control").addClass("online");
-    $('body').removeClass('guest');
-    $(data).each(function() {
-      var target, tid;
-
-      tid = parseInt(this.tid);
-      target = $.task[tid];
-      if (target == null) {
-        return $.task.push({
-          tid: this.tid,
-          src_type: this.srcType,
-          added_time: this.added_time,
-          owner: this.owner,
-          name: this.name,
-          playlist: this.playlist,
-          quality: this.quality,
-          src: this.srcUrl,
-          thumb: this.cover,
-          time: this.time,
-          status: 4,
-          size: this.size,
-          dl_size: this.dlSize,
-          sub_task: this.subTaskTotal,
-          sub_task_ok: this.subTaskOk
+    time: 0,
+    watch: null,
+    user: null
+}, req_server = function(t, e, s, r) {
+    return null == e && (e = {}), e._ = Math.random(), $.ajax("http://" + ADDRESS + PATH + API.TASK + "?v=" + t, {
+        type: "POST",
+        data: e,
+        dataType: "json",
+        timeout: 2e3,
+        success: function(t) {
+            return 0 > t.code ? "function" == typeof r ? r(t) : void 0 : "function" == typeof s ? s(t.value) : void 0;
+        },
+        error: function() {
+            return "function" == typeof r ? r({
+                code: -400
+            }) : void 0;
+        }
+    });
+}, watch_action = function() {
+    return req_server("get_tasks", {
+        time: sys.time
+    }, function(t) {
+        return $("#control").addClass("online"), $("body").removeClass("guest"), $(t).each(function() {
+            var t, e;
+            return e = parseInt(this.tid), t = $.task[e], null == t ? $.task.push({
+                tid: this.tid,
+                src_type: this.srcType,
+                added_time: this.added_time,
+                owner: this.owner,
+                name: this.name,
+                playlist: this.playlist,
+                quality: this.quality,
+                src: this.srcUrl,
+                thumb: this.cover,
+                time: this.time,
+                status: 4,
+                size: this.size,
+                dl_size: this.dlSize,
+                sub_task: this.subTaskTotal,
+                sub_task_ok: this.subTaskOk
+            }) : this.time >= t.time && (t.thumb = this.cover, t.time = this.time, t.status = this.status, 
+            t.quality = this.quality, t.size = this.size, t.dl_size = this.dlSize, t.sub_task = this.subTaskTotal, 
+            t.sub_task_ok = this.subTaskOk, this.time > sys.time) ? sys.time = this.time : void 0;
+        }), sys.watch = setTimeout(watch_action, WATCH_TIME);
+    }, function(t) {
+        return $("#control").removeClass("online"), -2 === t.code && $("body").addClass("guest"), 
+        sys.watch = setTimeout(watch_action, 5 * WATCH_TIME);
+    });
+}, $(function() {
+    var t, e, s, r;
+    return $("#logo").click(function() {
+        return $("body").toggleClass("temp-green"), $("body").hasClass("temp-green") ? (_gaq.push([ "_trackEvent", "Configs", "setColor", "Green" ]), 
+        $.cookie("temp", "temp-green", {
+            expiress: 365
+        })) : (_gaq.push([ "_trackEvent", "Configs", "setColor", "Blue" ]), $.removeCookie("temp"));
+    }), "temp-green" === $.cookie("temp") && $("body").addClass("temp-green"), $(".box-nav .nav-clear").click(function() {
+        return _gaq.push([ "_trackEvent", "Operate", "Clean", $.task.length ]), req_server("clear_tasks", {
+            time: sys.time
+        }), $($.task).each(function() {
+            if (this) switch (this.status) {
+              case STATUS.RELOAD:
+              case STATUS.CANCEL:
+              case STATUS.COMPLETE:
+                if ("admin" === sys.user || this.owner === sys.user) return this.del();
+            }
         });
-      } else if (this.time >= target.time) {
-        target.thumb = this.cover;
-        target.time = this.time;
-        target.status = this.status;
-        target.quality = this.quality;
-        target.size = this.size;
-        target.dl_size = this.dlSize;
-        target.sub_task = this.subTaskTotal;
-        target.sub_task_ok = this.subTaskOk;
-        if (this.time > sys.time) {
-          return sys.time = this.time;
-        }
-      }
-    });
-    return sys.watch = setTimeout(watch_action, WATCH_TIME);
-  }, function(res) {
-    $("#control").removeClass("online");
-    if (res.code === -2) {
-      $('body').addClass('guest');
-    }
-    return sys.watch = setTimeout(watch_action, WATCH_TIME * 5);
-  });
-};
+    }), $(".box-nav .nav-refresh").click(function() {
+        return _gaq.push([ "_trackEvent", "Operate", "Refresh", $.task.length ]), $.task.reset(), 
+        sys.time = 0, t();
+    }), $("#dialog-chrome a").click(function() {
+        return _gaq.push([ "_trackEvent", "Check", "Is not chrome", $("#dialog-chrome .donot").is(":checked") ]), 
+        $("body").removeClass("no-chrome"), $("#dialog-chrome .donot").is(":checked") && $.cookie("donot-chrome", "1", {
+            expiress: 365
+        }), !0;
+    }), $.browser.chrome !== !0 && null == $.cookie("donot-chrome") && $("body").addClass("no-chrome"), 
+    $("#dialog-ext a").click(function() {
+        return _gaq.push([ "_trackEvent", "Check", "Not has ext", $("#dialog-ext .donot").is(":checked") ]), 
+        $("body").addClass("has-ext"), $("#dialog-ext .donot").is(":checked") && $.cookie("donot-ext", "1", {
+            expiress: 365
+        }), !0;
+    }), ($.browser.chrome !== !0 || null != $.cookie("donot-ext")) && $("body").addClass("has-ext"), 
+    $("#dialog-qpkg a, #dialog-error a").click(function() {
+        return $("body").removeClass("has-error no-qpkg"), !0;
+    }), s = function(t) {
+        return $.ajax("http://" + ADDRESS + PATH + API.INFO, {
+            type: "POST",
+            dataType: "json",
+            data: {
+                it: "server"
+            },
+            timeout: 14e3,
+            success: function(e) {
+                if (null != e.server) switch ("TRUE" !== e.server.qpkg_status ? $("body").addClass("no-qpkg") : 1 !== e.server.process_status || 0 === e.server.server_status ? $("body").addClass("has-error") : $("body").removeClass("no-qpkg has-error"), 
+                e.server.server_status) {
+                  case 0:
+                    $("#control").attr("class", "server-stopped");
+                    break;
 
-/*
-Main
-*/
+                  case 1:
+                    $("#control").attr("class", "server-running");
+                    break;
 
-
-$(function() {
-  /*
-  Initialization button
-  */
-
-  var load, login_action, sys_status, sys_user;
-
-  $('#logo').click(function() {
-    $('body').toggleClass('temp-green');
-    if ($('body').hasClass('temp-green')) {
-      _gaq.push(['_trackEvent', 'Configs', 'setColor', 'Green']);
-      return $.cookie('temp', 'temp-green', {
-        expiress: 365
-      });
-    } else {
-      _gaq.push(['_trackEvent', 'Configs', 'setColor', 'Blue']);
-      return $.removeCookie('temp');
-    }
-  });
-  if ($.cookie('temp') === 'temp-green') {
-    $('body').addClass('temp-green');
-  }
-  $(".box-nav .nav-refresh").click(function() {
-    _gaq.push(['_trackEvent', 'Operate', 'Refresh', $.task.length]);
-    $.task.reset();
-    sys.time = 0;
-    return load();
-  });
-  $(".box-nav .nav-clear").click(function() {
-    _gaq.push(['_trackEvent', 'Operate', 'Clean', $.task.length]);
-    req_server("clear_tasks", {
-      time: sys.time
-    });
-    return $($.task).each(function() {
-      if (!this) {
-        return;
-      }
-      switch (this.status) {
-        case STATUS.RELOAD:
-        case STATUS.CANCEL:
-        case STATUS.COMPLETE:
-          if (sys.user === "admin" || this.owner === sys.user) {
-            return this.del();
-          }
-      }
-    });
-  });
-  $(".box-nav .nav-program").click(function() {
-    return _gaq.push(['_trackEvent', 'Operate', 'Program', '']);
-  });
-  $(".box-nav .nav-fb").click(function() {
-    return _gaq.push(['_trackEvent', 'Operate', 'Facebook', '']);
-  });
-  $(".box-nav .nav-ext").click(function() {
-    return _gaq.push(['_trackEvent', 'Operate', 'Extension', '']);
-  });
-  $(".box-nav .nav-logout").click(function() {
-    var data;
-
-    _gaq.push(['_trackEvent', 'Operate', 'logout', sys.user]);
-    data = {
-      _: Math.random(),
-      user: 'logout',
-      pwd: 'logout'
-    };
-    sys.user = null;
-    $('.login').removeClass('invalid');
-    return $.ajax("http://" + ADDRESS + PATH + API.LOGIN + "?logout", {
-      type: "POST",
-      data: data,
-      dataType: "json",
-      timeout: 4000
-    });
-  });
-  $('#dialog-chrome a').click(function() {
-    _gaq.push(['_trackEvent', 'Check', 'Is not chrome', $('#dialog-chrome .donot').is(':checked')]);
-    $('body').removeClass('no-chrome');
-    if ($('#dialog-chrome .donot').is(':checked')) {
-      $.cookie('donot-chrome', '1', {
-        expiress: 365
-      });
-    }
-    return true;
-  });
-  if (!($.browser.chrome === true || ($.cookie('donot-chrome') != null))) {
-    $('body').addClass('no-chrome');
-  }
-  $('#dialog-ext a').click(function() {
-    _gaq.push(['_trackEvent', 'Check', 'Not has ext', $('#dialog-ext .donot').is(':checked')]);
-    $('body').addClass('has-ext');
-    if ($('#dialog-ext .donot').is(':checked')) {
-      $.cookie('donot-ext', '1', {
-        expiress: 365
-      });
-    }
-    return true;
-  });
-  if ($.browser.chrome !== true || ($.cookie('donot-ext') != null)) {
-    $('body').addClass('has-ext');
-  }
-  $('#dialog-qpkg a, #dialog-error a').click(function() {
-    $('body').removeClass('has-error no-qpkg');
-    return true;
-  });
-  sys_status = function(listen) {
-    return $.ajax("http://" + ADDRESS + PATH + API.INFO, {
-      type: "POST",
-      dataType: "json",
-      data: {
-        it: 'server'
-      },
-      timeout: 14000,
-      success: function(res) {
-        if (res.server != null) {
-          if (res.server.qpkg_status !== 'TRUE') {
-            $('body').addClass('no-qpkg');
-          } else if (res.server.process_status !== 1 || res.server.server_status === 0) {
-            $('body').addClass('has-error');
-          } else {
-            $('body').removeClass('no-qpkg has-error');
-          }
-          switch (res.server.server_status) {
-            case 0:
-              $('#control').attr('class', 'server-stopped');
-              break;
-            case 1:
-              $('#control').attr('class', 'server-running');
-              break;
-            case 2:
-              $('#control').attr('class', 'server-paused');
-          }
-        } else {
-          $('body').addClass('has-error');
-        }
-        if (listen !== false) {
-          return setTimeout(sys_status, 10000);
-        }
-      },
-      error: function(xhr, ajaxOptions, thrownError) {
-        if (listen !== false) {
-          return setTimeout(sys_status, 10000);
-        }
-      }
-    });
-  };
-  sys_status();
-  sys_user = function(listen) {
-    return $.ajax("http://" + ADDRESS + PATH + API.LOGIN + "?check", {
-      type: "POST",
-      dataType: "json",
-      timeout: 14000,
-      success: function(res) {
-        if (res.status === "true") {
-          sys.user = res.user;
-        } else {
-          $('body').addClass('guest');
-        }
-        if (listen !== false) {
-          return setTimeout(sys_user, 10000);
-        }
-      },
-      error: function(xhr, ajaxOptions, thrownError) {
-        if (listen !== false) {
-          return setTimeout(sys_user, 10000);
-        }
-      }
-    });
-  };
-  sys_user();
-  $.task.setListen(TASK.GROUP_CANCEL, function(tid) {
-    if (tid.length > 0) {
-      return req_server("cancel_task", {
-        tid: tid
-      });
-    }
-  });
-  $.task.setListen(TASK.GROUP_RELOAD, function(tid) {
-    if (tid.length > 0) {
-      return req_server("redownload_task", {
-        tid: tid
-      });
-    }
-  });
-  $.task.setListen(TASK.TASK_CANCEL, function(tid) {
-    if (tid != null) {
-      return req_server("cancel_task", {
-        tid: [tid]
-      });
-    }
-  });
-  $.task.setListen(TASK.TASK_RELOAD, function(tid) {
-    if (tid != null) {
-      return req_server("redownload_task", {
-        tid: [tid]
-      });
-    }
-  });
-  login_action = function() {
-    var data, pwd, user;
-
-    user = $('#username').val();
-    pwd = $('#password').val();
-    data = {
-      _: Math.random(),
-      user: user,
-      pwd: pwd
-    };
-    $('.login').removeClass('invalid');
-    $('.login').addClass('proceed');
-    return $.ajax("http://" + ADDRESS + PATH + API.LOGIN, {
-      type: "POST",
-      data: data,
-      dataType: "json",
-      timeout: 4000,
-      success: function(res) {
-        if (String(res) === 'true') {
-          $('body').removeClass('guest');
-        } else {
-          $('.login').addClass('invalid');
-          $('body').addClass('guest');
-        }
-        sys.user = user;
-        return $('.login').removeClass('proceed');
-      },
-      error: function(xhr, ajaxOptions, thrownError) {
-        $('.login').removeClass('proceed');
-        return $('body').addClass('guest');
-      }
-    });
-  };
-  $('.login').keypress(function(e) {
-    var key;
-
-    key = e.keyCode || e.which;
-    if (key === 13) {
-      return login_action();
-    }
-  });
-  $('#login-submit').click(login_action);
-  $('.login .remember').click(function() {
-    return $(this).toggleClass('checked');
-  });
-  $("#control").click(function() {
-    sys_status(false);
-    if ($(this).hasClass('server-stopped')) {
-      return false;
-    }
-    req_server('pause_server');
-    return $(this).toggleClass("server-paused");
-  });
-  /*
-  System load
-  */
-
-  load = function() {
-    if (sys.watch != null) {
-      clearTimeout(sys.watch);
-      delete sys.watch;
-    }
-    return sys.watch = setTimeout(watch_action, WATCH_TIME);
-  };
-  return load();
+                  case 2:
+                    $("#control").attr("class", "server-paused");
+                } else $("body").addClass("has-error");
+                return t !== !1 ? setTimeout(s, 1e4) : void 0;
+            },
+            error: function() {
+                return t !== !1 ? setTimeout(s, 1e4) : void 0;
+            }
+        });
+    }, s(), r = function(t) {
+        return $.ajax("http://" + ADDRESS + PATH + API.LOGIN + "?check", {
+            type: "POST",
+            dataType: "json",
+            timeout: 14e3,
+            success: function(e) {
+                return "true" === e.status ? sys.user = e.user : $("body").addClass("guest"), t !== !1 ? setTimeout(r, 1e4) : void 0;
+            },
+            error: function() {
+                return t !== !1 ? setTimeout(r, 1e4) : void 0;
+            }
+        });
+    }, r(), $(".box-nav .nav-logout").click(function() {
+        var t;
+        return t = {
+            _: Math.random(),
+            user: "logout",
+            pwd: "logout"
+        }, sys.user = null, $(".login").removeClass("invalid"), $.ajax("http://" + ADDRESS + PATH + API.LOGIN + "?logout", {
+            type: "POST",
+            data: t,
+            dataType: "json",
+            timeout: 4e3
+        });
+    }), $.task.setListen(TASK.GROUP_CANCEL, function(t) {
+        return t.length > 0 ? req_server("cancel_task", {
+            tid: t
+        }) : void 0;
+    }), $.task.setListen(TASK.GROUP_RELOAD, function(t) {
+        return t.length > 0 ? req_server("redownload_task", {
+            tid: t
+        }) : void 0;
+    }), $.task.setListen(TASK.TASK_CANCEL, function(t) {
+        return null != t ? req_server("cancel_task", {
+            tid: [ t ]
+        }) : void 0;
+    }), $.task.setListen(TASK.TASK_RELOAD, function(t) {
+        return null != t ? req_server("redownload_task", {
+            tid: [ t ]
+        }) : void 0;
+    }), e = function() {
+        var t, e, s;
+        return s = $("#username").val(), e = $("#password").val(), t = {
+            _: Math.random(),
+            user: s,
+            pwd: e
+        }, $(".login").removeClass("invalid"), $(".login").addClass("proceed"), $.ajax("http://" + ADDRESS + PATH + API.LOGIN, {
+            type: "POST",
+            data: t,
+            dataType: "json",
+            timeout: 4e3,
+            success: function(t) {
+                return "true" == t + "" ? $("body").removeClass("guest") : ($(".login").addClass("invalid"), 
+                $("body").addClass("guest")), sys.user = s, $(".login").removeClass("proceed");
+            },
+            error: function() {
+                return $(".login").removeClass("proceed"), $("body").addClass("guest");
+            }
+        });
+    }, $(".login").keypress(function(t) {
+        var s;
+        return s = t.keyCode || t.which, 13 === s ? e() : void 0;
+    }), $("#login-submit").click(e), $(".login .remember").click(function() {
+        return $(this).toggleClass("checked");
+    }), $("#control").click(function() {
+        return s(!1), $(this).hasClass("server-stopped") ? !1 : (req_server("pause_server"), 
+        $(this).toggleClass("server-paused"));
+    }), t = function() {
+        return null != sys.watch && (clearTimeout(sys.watch), delete sys.watch), sys.watch = setTimeout(watch_action, WATCH_TIME);
+    }, t();
 });
-
-$(function() {
-  $(window).resize(function() {
-    $(".task .wrapper-list").css("min-height", $(window).height() - 203);
-    return $("#group .wrapper-overflow, #group .wrapper-list").height($(window).height() - 203);
-  });
-  return $(window).resize();
-});
-
-var TASK,
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-TASK = {
-  TASK_CANCEL: 0,
-  TASK_RELOAD: 1,
-  GROUP_CANCEL: 2,
-  GROUP_RELOAD: 3
-};
-
-$.task = (function() {
-  /*
-  Task Static Variable
-  */
-
-  var GroupData, TaskData, doc, group, listen, task, task_obj;
-
-  doc = {
-    group: {
-      sample: null,
-      download: null,
-      list: null,
-      cursor: null,
-      filter: null
-    },
-    task: {
-      sample: null,
-      download: null,
-      list: null,
-      cursor: null,
-      filter: null
-    }
-  };
-  listen = [];
-  /*
-  GroupData Object
-  */
-
-  GroupData = (function(_super) {
-    __extends(GroupData, _super);
-
-    function GroupData(data) {
-      if ((data instanceof jQuery) && $(data).data("GroupData")) {
-        return $(data).data("GroupData");
-      }
-      data.tag = null;
-      this.dltag = null;
-      this.sum = [0, 0, 0, 0, 0, 0];
-      Object.defineProperty(this, 'name', {
-        get: function() {
-          return data.name;
-        }
-      });
-      Object.defineProperty(this, 'tag', {
-        get: function() {
-          var temp, val, _i, _len, _ref;
-
-          if (data.tag == null) {
-            data.tag = doc.group.sample.clone();
-            data.tag.data("GroupData", this).attr("key", data.name);
-            $(".name", data.tag).text(data.name);
-            _ref = ['thumb', 'owner', 'src_type', 'status'];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              val = _ref[_i];
-              temp = this[val];
-              delete data[val];
-              this[val] = temp;
-            }
-          }
-          return data.tag;
-        }
-      });
-      Object.defineProperty(this, 'thumb', {
-        get: function() {
-          return data.thumb || '';
-        },
-        set: function(val) {
-          data.thumb = val;
-          $(".thumb .img", this.tag).empty().append($('<img onerror="this.src=\'data:image/gif;base64,R0lGODlhAwADAIAAAAAAAP///yH5BAEHAAEALAAAAAADAAMAAAIDjH8FADs=\'" />').attr('src', val));
-          if (this.dltag != null) {
-            return $(".thumb .img", this.dltag).empty().append($('<img onerror="this.src=\'data:image/gif;base64,R0lGODlhAwADAIAAAAAAAP///yH5BAEHAAEALAAAAAADAAMAAAIDjH8FADs=\'" />').attr('src', val));
-          }
-        }
-      });
-      Object.defineProperty(this, 'owner', {
-        get: function() {
-          return data.owner || '';
-        },
-        set: function(val) {
-          var temp;
-
-          if (val == null) {
-            return;
-          }
-          val = val.toLowerCase();
-          if ((this.owner != null) && this.owner.toLowerCase() === val) {
-            return;
-          }
-          temp = this.owner;
-          if (this.owner) {
-            data.owner = 'multiple';
-          } else {
-            data.owner = val;
-          }
-          this.tag.removeClass('owner-' + temp);
-          this.tag.addClass('owner-' + this.owner);
-          if (this.dltag != null) {
-            this.dltag.removeClass('owner-' + temp);
-            this.dltag.addClass('owner-' + this.owner);
-          }
-          return group.owner = this.owner;
-        }
-      });
-      Object.defineProperty(this, 'src_type', {
-        get: function() {
-          return data.src_type;
-        },
-        set: function(val) {
-          var temp;
-
-          if (val == null) {
-            return;
-          }
-          val = val.toLowerCase();
-          if ((this.src_type != null) && this.src_type.toLowerCase() === val) {
-            return;
-          }
-          temp = this.src_type;
-          if (this.src_type) {
-            data.src_type = 'multiple';
-          } else {
-            data.src_type = val;
-          }
-          this.tag.removeClass('src-' + temp);
-          this.tag.addClass('src-' + this.src_type);
-          if (this.dltag != null) {
-            this.dltag.removeClass('src-' + temp);
-            this.dltag.addClass('src-' + this.src_type);
-          }
-          return group.src = this.src_type;
-        }
-      });
-      Object.defineProperty(this, 'status', {
-        get: function() {
-          return data.status;
-        },
-        set: function(val) {
-          this.tag.removeClass('status-' + STATUS_NAME[data.status]);
-          this.tag.addClass('status-' + STATUS_NAME[val]);
-          if (this.dltag != null) {
-            this.dltag.removeClass('status-' + STATUS_NAME[data.status]);
-            this.dltag.addClass('status-' + STATUS_NAME[val]);
-          }
-          data.status = val;
-          $(".total", this.tag).text(this.sum[STATUS.COMPLETE] + " / " + this.length);
-          if (this.dltag != null) {
-            return $(".total", this.dltag).text(this.sum[STATUS.COMPLETE] + " / " + this.length);
-          }
-        }
-      });
-    }
-
-    GroupData.prototype.push = function(task) {
-      Array.prototype.push.call(this, task);
-      this.toggle(false, task.status);
-      if (task.thumb != null) {
-        this.thumb = task.thumb;
-      }
-      this.owner = task.owner;
-      this.src_type = task.src_type;
-      return this;
-    };
-
-    GroupData.prototype.del = function(task_data) {
-      var index;
-
-      index = $.inArray(task_data, this);
-      if (index > -1) {
-        this.splice(index, 1);
-        this.toggle(task_data.status, false);
-        if (!(this.length > 0)) {
-          group.del(this);
-          $(this.tag).fadeOut(500, function() {
-            return $(this).remove();
-          });
-          if (this.dltag != null) {
-            $(this.dltag).fadeOut(500, function() {
-              return $(this).remove();
-            });
-          }
-        }
-      }
-      return this;
-    };
-
-    GroupData.prototype.toggle = function(from, to) {
-      if ((from != null) && from !== false) {
-        this.sum[from]--;
-      }
-      if ((to != null) && to !== false) {
-        this.sum[to]++;
-      }
-      if (this.sum[STATUS.WAIT] + this.sum[STATUS.DOWNLOAD] < 1) {
-        if (this.sum[STATUS.FAIL] > 0) {
-          return this.status = STATUS.FAIL;
-        } else if (this.sum[STATUS.COMPLETE] > 0) {
-          return this.status = STATUS.COMPLETE;
-        } else {
-          return this.status = STATUS.CANCEL;
-        }
-      } else {
-        if (this.sum[STATUS.DOWNLOAD] > 0) {
-          return this.status = STATUS.DOWNLOAD;
-        } else {
-          return this.status = STATUS.WAIT;
-        }
-      }
-    };
-
-    return GroupData;
-
-  })(Array);
-  /*
-  Group Object
-  */
-
-  $.group = group = new ((function(_super) {
-    var obj;
-
-    __extends(_Class, _super);
-
-    obj = {
-      index: 0,
-      data: {},
-      filter: {
-        owner: null,
-        owner_list: [],
-        src: null,
-        src_list: []
-      }
-    };
-
-    function _Class() {
-      Object.defineProperty(this, 'owner', {
-        get: function() {
-          return obj.filter.owner;
-        },
-        set: function(val) {
-          if (val == null) {
-            return;
-          }
-          val = val.toLowerCase();
-          if (!(obj.filter.owner_list.indexOf(val) < 0)) {
-            return;
-          }
-          obj.filter.owner_list.push(val);
-          $("#filter-owner select", doc.group.filter).append($("<option />").text(val));
-          return $('#filter').html($('#filter').html() + ' #group .filter-owner-' + val + ' .item:not(.owner-' + val + '){ height: 0px;border: none;}');
-        }
-      });
-      Object.defineProperty(this, 'src', {
-        get: function() {
-          return obj.filter.src;
-        },
-        set: function(val) {
-          if (val == null) {
-            return;
-          }
-          val = val.toLowerCase();
-          if (!(obj.filter.src_list.indexOf(val) < 0)) {
-            return;
-          }
-          obj.filter.src_list.push(val);
-          $("#filter-src select", doc.group.filter).append($("<option />").text(val));
-          return $('#filter').html($('#filter').html() + ' #group .filter-src-' + val + ' .item:not(.src-' + val + '){ height: 0px;border: none;}');
-        }
-      });
-    }
-
-    _Class.prototype.push = function(item) {
-      item = new GroupData(item);
-      obj.data[item.name] = item;
-      Array.prototype.push.call(this, item);
-      if (this.length === 1) {
-        task.toggleGroup(item);
-      }
-      return item;
-    };
-
-    _Class.prototype.get = function(name) {
-      return obj.data[name];
-    };
-
-    _Class.prototype.del = function(group_data) {
-      var index;
-
-      delete obj.data[group_data.name];
-      index = $.inArray(group_data, this);
-      if (index > -1) {
-        this.splice(index, 1);
-      }
-      return this;
-    };
-
-    _Class.prototype.reset = function() {
-      obj.index = 0;
-      obj.data = {};
-      while (this.length > 0) {
-        this.pop();
-      }
-      obj.filter = {
-        owner: null,
-        owner_list: [],
-        src: null,
-        src_list: []
-      };
-      $(".item", doc.group.list).remove();
-      $(".item", doc.group.download).remove();
-      $("#filter-owner option", doc.group.filter).slice(1).remove();
-      $("#filter-src option", doc.group.filter).slice(1).remove();
-      $('#filter').empty();
-      this.owner = 'multiple';
-      this.src = 'multiple';
-      return this;
-    };
-
-    _Class.prototype.draw = function() {
-      var draw, top;
-
-      if (obj.index >= this.length) {
-        return obj.index = this.length;
-      }
-      top = doc.group.cursor.offset().top - $(window).scrollTop();
-      if (top < ($(window).height() * 1.5)) {
-        draw = [];
-        while (true) {
-          draw.push(this[obj.index].tag);
-          obj.index++;
-          if (!(obj.index % 5 > 0 && obj.index < this.length)) {
-            break;
-          }
-        }
-      }
-      doc.group.cursor.before(draw);
-      return this;
-    };
-
-    return _Class;
-
-  })(Array));
-  /*
-  TaskData Object
-  */
-
-  TaskData = (function() {
-    TaskData.prototype.dltag = null;
-
-    function TaskData(data) {
-      if ((data instanceof jQuery) && $(data).data("TaskData")) {
-        return $(data).data("TaskData");
-      }
-      data.tid = parseInt(data.tid);
-      data.status = parseInt(data.status);
-      Object.defineProperty(this, "tid", {
-        value: data.tid,
-        writeable: false
-      });
-      Object.defineProperty(this, "playlist", {
-        value: data.playlist,
-        writeable: false
-      });
-      Object.defineProperty(this, "name", {
-        value: data.name,
-        writeable: false
-      });
-      Object.defineProperty(this, "owner", {
-        value: data.owner,
-        writeable: false
-      });
-      Object.defineProperty(this, "src_type", {
-        value: data.src_type,
-        writeable: false
-      });
-      Object.defineProperty(this, "src", {
-        value: data.src,
-        writeable: false
-      });
-      Object.defineProperty(this, "time", {
-        get: function() {
-          return data.time;
-        },
-        set: function(val) {
-          return data.time = parseInt(val);
-        }
-      });
-      Object.defineProperty(this, "tag", {
-        get: function() {
-          var temp, val, _i, _len, _ref;
-
-          if (data.tag == null) {
-            data.tag = doc.task.sample.clone();
-            this.tag.data("TaskData", this).attr("tid", this.tid);
-            this.tag.addClass('src-' + data.src_type.toLowerCase());
-            $(".thumb", this.tag).attr('href', this.src || '#');
-            $(".name", this.tag).text(this.name);
-            $(".owner", this.tag).text(this.owner);
-            this.tag.addClass('status-' + STATUS_NAME[this.status]);
-            _ref = ['added_time', 'thumb', 'quality', 'size', 'dl_size', 'sub_task', 'sub_task_ok'];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              val = _ref[_i];
-              temp = this[val];
-              data[val] = null;
-              this[val] = temp;
-            }
-          }
-          return data.tag;
-        }
-      });
-      Object.defineProperty(this, "status", {
-        get: function() {
-          return data.status;
-        },
-        set: function(val) {
-          var belong, temp;
-
-          temp = this.status;
-          data.status = parseInt(val);
-          if (this.status !== temp) {
-            belong = group.get(this.playlist);
-            belong.toggle(temp, this.status);
-          }
-          if (this.status === STATUS.DOWNLOAD) {
-            task.download = this;
-          } else if (task.download === this) {
-            task.download = false;
-          }
-          this.tag.removeClass('status-' + STATUS_NAME[temp]);
-          this.tag.addClass('status-' + STATUS_NAME[this.status]);
-          if (this.dltag != null) {
-            this.dltag.removeClass('status-' + STATUS_NAME[temp]);
-            return this.dltag.addClass('status-' + STATUS_NAME[this.status]);
-          }
-        }
-      });
-      Object.defineProperty(this, "quality", {
-        get: function() {
-          return data.quality;
-        },
-        set: function(val) {
-          var item, quality, _i, _len;
-
-          quality = '';
-          if (val != null) {
-            for (_i = 0, _len = val.length; _i < _len; _i++) {
-              item = val[_i];
-              if (item == null) {
-                continue;
-              }
-              item = item.toLowerCase();
-              if (quality !== '' && quality !== item) {
-                quality = 'multi';
-                break;
-              }
-              quality = item;
-            }
-          }
-          $(".quality", this.tag).attr('class', 'quality quality-' + quality);
-          return data.quality = val;
-        }
-      });
-      Object.defineProperty(this, "added_time", {
-        get: function() {
-          return data.added_time;
-        },
-        set: function(val) {
-          $(".time", this.tag).text(new Date(val * 1000).toFormat("yyyy-MM-dd"));
-          if (this.dltag != null) {
-            $(".time", this.dltag).text(new Date(val * 1000).toFormat("yyyy-MM-dd"));
-          }
-          return data.added_time = val;
-        }
-      });
-      Object.defineProperty(this, "thumb", {
-        get: function() {
-          return data.thumb;
-        },
-        set: function(val) {
-          var _ref;
-
-          if (val === this.thumb) {
-            return;
-          }
-          if ((_ref = group.get(this.playlist)) != null) {
-            _ref.thumb = val;
-          }
-          $('.thumb .img', this.tag).empty().append($('<img onerror="this.src=\'data:image/gif;base64,R0lGODlhAwADAIAAAAAAAP///yH5BAEHAAEALAAAAAADAAMAAAIDjH8FADs=\'" />').attr('src', val));
-          if (this.dltag != null) {
-            $('.thumb .img', this.dltag).empty().append($('<img onerror="this.src=\'data:image/gif;base64,R0lGODlhAwADAIAAAAAAAP///yH5BAEHAAEALAAAAAADAAMAAAIDjH8FADs=\'" />').attr('src', val));
-          }
-          return data.thumb = val;
-        }
-      });
-      Object.defineProperty(this, "size", {
-        get: function() {
-          return data.size;
-        },
-        set: function(val) {
-          data.size = parseInt(val) || 0;
-          if (this.size < 1) {
-            $(".est-size, dl-size", this.tag).empty();
-            if (this.dltag) {
-              return $(".est-size, dl-size", this.dltag).empty();
-            }
-          } else {
-            $(".est-size", this.tag).html('&nbsp;/&nbsp;' + $.filesize(this.size));
-            if (this.dltag) {
-              return $(".est-size", this.dltag).html('&nbsp;/&nbsp;' + $.filesize(this.size));
-            }
-          }
-        }
-      });
-      Object.defineProperty(this, "dl_size", {
-        get: function() {
-          return data.dl_size;
-        },
-        set: function(val) {
-          data.dl_size = parseInt(val) || 0;
-          $(".dl-size", this.tag).text($.filesize(this.dl_size));
-          if (this.dltag) {
-            $(".dl-size", this.dltag).text($.filesize(this.dl_size));
-          }
-          $(".bar", this.tag).width((this.dl_size / this.size * 100) + "%");
-          if (this.dltag) {
-            return $(".bar", this.dltag).width((this.dl_size / this.size * 100) + "%");
-          }
-        }
-      });
-      Object.defineProperty(this, "sub_task", {
-        get: function() {
-          return data.sub_task || 0;
-        },
-        set: function(val) {
-          data.sub_task = parseInt(val) || 0;
-          if (this.sub_task > 0) {
-            $(this.tag).addClass('has-sub');
-            $(".total-sub", this.tag).html('&nbsp;/&nbsp;' + this.sub_task);
-            if (this.dltag) {
-              $(".total-sub", this.dltag).html('&nbsp;/&nbsp;' + this.sub_task);
-            }
-            $(".bar", this.tag).width((this.sub_task_ok / this.sub_task * 100) + "%");
-            if (this.dltag) {
-              return $(".bar", this.dltag).width((this.sub_task_ok / this.sub_task * 100) + "%");
-            }
-          }
-        }
-      });
-      Object.defineProperty(this, "sub_task_ok", {
-        get: function() {
-          return data.sub_task_ok || 0;
-        },
-        set: function(val) {
-          data.sub_task_ok = parseInt(val) || 0;
-          $(".ok-sub", this.tag).text(this.sub_task_ok);
-          if (this.dltag) {
-            $(".ok-sub", this.dltag).text(this.sub_task_ok);
-          }
-          if (this.sub_task > 0) {
-            $(".bar", this.tag).width((this.sub_task_ok / this.sub_task * 100) + "%");
-            if (this.dltag) {
-              return $(".bar", this.dltag).width((this.sub_task_ok / this.sub_task * 100) + "%");
-            }
-          }
-        }
-      });
-      this;
-    }
-
-    TaskData.prototype.del = function() {
-      $(this.tag).fadeOut(500, function() {
-        return $(this).remove();
-      });
-      if (this.dltag) {
-        $(this.dltag).fadeOut(500, function() {
-          return $(this).remove();
-        });
-      }
-      delete task[this.tid];
-      return group.get(this.playlist).del(this);
-    };
-
-    return TaskData;
-
-  })();
-  /*
-  Task Object
-  */
-
-  task = [];
-  task_obj = {
-    index: 0,
-    download: false,
-    group: null,
-    auto_review: null
-  };
-  Object.defineProperty(task, 'download', {
-    get: function() {
-      return task_obj.download;
-    },
-    set: function(task_data) {
-      var belong, temp;
-
-      temp = this.download;
-      if (temp === task_data) {
-        return;
-      }
-      if (temp !== false) {
-        if (temp.status === STATUS.DOWNLOAD) {
-          temp.time = new Date().getTime() / 1000;
-          temp.status = STATUS.COMPLETE;
-        }
-        if (temp.dltag != null) {
-          temp.dltag.remove();
-          temp.dltag = null;
-        }
-        belong = group.get(temp.playlist);
-        if (belong.dltag != null) {
-          belong.dltag.remove();
-          belong.dltag = null;
-        }
-      }
-      if (task_data) {
-        if (!task_data.dltag) {
-          task_data.dltag = task_data.tag.clone();
-        }
-        if (!$('.item', doc.task.download).is(task_data.dltag)) {
-          doc.task.download.append(task_data.dltag);
-        }
-        belong = group.get(task_data.playlist);
-        if (belong.dltag == null) {
-          belong.dltag = belong.tag.clone();
-        }
-        if (!$('.item', doc.group.download).is(belong.dltag)) {
-          doc.group.download.append(belong.dltag);
-        }
-      }
-      return task_obj.download = task_data;
-    }
-  });
-  task.push = function(data) {
-    return $(data).each(function() {
-      var belong, item;
-
-      item = new TaskData(this);
-      task[item.tid] = item;
-      belong = group.get(item.playlist);
-      if (!belong) {
-        belong = group.push({
-          name: item.playlist,
-          owner: item.owner,
-          thumb: item.thumb,
-          src: item.src_type
-        });
-      }
-      return belong.push(item);
-    });
-  };
-  task.reset = function() {
-    var download;
-
-    while (this.length > 0) {
-      this.pop();
-    }
-    download = false;
-    group.reset();
-    this.toggleGroup();
-    $(".item", doc.task.download).remove();
-    return this;
-  };
-  task.toggleGroup = function(playlist) {
-    var target;
-
-    target = null;
-    task_obj.group = playlist != null ? playlist : null;
-    if (task_obj.auto_review != null) {
-      clearInterval(task_obj.auto_review);
-      delete task_obj.auto_review;
-    }
-    $(".item", doc.task.list).remove();
-    task_obj.index = 0;
-    return task_obj.auto_review = setInterval(function() {
-      group.draw();
-      return task.draw();
-    }, 300);
-  };
-  task.draw = function() {
-    var draw, top;
-
-    if (!((task_obj.group != null) && task_obj.index < task_obj.group.length)) {
-      return this;
-    }
-    top = doc.task.cursor.offset().top - $(window).scrollTop();
-    if (top < ($(window).height() * 1.5)) {
-      draw = [];
-      while (true) {
-        draw.push(task_obj.group[task_obj.index].tag);
-        task_obj.index++;
-        if (!(task_obj.index % 5 > 0 && task_obj.index < task_obj.group.length)) {
-          break;
-        }
-      }
-      return doc.task.cursor.before(draw);
-    }
-  };
-  task.setListen = function(event_code, action) {
-    return listen[event_code] = action;
-  };
-  $(function() {
-    var group_wrap, task_wrap;
-
-    group_wrap = $('#group');
-    doc.group = {
-      download: $('.wrapper-download .download', group_wrap),
-      list: $('.wrapper-list', group_wrap),
-      sample: $('.item', group_wrap).detach(),
-      cursor: $('.wrapper-list .none', group_wrap),
-      filter: $('.wrapper-filter .filter', group_wrap)
-    };
-    task_wrap = $('.task');
-    doc.task = {
-      download: $('.wrapper-download .download', task_wrap),
-      list: $('.wrapper-list', task_wrap),
-      sample: $('.item', task_wrap).detach(),
-      cursor: $('.wrapper-list .none', task_wrap),
-      filter: $('.wrapper-filter .filter', task_wrap)
-    };
-    task.reset();
-    /*
-    Event
-    */
-
-    $(".item", group_wrap).live('click', function() {
-      var temp;
-
-      temp = group.get($(this).attr("key"));
-      _gaq.push(['_trackEvent', 'Group', 'See', temp.name]);
-      return task.toggleGroup(temp);
-    });
-    $(".cancel", group_wrap).live('click', function() {
-      var group_data, target, wrap, _name;
-
-      wrap = $(this).parents(".item:first");
-      group_data = new GroupData(wrap);
-      _gaq.push(['_trackEvent', 'Group', 'Cancel', group_data.name]);
-      target = [];
-      $(group_data).each(function() {
-        switch (this.status) {
-          case STATUS.CANCEL:
-          case STATUS.COMPLETE:
-            break;
-          default:
-            this.status = STATUS.CANCEL;
-            this.time = new Date().getTime() / 1000;
-            return target.push(this.tid);
-        }
-      });
-      return typeof listen[_name = TASK.GROUP_CANCEL] === "function" ? listen[_name](target) : void 0;
-    });
-    $(".reload", group_wrap).live('click', function() {
-      var group_data, target, wrap, _name;
-
-      wrap = $(this).parents(".item:first");
-      group_data = new GroupData(wrap);
-      _gaq.push(['_trackEvent', 'Group', 'Reload', group_data.name]);
-      target = [];
-      $(group_data).each(function() {
-        switch (this.status) {
-          case STATUS.RELOAD:
-          case STATUS.WAIT:
-            break;
-          default:
-            this.dl_size = 0;
-            this.sub_task_ok = 0;
-            this.status = STATUS.RELOAD;
-            this.time = new Date().getTime() / 1000;
-            return target.push(this.tid);
-        }
-      });
-      return typeof listen[_name = TASK.GROUP_RELOAD] === "function" ? listen[_name](target) : void 0;
-    });
-    $("select", doc.group.filter).on("change", function() {
-      var id, item, reg, selected, target, val, _i, _len, _ref;
-
-      id = $(this).parent().attr("id");
-      reg = new RegExp('^' + id + '-.+');
-      selected = $("option:selected", this);
-      val = selected.val();
-      target = [];
-      _gaq.push(['_trackEvent', 'Group', id, val]);
-      $(this).prev().text(selected.text());
-      _ref = $(doc.group.list).attr('class').split(' ');
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        item = _ref[_i];
-        if (reg.exec(item)) {
-          target.push(item);
-        }
-      }
-      if (target.length > 0) {
-        $(doc.group.list).removeClass(target.join(' '));
-      }
-      if (!selected.is(":first-child")) {
-        return $(doc.group.list).addClass(id + '-' + val);
-      }
-    }).change();
-    $(".cancel", task_wrap).live('click', function() {
-      var tid, wrap, _name;
-
-      wrap = $(this).parents(".item:first");
-      tid = wrap.attr("tid");
-      _gaq.push(['_trackEvent', 'Task', 'Cancel', task[tid].name]);
-      if (task[tid]) {
-        task[tid].status = STATUS.CANCEL;
-        task[tid].time = new Date().getTime() / 1000;
-      }
-      return typeof listen[_name = TASK.TASK_CANCEL] === "function" ? listen[_name](tid) : void 0;
-    });
-    $(".reload", task_wrap).live('click', function() {
-      var tid, wrap, _name;
-
-      wrap = $(this).parents(".item:first");
-      tid = wrap.attr("tid");
-      _gaq.push(['_trackEvent', 'Task', 'Reload', task[tid].name]);
-      if (task[tid]) {
-        task[tid].dl_size = 0;
-        task[tid].sub_task_ok = 0;
-        task[tid].status = STATUS.RELOAD;
-        task[tid].time = new Date().getTime() / 1000;
-      }
-      return typeof listen[_name = TASK.TASK_RELOAD] === "function" ? listen[_name](tid) : void 0;
-    });
-    return $(doc.task.filter).delegate("li", 'click', function() {
-      var item, reg, target, _i, _len, _ref;
-
-      reg = new RegExp('^filter-status-.+');
-      target = [];
-      _gaq.push(['_trackEvent', 'Task', 'Status', $(this).attr('for')]);
-      _ref = $(doc.task.list).attr('class').split(' ');
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        item = _ref[_i];
-        if (reg.exec(item)) {
-          target.push(item);
-        }
-      }
-      if (target.length > 0) {
-        $(doc.task.list).removeClass(target.join(' '));
-      }
-      $(doc.task.list).addClass('filter-status-' + $(this).attr('for'));
-      $(this).addClass("active");
-      return $(this).siblings().removeClass("active");
-    });
-  });
-  return task;
-})();
-
-// Generated by CoffeeScript 1.4.0
-/*
-Variable Initialization
-*/
 
 var req_server, sys, watch_action;
 
 sys = {
-  time: 0,
-  watch: null,
-  user: null
-};
-
-/*
-request to server
-v: get_task, get_tasks, cancel_task, redownload_task, clear_tasks, pause_server
-*/
-
-
-req_server = function(v, data, success, failed) {
-  if (data == null) {
-    data = {};
-  }
-  data._ = Math.random();
-  return $.ajax("http://" + ADDRESS + PATH + API.TASK + "?v=" + v, {
-    type: "POST",
-    data: data,
-    dataType: "json",
-    timeout: 2000,
-    success: function(res) {
-      if (res.code < 0) {
-        return typeof failed === "function" ? failed(res) : void 0;
-      } else {
-        return typeof success === "function" ? success(res.value) : void 0;
-      }
-    },
-    error: function(xhr, ajaxOptions, thrownError) {
-      return typeof failed === "function" ? failed({
-        code: -400
-      }) : void 0;
-    }
-  });
-};
-
-/*
-Watch Action
-*/
-
-
-watch_action = function() {
-  return req_server("get_tasks", {
-    time: sys.time
-  }, function(data) {
-    $("#control").addClass("online");
-    $('body').removeClass('guest');
-    $(data).each(function() {
-      var target, tid;
-      tid = parseInt(this.tid);
-      target = $.task[tid];
-      if (target == null) {
-        return $.task.push({
-          tid: this.tid,
-          src_type: this.srcType,
-          added_time: this.added_time,
-          owner: this.owner,
-          name: this.name,
-          playlist: this.playlist,
-          quality: this.quality,
-          src: this.srcUrl,
-          thumb: this.cover,
-          time: this.time,
-          status: 4,
-          size: this.size,
-          dl_size: this.dlSize,
-          sub_task: this.subTaskTotal,
-          sub_task_ok: this.subTaskOk
+    time: 0,
+    watch: null,
+    user: null
+}, req_server = function(t, e, s, r) {
+    return null == e && (e = {}), e._ = Math.random(), $.ajax("http://" + ADDRESS + PATH + API.TASK + "?v=" + t, {
+        type: "POST",
+        data: e,
+        dataType: "json",
+        timeout: 2e3,
+        success: function(t) {
+            return 0 > t.code ? "function" == typeof r ? r(t) : void 0 : "function" == typeof s ? s(t.value) : void 0;
+        },
+        error: function() {
+            return "function" == typeof r ? r({
+                code: -400
+            }) : void 0;
+        }
+    });
+}, watch_action = function() {
+    return req_server("get_tasks", {
+        time: sys.time
+    }, function(t) {
+        return $("#control").addClass("online"), $("body").removeClass("guest"), $(t).each(function() {
+            var t, e;
+            return e = parseInt(this.tid), t = $.task[e], null == t ? $.task.push({
+                tid: this.tid,
+                src_type: this.srcType,
+                added_time: this.added_time,
+                owner: this.owner,
+                name: this.name,
+                playlist: this.playlist,
+                quality: this.quality,
+                src: this.srcUrl,
+                thumb: this.cover,
+                time: this.time,
+                status: 4,
+                size: this.size,
+                dl_size: this.dlSize,
+                sub_task: this.subTaskTotal,
+                sub_task_ok: this.subTaskOk
+            }) : this.time >= t.time && (t.thumb = this.cover, t.time = this.time, t.status = this.status, 
+            t.quality = this.quality, t.size = this.size, t.dl_size = this.dlSize, t.sub_task = this.subTaskTotal, 
+            t.sub_task_ok = this.subTaskOk, this.time > sys.time) ? sys.time = this.time : void 0;
+        }), sys.watch = setTimeout(watch_action, WATCH_TIME);
+    }, function(t) {
+        return $("#control").removeClass("online"), -2 === t.code && $("body").addClass("guest"), 
+        sys.watch = setTimeout(watch_action, 5 * WATCH_TIME);
+    });
+}, $(function() {
+    var t, e, s, r;
+    return $("#logo").click(function() {
+        return $("body").toggleClass("temp-green"), $("body").hasClass("temp-green") ? (_gaq.push([ "_trackEvent", "Configs", "setColor", "Green" ]), 
+        $.cookie("temp", "temp-green", {
+            expiress: 365
+        })) : (_gaq.push([ "_trackEvent", "Configs", "setColor", "Blue" ]), $.removeCookie("temp"));
+    }), "temp-green" === $.cookie("temp") && $("body").addClass("temp-green"), $(".box-nav .nav-refresh").click(function() {
+        return _gaq.push([ "_trackEvent", "Operate", "Refresh", $.task.length ]), $.task.reset(), 
+        sys.time = 0, t();
+    }), $(".box-nav .nav-clear").click(function() {
+        return _gaq.push([ "_trackEvent", "Operate", "Clean", $.task.length ]), req_server("clear_tasks", {
+            time: sys.time
+        }), $($.task).each(function() {
+            if (this) switch (this.status) {
+              case STATUS.RELOAD:
+              case STATUS.CANCEL:
+              case STATUS.COMPLETE:
+                if ("admin" === sys.user || this.owner === sys.user) return this.del();
+            }
         });
-      } else if (this.time >= target.time) {
-        target.thumb = this.cover;
-        target.time = this.time;
-        target.status = this.status;
-        target.quality = this.quality;
-        target.size = this.size;
-        target.dl_size = this.dlSize;
-        target.sub_task = this.subTaskTotal;
-        target.sub_task_ok = this.subTaskOk;
-        if (this.time > sys.time) {
-          return sys.time = this.time;
-        }
-      }
-    });
-    return sys.watch = setTimeout(watch_action, WATCH_TIME);
-  }, function(res) {
-    $("#control").removeClass("online");
-    if (res.code === -2) {
-      $('body').addClass('guest');
+    }), $(".box-nav .nav-program").click(function() {
+        return _gaq.push([ "_trackEvent", "Operate", "Program", "" ]);
+    }), $(".box-nav .nav-fb").click(function() {
+        return _gaq.push([ "_trackEvent", "Operate", "Facebook", "" ]);
+    }), $(".box-nav .nav-ext").click(function() {
+        return _gaq.push([ "_trackEvent", "Operate", "Extension", "" ]);
+    }), $(".box-nav .nav-logout").click(function() {
+        var t;
+        return _gaq.push([ "_trackEvent", "Operate", "logout", sys.user ]), t = {
+            _: Math.random(),
+            user: "logout",
+            pwd: "logout"
+        }, sys.user = null, $(".login").removeClass("invalid"), $.ajax("http://" + ADDRESS + PATH + API.LOGIN + "?logout", {
+            type: "POST",
+            data: t,
+            dataType: "json",
+            timeout: 4e3
+        });
+    }), $("#dialog-chrome a").click(function() {
+        return _gaq.push([ "_trackEvent", "Check", "Is not chrome", $("#dialog-chrome .donot").is(":checked") ]), 
+        $("body").removeClass("no-chrome"), $("#dialog-chrome .donot").is(":checked") && $.cookie("donot-chrome", "1", {
+            expiress: 365
+        }), !0;
+    }), $.browser.chrome !== !0 && null == $.cookie("donot-chrome") && $("body").addClass("no-chrome"), 
+    $("#dialog-ext a").click(function() {
+        return _gaq.push([ "_trackEvent", "Check", "Not has ext", $("#dialog-ext .donot").is(":checked") ]), 
+        $("body").addClass("has-ext"), $("#dialog-ext .donot").is(":checked") && $.cookie("donot-ext", "1", {
+            expiress: 365
+        }), !0;
+    }), ($.browser.chrome !== !0 || null != $.cookie("donot-ext")) && $("body").addClass("has-ext"), 
+    $("#dialog-qpkg a, #dialog-error a").click(function() {
+        return $("body").removeClass("has-error no-qpkg"), !0;
+    }), s = function(t) {
+        return $.ajax("http://" + ADDRESS + PATH + API.INFO, {
+            type: "POST",
+            dataType: "json",
+            data: {
+                it: "server"
+            },
+            timeout: 14e3,
+            success: function(e) {
+                if (null != e.server) switch ("TRUE" !== e.server.qpkg_status ? $("body").addClass("no-qpkg") : 1 !== e.server.process_status || 0 === e.server.server_status ? $("body").addClass("has-error") : $("body").removeClass("no-qpkg has-error"), 
+                e.server.server_status) {
+                  case 0:
+                    $("#control").attr("class", "server-stopped");
+                    break;
+
+                  case 1:
+                    $("#control").attr("class", "server-running");
+                    break;
+
+                  case 2:
+                    $("#control").attr("class", "server-paused");
+                } else $("body").addClass("has-error");
+                return t !== !1 ? setTimeout(s, 1e4) : void 0;
+            },
+            error: function() {
+                return t !== !1 ? setTimeout(s, 1e4) : void 0;
+            }
+        });
+    }, s(), r = function(t) {
+        return $.ajax("http://" + ADDRESS + PATH + API.LOGIN + "?check", {
+            type: "POST",
+            dataType: "json",
+            timeout: 14e3,
+            success: function(e) {
+                return "true" === e.status ? sys.user = e.user : $("body").addClass("guest"), t !== !1 ? setTimeout(r, 1e4) : void 0;
+            },
+            error: function() {
+                return t !== !1 ? setTimeout(r, 1e4) : void 0;
+            }
+        });
+    }, r(), $.task.setListen(TASK.GROUP_CANCEL, function(t) {
+        return t.length > 0 ? req_server("cancel_task", {
+            tid: t
+        }) : void 0;
+    }), $.task.setListen(TASK.GROUP_RELOAD, function(t) {
+        return t.length > 0 ? req_server("redownload_task", {
+            tid: t
+        }) : void 0;
+    }), $.task.setListen(TASK.TASK_CANCEL, function(t) {
+        return null != t ? req_server("cancel_task", {
+            tid: [ t ]
+        }) : void 0;
+    }), $.task.setListen(TASK.TASK_RELOAD, function(t) {
+        return null != t ? req_server("redownload_task", {
+            tid: [ t ]
+        }) : void 0;
+    }), e = function() {
+        var t, e, s;
+        return s = $("#username").val(), e = $("#password").val(), t = {
+            _: Math.random(),
+            user: s,
+            pwd: e
+        }, $(".login").removeClass("invalid"), $(".login").addClass("proceed"), $.ajax("http://" + ADDRESS + PATH + API.LOGIN, {
+            type: "POST",
+            data: t,
+            dataType: "json",
+            timeout: 4e3,
+            success: function(t) {
+                return "true" == t + "" ? $("body").removeClass("guest") : ($(".login").addClass("invalid"), 
+                $("body").addClass("guest")), sys.user = s, $(".login").removeClass("proceed");
+            },
+            error: function() {
+                return $(".login").removeClass("proceed"), $("body").addClass("guest");
+            }
+        });
+    }, $(".login").keypress(function(t) {
+        var s;
+        return s = t.keyCode || t.which, 13 === s ? e() : void 0;
+    }), $("#login-submit").click(e), $(".login .remember").click(function() {
+        return $(this).toggleClass("checked");
+    }), $("#control").click(function() {
+        return s(!1), $(this).hasClass("server-stopped") ? !1 : (req_server("pause_server"), 
+        $(this).toggleClass("server-paused"));
+    }), t = function() {
+        return null != sys.watch && (clearTimeout(sys.watch), delete sys.watch), sys.watch = setTimeout(watch_action, WATCH_TIME);
+    }, t();
+}), $(function() {
+    return $(window).resize(function() {
+        return $(".task .wrapper-list").css("min-height", $(window).height() - 203), $("#group .wrapper-overflow, #group .wrapper-list").height($(window).height() - 203);
+    }), $(window).resize();
+});
+
+var TASK, __hasProp = {}.hasOwnProperty, __extends = function(t, e) {
+    function s() {
+        this.constructor = t;
     }
-    return sys.watch = setTimeout(watch_action, WATCH_TIME * 5);
-  });
+    for (var r in e) __hasProp.call(e, r) && (t[r] = e[r]);
+    return s.prototype = e.prototype, t.prototype = new s(), t.__super__ = e.prototype, 
+    t;
 };
-
-/*
-Main
-*/
-
-
-$(function() {
-  /*
-    Initialization button
-  */
-
-  var load, login_action, sys_status, sys_user;
-  $('#logo').click(function() {
-    $('body').toggleClass('temp-green');
-    if ($('body').hasClass('temp-green')) {
-      _gaq.push(['_trackEvent', 'Configs', 'setColor', 'Green']);
-      return $.cookie('temp', 'temp-green', {
-        expiress: 365
-      });
-    } else {
-      _gaq.push(['_trackEvent', 'Configs', 'setColor', 'Blue']);
-      return $.removeCookie('temp');
-    }
-  });
-  if ($.cookie('temp') === 'temp-green') {
-    $('body').addClass('temp-green');
-  }
-  $(".box-nav .nav-refresh").click(function() {
-    _gaq.push(['_trackEvent', 'Operate', 'Refresh', $.task.length]);
-    $.task.reset();
-    sys.time = 0;
-    return load();
-  });
-  $(".box-nav .nav-clear").click(function() {
-    _gaq.push(['_trackEvent', 'Operate', 'Clean', $.task.length]);
-    req_server("clear_tasks", {
-      time: sys.time
-    });
-    return $($.task).each(function() {
-      if (!this) {
-        return;
-      }
-      switch (this.status) {
-        case STATUS.RELOAD:
-        case STATUS.CANCEL:
-        case STATUS.COMPLETE:
-          if (sys.user === "admin" || this.owner === sys.user) {
-            return this.del();
-          }
-      }
-    });
-  });
-  $(".box-nav .nav-program").click(function() {
-    return _gaq.push(['_trackEvent', 'Operate', 'Program', '']);
-  });
-  $(".box-nav .nav-fb").click(function() {
-    return _gaq.push(['_trackEvent', 'Operate', 'Facebook', '']);
-  });
-  $(".box-nav .nav-ext").click(function() {
-    return _gaq.push(['_trackEvent', 'Operate', 'Extension', '']);
-  });
-  $(".box-nav .nav-logout").click(function() {
-    var data;
-    _gaq.push(['_trackEvent', 'Operate', 'logout', sys.user]);
-    data = {
-      _: Math.random(),
-      user: 'logout',
-      pwd: 'logout'
-    };
-    sys.user = null;
-    $('.login').removeClass('invalid');
-    return $.ajax("http://" + ADDRESS + PATH + API.LOGIN + "?logout", {
-      type: "POST",
-      data: data,
-      dataType: "json",
-      timeout: 4000
-    });
-  });
-  $('#dialog-chrome a').click(function() {
-    _gaq.push(['_trackEvent', 'Check', 'Is not chrome', $('#dialog-chrome .donot').is(':checked')]);
-    $('body').removeClass('no-chrome');
-    if ($('#dialog-chrome .donot').is(':checked')) {
-      $.cookie('donot-chrome', '1', {
-        expiress: 365
-      });
-    }
-    return true;
-  });
-  if (!($.browser.chrome === true || ($.cookie('donot-chrome') != null))) {
-    $('body').addClass('no-chrome');
-  }
-  $('#dialog-ext a').click(function() {
-    _gaq.push(['_trackEvent', 'Check', 'Not has ext', $('#dialog-ext .donot').is(':checked')]);
-    $('body').addClass('has-ext');
-    if ($('#dialog-ext .donot').is(':checked')) {
-      $.cookie('donot-ext', '1', {
-        expiress: 365
-      });
-    }
-    return true;
-  });
-  if ($.browser.chrome !== true || ($.cookie('donot-ext') != null)) {
-    $('body').addClass('has-ext');
-  }
-  $('#dialog-qpkg a, #dialog-error a').click(function() {
-    $('body').removeClass('has-error no-qpkg');
-    return true;
-  });
-  sys_status = function(listen) {
-    return $.ajax("http://" + ADDRESS + PATH + API.INFO, {
-      type: "POST",
-      dataType: "json",
-      data: {
-        it: 'server'
-      },
-      timeout: 14000,
-      success: function(res) {
-        if (res.server != null) {
-          if (res.server.qpkg_status !== 'TRUE') {
-            $('body').addClass('no-qpkg');
-          } else if (res.server.process_status !== 1 || res.server.server_status === 0) {
-            $('body').addClass('has-error');
-          } else {
-            $('body').removeClass('no-qpkg has-error');
-          }
-          switch (res.server.server_status) {
-            case 0:
-              $('#control').attr('class', 'server-stopped');
-              break;
-            case 1:
-              $('#control').attr('class', 'server-running');
-              break;
-            case 2:
-              $('#control').attr('class', 'server-paused');
-          }
-        } else {
-          $('body').addClass('has-error');
-        }
-        if (listen !== false) {
-          return setTimeout(sys_status, 10000);
-        }
-      },
-      error: function(xhr, ajaxOptions, thrownError) {
-        if (listen !== false) {
-          return setTimeout(sys_status, 10000);
-        }
-      }
-    });
-  };
-  sys_status();
-  sys_user = function(listen) {
-    return $.ajax("http://" + ADDRESS + PATH + API.LOGIN + "?check", {
-      type: "POST",
-      dataType: "json",
-      timeout: 14000,
-      success: function(res) {
-        if (res.status === "true") {
-          sys.user = res.user;
-        } else {
-          $('body').addClass('guest');
-        }
-        if (listen !== false) {
-          return setTimeout(sys_user, 10000);
-        }
-      },
-      error: function(xhr, ajaxOptions, thrownError) {
-        if (listen !== false) {
-          return setTimeout(sys_user, 10000);
-        }
-      }
-    });
-  };
-  sys_user();
-  $.task.setListen(TASK.GROUP_CANCEL, function(tid) {
-    if (tid.length > 0) {
-      return req_server("cancel_task", {
-        tid: tid
-      });
-    }
-  });
-  $.task.setListen(TASK.GROUP_RELOAD, function(tid) {
-    if (tid.length > 0) {
-      return req_server("redownload_task", {
-        tid: tid
-      });
-    }
-  });
-  $.task.setListen(TASK.TASK_CANCEL, function(tid) {
-    if (tid != null) {
-      return req_server("cancel_task", {
-        tid: [tid]
-      });
-    }
-  });
-  $.task.setListen(TASK.TASK_RELOAD, function(tid) {
-    if (tid != null) {
-      return req_server("redownload_task", {
-        tid: [tid]
-      });
-    }
-  });
-  login_action = function() {
-    var data, pwd, user;
-    user = $('#username').val();
-    pwd = $('#password').val();
-    data = {
-      _: Math.random(),
-      user: user,
-      pwd: pwd
-    };
-    $('.login').removeClass('invalid');
-    $('.login').addClass('proceed');
-    return $.ajax("http://" + ADDRESS + PATH + API.LOGIN, {
-      type: "POST",
-      data: data,
-      dataType: "json",
-      timeout: 4000,
-      success: function(res) {
-        if (String(res) === 'true') {
-          $('body').removeClass('guest');
-        } else {
-          $('.login').addClass('invalid');
-          $('body').addClass('guest');
-        }
-        sys.user = user;
-        return $('.login').removeClass('proceed');
-      },
-      error: function(xhr, ajaxOptions, thrownError) {
-        $('.login').removeClass('proceed');
-        return $('body').addClass('guest');
-      }
-    });
-  };
-  $('.login').keypress(function(e) {
-    var key;
-    key = e.keyCode || e.which;
-    if (key === 13) {
-      return login_action();
-    }
-  });
-  $('#login-submit').click(login_action);
-  $('.login .remember').click(function() {
-    return $(this).toggleClass('checked');
-  });
-  $("#control").click(function() {
-    sys_status(false);
-    if ($(this).hasClass('server-stopped')) {
-      return false;
-    }
-    req_server('pause_server');
-    return $(this).toggleClass("server-paused");
-  });
-  /*
-    System load
-  */
-
-  load = function() {
-    if (sys.watch != null) {
-      clearTimeout(sys.watch);
-      delete sys.watch;
-    }
-    return sys.watch = setTimeout(watch_action, WATCH_TIME);
-  };
-  return load();
-});
-
-// Generated by CoffeeScript 1.4.0
-
-$(function() {
-  $(window).resize(function() {
-    $(".task .wrapper-list").css("min-height", $(window).height() - 203);
-    return $("#group .wrapper-overflow, #group .wrapper-list").height($(window).height() - 203);
-  });
-  return $(window).resize();
-});
-
-// Generated by CoffeeScript 1.4.0
-var TASK,
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 TASK = {
-  TASK_CANCEL: 0,
-  TASK_RELOAD: 1,
-  GROUP_CANCEL: 2,
-  GROUP_RELOAD: 3
+    TASK_CANCEL: 0,
+    TASK_RELOAD: 1,
+    GROUP_CANCEL: 2,
+    GROUP_RELOAD: 3
+}, $.task = function() {
+    var t, e, s, r, i, a, n;
+    return s = {
+        group: {
+            sample: null,
+            download: null,
+            list: null,
+            cursor: null,
+            filter: null
+        },
+        task: {
+            sample: null,
+            download: null,
+            list: null,
+            cursor: null,
+            filter: null
+        }
+    }, i = [], t = function(t) {
+        function e(t) {
+            return t instanceof jQuery && $(t).data("GroupData") ? $(t).data("GroupData") : (t.tag = null, 
+            this.dltag = null, this.sum = [ 0, 0, 0, 0, 0, 0 ], Object.defineProperty(this, "name", {
+                get: function() {
+                    return t.name;
+                }
+            }), Object.defineProperty(this, "tag", {
+                get: function() {
+                    var e, r, i, a, n;
+                    if (null == t.tag) for (t.tag = s.group.sample.clone(), t.tag.data("GroupData", this).attr("key", t.name), 
+                    $(".name", t.tag).text(t.name), n = [ "thumb", "owner", "src_type", "status" ], 
+                    i = 0, a = n.length; a > i; i++) r = n[i], e = this[r], delete t[r], this[r] = e;
+                    return t.tag;
+                }
+            }), Object.defineProperty(this, "thumb", {
+                get: function() {
+                    return t.thumb || "";
+                },
+                set: function(e) {
+                    return t.thumb = e, $(".thumb .img", this.tag).empty().append($("<img onerror=\"this.src='data:image/gif;base64,R0lGODlhAwADAIAAAAAAAP///yH5BAEHAAEALAAAAAADAAMAAAIDjH8FADs='\" />").attr("src", e)), 
+                    null != this.dltag ? $(".thumb .img", this.dltag).empty().append($("<img onerror=\"this.src='data:image/gif;base64,R0lGODlhAwADAIAAAAAAAP///yH5BAEHAAEALAAAAAADAAMAAAIDjH8FADs='\" />").attr("src", e)) : void 0;
+                }
+            }), Object.defineProperty(this, "owner", {
+                get: function() {
+                    return t.owner || "";
+                },
+                set: function(e) {
+                    var s;
+                    if (null != e && (e = e.toLowerCase(), null == this.owner || this.owner.toLowerCase() !== e)) return s = this.owner, 
+                    t.owner = this.owner ? "multiple" : e, this.tag.removeClass("owner-" + s), this.tag.addClass("owner-" + this.owner), 
+                    null != this.dltag && (this.dltag.removeClass("owner-" + s), this.dltag.addClass("owner-" + this.owner)), 
+                    r.owner = this.owner;
+                }
+            }), Object.defineProperty(this, "src_type", {
+                get: function() {
+                    return t.src_type;
+                },
+                set: function(e) {
+                    var s;
+                    if (null != e && (e = e.toLowerCase(), null == this.src_type || this.src_type.toLowerCase() !== e)) return s = this.src_type, 
+                    t.src_type = this.src_type ? "multiple" : e, this.tag.removeClass("src-" + s), this.tag.addClass("src-" + this.src_type), 
+                    null != this.dltag && (this.dltag.removeClass("src-" + s), this.dltag.addClass("src-" + this.src_type)), 
+                    r.src = this.src_type;
+                }
+            }), Object.defineProperty(this, "status", {
+                get: function() {
+                    return t.status;
+                },
+                set: function(e) {
+                    return this.tag.removeClass("status-" + STATUS_NAME[t.status]), this.tag.addClass("status-" + STATUS_NAME[e]), 
+                    null != this.dltag && (this.dltag.removeClass("status-" + STATUS_NAME[t.status]), 
+                    this.dltag.addClass("status-" + STATUS_NAME[e])), t.status = e, $(".total", this.tag).text(this.sum[STATUS.COMPLETE] + " / " + this.length), 
+                    null != this.dltag ? $(".total", this.dltag).text(this.sum[STATUS.COMPLETE] + " / " + this.length) : void 0;
+                }
+            }), void 0);
+        }
+        return __extends(e, t), e.prototype.push = function(t) {
+            return Array.prototype.push.call(this, t), this.toggle(!1, t.status), null != t.thumb && (this.thumb = t.thumb), 
+            this.owner = t.owner, this.src_type = t.src_type, this;
+        }, e.prototype.del = function(t) {
+            var e;
+            return e = $.inArray(t, this), e > -1 && (this.splice(e, 1), this.toggle(t.status, !1), 
+            this.length > 0 || (r.del(this), $(this.tag).fadeOut(500, function() {
+                return $(this).remove();
+            }), null != this.dltag && $(this.dltag).fadeOut(500, function() {
+                return $(this).remove();
+            }))), this;
+        }, e.prototype.toggle = function(t, e) {
+            return null != t && t !== !1 && this.sum[t]--, null != e && e !== !1 && this.sum[e]++, 
+            this.status = 1 > this.sum[STATUS.WAIT] + this.sum[STATUS.DOWNLOAD] ? this.sum[STATUS.FAIL] > 0 ? STATUS.FAIL : this.sum[STATUS.COMPLETE] > 0 ? STATUS.COMPLETE : STATUS.CANCEL : this.sum[STATUS.DOWNLOAD] > 0 ? STATUS.DOWNLOAD : STATUS.WAIT;
+        }, e;
+    }(Array), $.group = r = new (function(e) {
+        function r() {
+            Object.defineProperty(this, "owner", {
+                get: function() {
+                    return i.filter.owner;
+                },
+                set: function(t) {
+                    return null != t && (t = t.toLowerCase(), 0 > i.filter.owner_list.indexOf(t)) ? (i.filter.owner_list.push(t), 
+                    $("#filter-owner select", s.group.filter).append($("<option />").text(t)), $("#filter").html($("#filter").html() + " #group .filter-owner-" + t + " .item:not(.owner-" + t + "){ height: 0px;border: none;}")) : void 0;
+                }
+            }), Object.defineProperty(this, "src", {
+                get: function() {
+                    return i.filter.src;
+                },
+                set: function(t) {
+                    return null != t && (t = t.toLowerCase(), 0 > i.filter.src_list.indexOf(t)) ? (i.filter.src_list.push(t), 
+                    $("#filter-src select", s.group.filter).append($("<option />").text(t)), $("#filter").html($("#filter").html() + " #group .filter-src-" + t + " .item:not(.src-" + t + "){ height: 0px;border: none;}")) : void 0;
+                }
+            });
+        }
+        var i;
+        return __extends(r, e), i = {
+            index: 0,
+            data: {},
+            filter: {
+                owner: null,
+                owner_list: [],
+                src: null,
+                src_list: []
+            }
+        }, r.prototype.push = function(e) {
+            return e = new t(e), i.data[e.name] = e, Array.prototype.push.call(this, e), 1 === this.length && a.toggleGroup(e), 
+            e;
+        }, r.prototype.get = function(t) {
+            return i.data[t];
+        }, r.prototype.del = function(t) {
+            var e;
+            return delete i.data[t.name], e = $.inArray(t, this), e > -1 && this.splice(e, 1), 
+            this;
+        }, r.prototype.reset = function() {
+            for (i.index = 0, i.data = {}; this.length > 0; ) this.pop();
+            return i.filter = {
+                owner: null,
+                owner_list: [],
+                src: null,
+                src_list: []
+            }, $(".item", s.group.list).remove(), $(".item", s.group.download).remove(), $("#filter-owner option", s.group.filter).slice(1).remove(), 
+            $("#filter-src option", s.group.filter).slice(1).remove(), $("#filter").empty(), 
+            this.owner = "multiple", this.src = "multiple", this;
+        }, r.prototype.draw = function() {
+            var t, e;
+            if (i.index >= this.length) return i.index = this.length;
+            if (e = s.group.cursor.offset().top - $(window).scrollTop(), 1.5 * $(window).height() > e) for (t = []; ;) if (t.push(this[i.index].tag), 
+            i.index++, !(i.index % 5 > 0 && i.index < this.length)) break;
+            return s.group.cursor.before(t), this;
+        }, r;
+    }(Array))(), e = function() {
+        function t(t) {
+            return t instanceof jQuery && $(t).data("TaskData") ? $(t).data("TaskData") : (t.tid = parseInt(t.tid), 
+            t.status = parseInt(t.status), Object.defineProperty(this, "tid", {
+                value: t.tid,
+                writeable: !1
+            }), Object.defineProperty(this, "playlist", {
+                value: t.playlist,
+                writeable: !1
+            }), Object.defineProperty(this, "name", {
+                value: t.name,
+                writeable: !1
+            }), Object.defineProperty(this, "owner", {
+                value: t.owner,
+                writeable: !1
+            }), Object.defineProperty(this, "src_type", {
+                value: t.src_type,
+                writeable: !1
+            }), Object.defineProperty(this, "src", {
+                value: t.src,
+                writeable: !1
+            }), Object.defineProperty(this, "time", {
+                get: function() {
+                    return t.time;
+                },
+                set: function(e) {
+                    return t.time = parseInt(e);
+                }
+            }), Object.defineProperty(this, "tag", {
+                get: function() {
+                    var e, r, i, a, n;
+                    if (null == t.tag) for (t.tag = s.task.sample.clone(), this.tag.data("TaskData", this).attr("tid", this.tid), 
+                    this.tag.addClass("src-" + t.src_type.toLowerCase()), $(".thumb", this.tag).attr("href", this.src || "#"), 
+                    $(".name", this.tag).text(this.name), $(".owner", this.tag).text(this.owner), this.tag.addClass("status-" + STATUS_NAME[this.status]), 
+                    n = [ "added_time", "thumb", "quality", "size", "dl_size", "sub_task", "sub_task_ok" ], 
+                    i = 0, a = n.length; a > i; i++) r = n[i], e = this[r], t[r] = null, this[r] = e;
+                    return t.tag;
+                }
+            }), Object.defineProperty(this, "status", {
+                get: function() {
+                    return t.status;
+                },
+                set: function(e) {
+                    var s, i;
+                    return i = this.status, t.status = parseInt(e), this.status !== i && (s = r.get(this.playlist), 
+                    s.toggle(i, this.status)), this.status === STATUS.DOWNLOAD ? a.download = this : a.download === this && (a.download = !1), 
+                    this.tag.removeClass("status-" + STATUS_NAME[i]), this.tag.addClass("status-" + STATUS_NAME[this.status]), 
+                    null != this.dltag ? (this.dltag.removeClass("status-" + STATUS_NAME[i]), this.dltag.addClass("status-" + STATUS_NAME[this.status])) : void 0;
+                }
+            }), Object.defineProperty(this, "quality", {
+                get: function() {
+                    return t.quality;
+                },
+                set: function(e) {
+                    var s, r, i, a;
+                    if (r = "", null != e) for (i = 0, a = e.length; a > i; i++) if (s = e[i], null != s) {
+                        if (s = s.toLowerCase(), "" !== r && r !== s) {
+                            r = "multi";
+                            break;
+                        }
+                        r = s;
+                    }
+                    return $(".quality", this.tag).attr("class", "quality quality-" + r), t.quality = e;
+                }
+            }), Object.defineProperty(this, "added_time", {
+                get: function() {
+                    return t.added_time;
+                },
+                set: function(e) {
+                    return $(".time", this.tag).text(new Date(1e3 * e).toFormat("yyyy-MM-dd")), null != this.dltag && $(".time", this.dltag).text(new Date(1e3 * e).toFormat("yyyy-MM-dd")), 
+                    t.added_time = e;
+                }
+            }), Object.defineProperty(this, "thumb", {
+                get: function() {
+                    return t.thumb;
+                },
+                set: function(e) {
+                    var s;
+                    if (e !== this.thumb) return null != (s = r.get(this.playlist)) && (s.thumb = e), 
+                    $(".thumb .img", this.tag).empty().append($("<img onerror=\"this.src='data:image/gif;base64,R0lGODlhAwADAIAAAAAAAP///yH5BAEHAAEALAAAAAADAAMAAAIDjH8FADs='\" />").attr("src", e)), 
+                    null != this.dltag && $(".thumb .img", this.dltag).empty().append($("<img onerror=\"this.src='data:image/gif;base64,R0lGODlhAwADAIAAAAAAAP///yH5BAEHAAEALAAAAAADAAMAAAIDjH8FADs='\" />").attr("src", e)), 
+                    t.thumb = e;
+                }
+            }), Object.defineProperty(this, "size", {
+                get: function() {
+                    return t.size;
+                },
+                set: function(e) {
+                    if (t.size = parseInt(e) || 0, 1 > this.size) {
+                        if ($(".est-size, dl-size", this.tag).empty(), this.dltag) return $(".est-size, dl-size", this.dltag).empty();
+                    } else if ($(".est-size", this.tag).html("&nbsp;/&nbsp;" + $.filesize(this.size)), 
+                    this.dltag) return $(".est-size", this.dltag).html("&nbsp;/&nbsp;" + $.filesize(this.size));
+                }
+            }), Object.defineProperty(this, "dl_size", {
+                get: function() {
+                    return t.dl_size;
+                },
+                set: function(e) {
+                    return t.dl_size = parseInt(e) || 0, $(".dl-size", this.tag).text($.filesize(this.dl_size)), 
+                    this.dltag && $(".dl-size", this.dltag).text($.filesize(this.dl_size)), $(".bar", this.tag).width(100 * (this.dl_size / this.size) + "%"), 
+                    this.dltag ? $(".bar", this.dltag).width(100 * (this.dl_size / this.size) + "%") : void 0;
+                }
+            }), Object.defineProperty(this, "sub_task", {
+                get: function() {
+                    return t.sub_task || 0;
+                },
+                set: function(e) {
+                    return t.sub_task = parseInt(e) || 0, this.sub_task > 0 && ($(this.tag).addClass("has-sub"), 
+                    $(".total-sub", this.tag).html("&nbsp;/&nbsp;" + this.sub_task), this.dltag && $(".total-sub", this.dltag).html("&nbsp;/&nbsp;" + this.sub_task), 
+                    $(".bar", this.tag).width(100 * (this.sub_task_ok / this.sub_task) + "%"), this.dltag) ? $(".bar", this.dltag).width(100 * (this.sub_task_ok / this.sub_task) + "%") : void 0;
+                }
+            }), Object.defineProperty(this, "sub_task_ok", {
+                get: function() {
+                    return t.sub_task_ok || 0;
+                },
+                set: function(e) {
+                    return t.sub_task_ok = parseInt(e) || 0, $(".ok-sub", this.tag).text(this.sub_task_ok), 
+                    this.dltag && $(".ok-sub", this.dltag).text(this.sub_task_ok), this.sub_task > 0 && ($(".bar", this.tag).width(100 * (this.sub_task_ok / this.sub_task) + "%"), 
+                    this.dltag) ? $(".bar", this.dltag).width(100 * (this.sub_task_ok / this.sub_task) + "%") : void 0;
+                }
+            }), void 0);
+        }
+        return t.prototype.dltag = null, t.prototype.del = function() {
+            return $(this.tag).fadeOut(500, function() {
+                return $(this).remove();
+            }), this.dltag && $(this.dltag).fadeOut(500, function() {
+                return $(this).remove();
+            }), delete a[this.tid], r.get(this.playlist).del(this);
+        }, t;
+    }(), a = [], n = {
+        index: 0,
+        download: !1,
+        group: null,
+        auto_review: null
+    }, Object.defineProperty(a, "download", {
+        get: function() {
+            return n.download;
+        },
+        set: function(t) {
+            var e, i;
+            return i = this.download, i !== t ? (i !== !1 && (i.status === STATUS.DOWNLOAD && (i.time = new Date().getTime() / 1e3, 
+            i.status = STATUS.COMPLETE), null != i.dltag && (i.dltag.remove(), i.dltag = null), 
+            e = r.get(i.playlist), null != e.dltag && (e.dltag.remove(), e.dltag = null)), t && (t.dltag || (t.dltag = t.tag.clone()), 
+            $(".item", s.task.download).is(t.dltag) || s.task.download.append(t.dltag), e = r.get(t.playlist), 
+            null == e.dltag && (e.dltag = e.tag.clone()), $(".item", s.group.download).is(e.dltag) || s.group.download.append(e.dltag)), 
+            n.download = t) : void 0;
+        }
+    }), a.push = function(t) {
+        return $(t).each(function() {
+            var t, s;
+            return s = new e(this), a[s.tid] = s, t = r.get(s.playlist), t || (t = r.push({
+                name: s.playlist,
+                owner: s.owner,
+                thumb: s.thumb,
+                src: s.src_type
+            })), t.push(s);
+        });
+    }, a.reset = function() {
+        for (var t; this.length > 0; ) this.pop();
+        return t = !1, r.reset(), this.toggleGroup(), $(".item", s.task.download).remove(), 
+        this;
+    }, a.toggleGroup = function(t) {
+        var e;
+        return e = null, n.group = null != t ? t : null, null != n.auto_review && (clearInterval(n.auto_review), 
+        delete n.auto_review), $(".item", s.task.list).remove(), n.index = 0, n.auto_review = setInterval(function() {
+            return r.draw(), a.draw();
+        }, 300);
+    }, a.draw = function() {
+        var t, e;
+        if (!(null != n.group && n.index < n.group.length)) return this;
+        if (e = s.task.cursor.offset().top - $(window).scrollTop(), 1.5 * $(window).height() > e) {
+            for (t = []; ;) if (t.push(n.group[n.index].tag), n.index++, !(n.index % 5 > 0 && n.index < n.group.length)) break;
+            return s.task.cursor.before(t);
+        }
+    }, a.setListen = function(t, e) {
+        return i[t] = e;
+    }, $(function() {
+        var e, n;
+        return e = $("#group"), s.group = {
+            download: $(".wrapper-download .download", e),
+            list: $(".wrapper-list", e),
+            sample: $(".item", e).detach(),
+            cursor: $(".wrapper-list .none", e),
+            filter: $(".wrapper-filter .filter", e)
+        }, n = $(".task"), s.task = {
+            download: $(".wrapper-download .download", n),
+            list: $(".wrapper-list", n),
+            sample: $(".item", n).detach(),
+            cursor: $(".wrapper-list .none", n),
+            filter: $(".wrapper-filter .filter", n)
+        }, a.reset(), $(".item", e).live("click", function() {
+            var t;
+            return t = r.get($(this).attr("key")), _gaq.push([ "_trackEvent", "Group", "See", t.name ]), 
+            a.toggleGroup(t);
+        }), $(".cancel", e).live("click", function() {
+            var e, s, r, a;
+            return r = $(this).parents(".item:first"), e = new t(r), _gaq.push([ "_trackEvent", "Group", "Cancel", e.name ]), 
+            s = [], $(e).each(function() {
+                switch (this.status) {
+                  case STATUS.CANCEL:
+                  case STATUS.COMPLETE:
+                    break;
+
+                  default:
+                    return this.status = STATUS.CANCEL, this.time = new Date().getTime() / 1e3, s.push(this.tid);
+                }
+            }), "function" == typeof i[a = TASK.GROUP_CANCEL] ? i[a](s) : void 0;
+        }), $(".reload", e).live("click", function() {
+            var e, s, r, a;
+            return r = $(this).parents(".item:first"), e = new t(r), _gaq.push([ "_trackEvent", "Group", "Reload", e.name ]), 
+            s = [], $(e).each(function() {
+                switch (this.status) {
+                  case STATUS.RELOAD:
+                  case STATUS.WAIT:
+                    break;
+
+                  default:
+                    return this.dl_size = 0, this.sub_task_ok = 0, this.status = STATUS.RELOAD, this.time = new Date().getTime() / 1e3, 
+                    s.push(this.tid);
+                }
+            }), "function" == typeof i[a = TASK.GROUP_RELOAD] ? i[a](s) : void 0;
+        }), $("select", s.group.filter).on("change", function() {
+            var t, e, r, i, a, n, o, l, u;
+            for (t = $(this).parent().attr("id"), r = RegExp("^" + t + "-.+"), i = $("option:selected", this), 
+            n = i.val(), a = [], _gaq.push([ "_trackEvent", "Group", t, n ]), $(this).prev().text(i.text()), 
+            u = $(s.group.list).attr("class").split(" "), o = 0, l = u.length; l > o; o++) e = u[o], 
+            r.exec(e) && a.push(e);
+            return a.length > 0 && $(s.group.list).removeClass(a.join(" ")), i.is(":first-child") ? void 0 : $(s.group.list).addClass(t + "-" + n);
+        }).change(), $(".cancel", n).live("click", function() {
+            var t, e, s;
+            return e = $(this).parents(".item:first"), t = e.attr("tid"), _gaq.push([ "_trackEvent", "Task", "Cancel", a[t].name ]), 
+            a[t] && (a[t].status = STATUS.CANCEL, a[t].time = new Date().getTime() / 1e3), "function" == typeof i[s = TASK.TASK_CANCEL] ? i[s](t) : void 0;
+        }), $(".reload", n).live("click", function() {
+            var t, e, s;
+            return e = $(this).parents(".item:first"), t = e.attr("tid"), _gaq.push([ "_trackEvent", "Task", "Reload", a[t].name ]), 
+            a[t] && (a[t].dl_size = 0, a[t].sub_task_ok = 0, a[t].status = STATUS.RELOAD, a[t].time = new Date().getTime() / 1e3), 
+            "function" == typeof i[s = TASK.TASK_RELOAD] ? i[s](t) : void 0;
+        }), $(s.task.filter).delegate("li", "click", function() {
+            var t, e, r, i, a, n;
+            for (e = RegExp("^filter-status-.+"), r = [], _gaq.push([ "_trackEvent", "Task", "Status", $(this).attr("for") ]), 
+            n = $(s.task.list).attr("class").split(" "), i = 0, a = n.length; a > i; i++) t = n[i], 
+            e.exec(t) && r.push(t);
+            return r.length > 0 && $(s.task.list).removeClass(r.join(" ")), $(s.task.list).addClass("filter-status-" + $(this).attr("for")), 
+            $(this).addClass("active"), $(this).siblings().removeClass("active");
+        });
+    }), a;
+}(), $(function() {
+    return $(window).resize(function() {
+        return $(".task .wrapper-list").css("min-height", $(window).height() - 203), $("#group .wrapper-overflow, #group .wrapper-list").height($(window).height() - 203);
+    }), $(window).resize();
+});
+
+var TASK, __hasProp = {}.hasOwnProperty, __extends = function(t, e) {
+    function s() {
+        this.constructor = t;
+    }
+    for (var r in e) __hasProp.call(e, r) && (t[r] = e[r]);
+    return s.prototype = e.prototype, t.prototype = new s(), t.__super__ = e.prototype, 
+    t;
 };
 
-$.task = (function() {
-  /*
-    Task Static Variable
-  */
-
-  var GroupData, TaskData, doc, group, listen, task, task_obj;
-  doc = {
-    group: {
-      sample: null,
-      download: null,
-      list: null,
-      cursor: null,
-      filter: null
-    },
-    task: {
-      sample: null,
-      download: null,
-      list: null,
-      cursor: null,
-      filter: null
-    }
-  };
-  listen = [];
-  /*
-    GroupData Object
-  */
-
-  GroupData = (function(_super) {
-
-    __extends(GroupData, _super);
-
-    function GroupData(data) {
-      if ((data instanceof jQuery) && $(data).data("GroupData")) {
-        return $(data).data("GroupData");
-      }
-      data.tag = null;
-      this.dltag = null;
-      this.sum = [0, 0, 0, 0, 0, 0];
-      Object.defineProperty(this, 'name', {
-        get: function() {
-          return data.name;
-        }
-      });
-      Object.defineProperty(this, 'tag', {
-        get: function() {
-          var temp, val, _i, _len, _ref;
-          if (data.tag == null) {
-            data.tag = doc.group.sample.clone();
-            data.tag.data("GroupData", this).attr("key", data.name);
-            $(".name", data.tag).text(data.name);
-            _ref = ['thumb', 'owner', 'src_type', 'status'];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              val = _ref[_i];
-              temp = this[val];
-              delete data[val];
-              this[val] = temp;
-            }
-          }
-          return data.tag;
-        }
-      });
-      Object.defineProperty(this, 'thumb', {
-        get: function() {
-          return data.thumb || '';
+TASK = {
+    TASK_CANCEL: 0,
+    TASK_RELOAD: 1,
+    GROUP_CANCEL: 2,
+    GROUP_RELOAD: 3
+}, $.task = function() {
+    var t, e, s, r, i, a, n;
+    return s = {
+        group: {
+            sample: null,
+            download: null,
+            list: null,
+            cursor: null,
+            filter: null
         },
-        set: function(val) {
-          data.thumb = val;
-          $(".thumb .img", this.tag).empty().append($('<img onerror="this.src=\'data:image/gif;base64,R0lGODlhAwADAIAAAAAAAP///yH5BAEHAAEALAAAAAADAAMAAAIDjH8FADs=\'" />').attr('src', val));
-          if (this.dltag != null) {
-            return $(".thumb .img", this.dltag).empty().append($('<img onerror="this.src=\'data:image/gif;base64,R0lGODlhAwADAIAAAAAAAP///yH5BAEHAAEALAAAAAADAAMAAAIDjH8FADs=\'" />').attr('src', val));
-          }
+        task: {
+            sample: null,
+            download: null,
+            list: null,
+            cursor: null,
+            filter: null
         }
-      });
-      Object.defineProperty(this, 'owner', {
-        get: function() {
-          return data.owner || '';
-        },
-        set: function(val) {
-          var temp;
-          if (val == null) {
-            return;
-          }
-          val = val.toLowerCase();
-          if ((this.owner != null) && this.owner.toLowerCase() === val) {
-            return;
-          }
-          temp = this.owner;
-          if (this.owner) {
-            data.owner = 'multiple';
-          } else {
-            data.owner = val;
-          }
-          this.tag.removeClass('owner-' + temp);
-          this.tag.addClass('owner-' + this.owner);
-          if (this.dltag != null) {
-            this.dltag.removeClass('owner-' + temp);
-            this.dltag.addClass('owner-' + this.owner);
-          }
-          return group.owner = this.owner;
+    }, i = [], t = function(t) {
+        function e(t) {
+            return t instanceof jQuery && $(t).data("GroupData") ? $(t).data("GroupData") : (t.tag = null, 
+            this.dltag = null, this.sum = [ 0, 0, 0, 0, 0, 0 ], Object.defineProperty(this, "name", {
+                get: function() {
+                    return t.name;
+                }
+            }), Object.defineProperty(this, "tag", {
+                get: function() {
+                    var e, r, i, a, n;
+                    if (null == t.tag) for (t.tag = s.group.sample.clone(), t.tag.data("GroupData", this).attr("key", t.name), 
+                    $(".name", t.tag).text(t.name), n = [ "thumb", "owner", "src_type", "status" ], 
+                    i = 0, a = n.length; a > i; i++) r = n[i], e = this[r], delete t[r], this[r] = e;
+                    return t.tag;
+                }
+            }), Object.defineProperty(this, "thumb", {
+                get: function() {
+                    return t.thumb || "";
+                },
+                set: function(e) {
+                    return t.thumb = e, $(".thumb .img", this.tag).empty().append($("<img onerror=\"this.src='data:image/gif;base64,R0lGODlhAwADAIAAAAAAAP///yH5BAEHAAEALAAAAAADAAMAAAIDjH8FADs='\" />").attr("src", e)), 
+                    null != this.dltag ? $(".thumb .img", this.dltag).empty().append($("<img onerror=\"this.src='data:image/gif;base64,R0lGODlhAwADAIAAAAAAAP///yH5BAEHAAEALAAAAAADAAMAAAIDjH8FADs='\" />").attr("src", e)) : void 0;
+                }
+            }), Object.defineProperty(this, "owner", {
+                get: function() {
+                    return t.owner || "";
+                },
+                set: function(e) {
+                    var s;
+                    if (null != e && (e = e.toLowerCase(), null == this.owner || this.owner.toLowerCase() !== e)) return s = this.owner, 
+                    t.owner = this.owner ? "multiple" : e, this.tag.removeClass("owner-" + s), this.tag.addClass("owner-" + this.owner), 
+                    null != this.dltag && (this.dltag.removeClass("owner-" + s), this.dltag.addClass("owner-" + this.owner)), 
+                    r.owner = this.owner;
+                }
+            }), Object.defineProperty(this, "src_type", {
+                get: function() {
+                    return t.src_type;
+                },
+                set: function(e) {
+                    var s;
+                    if (null != e && (e = e.toLowerCase(), null == this.src_type || this.src_type.toLowerCase() !== e)) return s = this.src_type, 
+                    t.src_type = this.src_type ? "multiple" : e, this.tag.removeClass("src-" + s), this.tag.addClass("src-" + this.src_type), 
+                    null != this.dltag && (this.dltag.removeClass("src-" + s), this.dltag.addClass("src-" + this.src_type)), 
+                    r.src = this.src_type;
+                }
+            }), Object.defineProperty(this, "status", {
+                get: function() {
+                    return t.status;
+                },
+                set: function(e) {
+                    return this.tag.removeClass("status-" + STATUS_NAME[t.status]), this.tag.addClass("status-" + STATUS_NAME[e]), 
+                    null != this.dltag && (this.dltag.removeClass("status-" + STATUS_NAME[t.status]), 
+                    this.dltag.addClass("status-" + STATUS_NAME[e])), t.status = e, $(".total", this.tag).text(this.sum[STATUS.COMPLETE] + " / " + this.length), 
+                    null != this.dltag ? $(".total", this.dltag).text(this.sum[STATUS.COMPLETE] + " / " + this.length) : void 0;
+                }
+            }), void 0);
         }
-      });
-      Object.defineProperty(this, 'src_type', {
-        get: function() {
-          return data.src_type;
-        },
-        set: function(val) {
-          var temp;
-          if (val == null) {
-            return;
-          }
-          val = val.toLowerCase();
-          if ((this.src_type != null) && this.src_type.toLowerCase() === val) {
-            return;
-          }
-          temp = this.src_type;
-          if (this.src_type) {
-            data.src_type = 'multiple';
-          } else {
-            data.src_type = val;
-          }
-          this.tag.removeClass('src-' + temp);
-          this.tag.addClass('src-' + this.src_type);
-          if (this.dltag != null) {
-            this.dltag.removeClass('src-' + temp);
-            this.dltag.addClass('src-' + this.src_type);
-          }
-          return group.src = this.src_type;
-        }
-      });
-      Object.defineProperty(this, 'status', {
-        get: function() {
-          return data.status;
-        },
-        set: function(val) {
-          this.tag.removeClass('status-' + STATUS_NAME[data.status]);
-          this.tag.addClass('status-' + STATUS_NAME[val]);
-          if (this.dltag != null) {
-            this.dltag.removeClass('status-' + STATUS_NAME[data.status]);
-            this.dltag.addClass('status-' + STATUS_NAME[val]);
-          }
-          data.status = val;
-          $(".total", this.tag).text(this.sum[STATUS.COMPLETE] + " / " + this.length);
-          if (this.dltag != null) {
-            return $(".total", this.dltag).text(this.sum[STATUS.COMPLETE] + " / " + this.length);
-          }
-        }
-      });
-    }
-
-    GroupData.prototype.push = function(task) {
-      Array.prototype.push.call(this, task);
-      this.toggle(false, task.status);
-      if (task.thumb != null) {
-        this.thumb = task.thumb;
-      }
-      this.owner = task.owner;
-      this.src_type = task.src_type;
-      return this;
-    };
-
-    GroupData.prototype.del = function(task_data) {
-      var index;
-      index = $.inArray(task_data, this);
-      if (index > -1) {
-        this.splice(index, 1);
-        this.toggle(task_data.status, false);
-        if (!(this.length > 0)) {
-          group.del(this);
-          $(this.tag).fadeOut(500, function() {
-            return $(this).remove();
-          });
-          if (this.dltag != null) {
-            $(this.dltag).fadeOut(500, function() {
-              return $(this).remove();
+        return __extends(e, t), e.prototype.push = function(t) {
+            return Array.prototype.push.call(this, t), this.toggle(!1, t.status), null != t.thumb && (this.thumb = t.thumb), 
+            this.owner = t.owner, this.src_type = t.src_type, this;
+        }, e.prototype.del = function(t) {
+            var e;
+            return e = $.inArray(t, this), e > -1 && (this.splice(e, 1), this.toggle(t.status, !1), 
+            this.length > 0 || (r.del(this), $(this.tag).fadeOut(500, function() {
+                return $(this).remove();
+            }), null != this.dltag && $(this.dltag).fadeOut(500, function() {
+                return $(this).remove();
+            }))), this;
+        }, e.prototype.toggle = function(t, e) {
+            return null != t && t !== !1 && this.sum[t]--, null != e && e !== !1 && this.sum[e]++, 
+            this.status = 1 > this.sum[STATUS.WAIT] + this.sum[STATUS.DOWNLOAD] ? this.sum[STATUS.FAIL] > 0 ? STATUS.FAIL : this.sum[STATUS.COMPLETE] > 0 ? STATUS.COMPLETE : STATUS.CANCEL : this.sum[STATUS.DOWNLOAD] > 0 ? STATUS.DOWNLOAD : STATUS.WAIT;
+        }, e;
+    }(Array), $.group = r = new (function(e) {
+        function r() {
+            Object.defineProperty(this, "owner", {
+                get: function() {
+                    return i.filter.owner;
+                },
+                set: function(t) {
+                    return null != t && (t = t.toLowerCase(), 0 > i.filter.owner_list.indexOf(t)) ? (i.filter.owner_list.push(t), 
+                    $("#filter-owner select", s.group.filter).append($("<option />").text(t)), $("#filter").html($("#filter").html() + " #group .filter-owner-" + t + " .item:not(.owner-" + t + "){ height: 0px;border: none;}")) : void 0;
+                }
+            }), Object.defineProperty(this, "src", {
+                get: function() {
+                    return i.filter.src;
+                },
+                set: function(t) {
+                    return null != t && (t = t.toLowerCase(), 0 > i.filter.src_list.indexOf(t)) ? (i.filter.src_list.push(t), 
+                    $("#filter-src select", s.group.filter).append($("<option />").text(t)), $("#filter").html($("#filter").html() + " #group .filter-src-" + t + " .item:not(.src-" + t + "){ height: 0px;border: none;}")) : void 0;
+                }
             });
-          }
         }
-      }
-      return this;
-    };
-
-    GroupData.prototype.toggle = function(from, to) {
-      if ((from != null) && from !== false) {
-        this.sum[from]--;
-      }
-      if ((to != null) && to !== false) {
-        this.sum[to]++;
-      }
-      if (this.sum[STATUS.WAIT] + this.sum[STATUS.DOWNLOAD] < 1) {
-        if (this.sum[STATUS.FAIL] > 0) {
-          return this.status = STATUS.FAIL;
-        } else if (this.sum[STATUS.COMPLETE] > 0) {
-          return this.status = STATUS.COMPLETE;
-        } else {
-          return this.status = STATUS.CANCEL;
-        }
-      } else {
-        if (this.sum[STATUS.DOWNLOAD] > 0) {
-          return this.status = STATUS.DOWNLOAD;
-        } else {
-          return this.status = STATUS.WAIT;
-        }
-      }
-    };
-
-    return GroupData;
-
-  })(Array);
-  /*
-    Group Object
-  */
-
-  $.group = group = new ((function(_super) {
-    var obj;
-
-    __extends(_Class, _super);
-
-    obj = {
-      index: 0,
-      data: {},
-      filter: {
-        owner: null,
-        owner_list: [],
-        src: null,
-        src_list: []
-      }
-    };
-
-    function _Class() {
-      Object.defineProperty(this, 'owner', {
-        get: function() {
-          return obj.filter.owner;
-        },
-        set: function(val) {
-          if (val == null) {
-            return;
-          }
-          val = val.toLowerCase();
-          if (!(obj.filter.owner_list.indexOf(val) < 0)) {
-            return;
-          }
-          obj.filter.owner_list.push(val);
-          $("#filter-owner select", doc.group.filter).append($("<option />").text(val));
-          return $('#filter').html($('#filter').html() + ' #group .filter-owner-' + val + ' .item:not(.owner-' + val + '){ height: 0px;border: none;}');
-        }
-      });
-      Object.defineProperty(this, 'src', {
-        get: function() {
-          return obj.filter.src;
-        },
-        set: function(val) {
-          if (val == null) {
-            return;
-          }
-          val = val.toLowerCase();
-          if (!(obj.filter.src_list.indexOf(val) < 0)) {
-            return;
-          }
-          obj.filter.src_list.push(val);
-          $("#filter-src select", doc.group.filter).append($("<option />").text(val));
-          return $('#filter').html($('#filter').html() + ' #group .filter-src-' + val + ' .item:not(.src-' + val + '){ height: 0px;border: none;}');
-        }
-      });
-    }
-
-    _Class.prototype.push = function(item) {
-      item = new GroupData(item);
-      obj.data[item.name] = item;
-      Array.prototype.push.call(this, item);
-      if (this.length === 1) {
-        task.toggleGroup(item);
-      }
-      return item;
-    };
-
-    _Class.prototype.get = function(name) {
-      return obj.data[name];
-    };
-
-    _Class.prototype.del = function(group_data) {
-      var index;
-      delete obj.data[group_data.name];
-      index = $.inArray(group_data, this);
-      if (index > -1) {
-        this.splice(index, 1);
-      }
-      return this;
-    };
-
-    _Class.prototype.reset = function() {
-      obj.index = 0;
-      obj.data = {};
-      while (this.length > 0) {
-        this.pop();
-      }
-      obj.filter = {
-        owner: null,
-        owner_list: [],
-        src: null,
-        src_list: []
-      };
-      $(".item", doc.group.list).remove();
-      $(".item", doc.group.download).remove();
-      $("#filter-owner option", doc.group.filter).slice(1).remove();
-      $("#filter-src option", doc.group.filter).slice(1).remove();
-      $('#filter').empty();
-      this.owner = 'multiple';
-      this.src = 'multiple';
-      return this;
-    };
-
-    _Class.prototype.draw = function() {
-      var draw, top;
-      if (obj.index >= this.length) {
-        return obj.index = this.length;
-      }
-      top = doc.group.cursor.offset().top - $(window).scrollTop();
-      if (top < ($(window).height() * 1.5)) {
-        draw = [];
-        while (true) {
-          draw.push(this[obj.index].tag);
-          obj.index++;
-          if (!(obj.index % 5 > 0 && obj.index < this.length)) {
-            break;
-          }
-        }
-      }
-      doc.group.cursor.before(draw);
-      return this;
-    };
-
-    return _Class;
-
-  })(Array));
-  /*
-    TaskData Object
-  */
-
-  TaskData = (function() {
-
-    TaskData.prototype.dltag = null;
-
-    function TaskData(data) {
-      if ((data instanceof jQuery) && $(data).data("TaskData")) {
-        return $(data).data("TaskData");
-      }
-      data.tid = parseInt(data.tid);
-      data.status = parseInt(data.status);
-      Object.defineProperty(this, "tid", {
-        value: data.tid,
-        writeable: false
-      });
-      Object.defineProperty(this, "playlist", {
-        value: data.playlist,
-        writeable: false
-      });
-      Object.defineProperty(this, "name", {
-        value: data.name,
-        writeable: false
-      });
-      Object.defineProperty(this, "owner", {
-        value: data.owner,
-        writeable: false
-      });
-      Object.defineProperty(this, "src_type", {
-        value: data.src_type,
-        writeable: false
-      });
-      Object.defineProperty(this, "src", {
-        value: data.src,
-        writeable: false
-      });
-      Object.defineProperty(this, "time", {
-        get: function() {
-          return data.time;
-        },
-        set: function(val) {
-          return data.time = parseInt(val);
-        }
-      });
-      Object.defineProperty(this, "tag", {
-        get: function() {
-          var temp, val, _i, _len, _ref;
-          if (data.tag == null) {
-            data.tag = doc.task.sample.clone();
-            this.tag.data("TaskData", this).attr("tid", this.tid);
-            this.tag.addClass('src-' + data.src_type.toLowerCase());
-            $(".thumb", this.tag).attr('href', this.src || '#');
-            $(".name", this.tag).text(this.name);
-            $(".owner", this.tag).text(this.owner);
-            this.tag.addClass('status-' + STATUS_NAME[this.status]);
-            _ref = ['added_time', 'thumb', 'quality', 'size', 'dl_size', 'sub_task', 'sub_task_ok'];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              val = _ref[_i];
-              temp = this[val];
-              data[val] = null;
-              this[val] = temp;
+        var i;
+        return __extends(r, e), i = {
+            index: 0,
+            data: {},
+            filter: {
+                owner: null,
+                owner_list: [],
+                src: null,
+                src_list: []
             }
-          }
-          return data.tag;
+        }, r.prototype.push = function(e) {
+            return e = new t(e), i.data[e.name] = e, Array.prototype.push.call(this, e), 1 === this.length && a.toggleGroup(e), 
+            e;
+        }, r.prototype.get = function(t) {
+            return i.data[t];
+        }, r.prototype.del = function(t) {
+            var e;
+            return delete i.data[t.name], e = $.inArray(t, this), e > -1 && this.splice(e, 1), 
+            this;
+        }, r.prototype.reset = function() {
+            for (i.index = 0, i.data = {}; this.length > 0; ) this.pop();
+            return i.filter = {
+                owner: null,
+                owner_list: [],
+                src: null,
+                src_list: []
+            }, $(".item", s.group.list).remove(), $(".item", s.group.download).remove(), $("#filter-owner option", s.group.filter).slice(1).remove(), 
+            $("#filter-src option", s.group.filter).slice(1).remove(), $("#filter").empty(), 
+            this.owner = "multiple", this.src = "multiple", this;
+        }, r.prototype.draw = function() {
+            var t, e;
+            if (i.index >= this.length) return i.index = this.length;
+            if (e = s.group.cursor.offset().top - $(window).scrollTop(), 1.5 * $(window).height() > e) for (t = []; ;) if (t.push(this[i.index].tag), 
+            i.index++, !(i.index % 5 > 0 && i.index < this.length)) break;
+            return s.group.cursor.before(t), this;
+        }, r;
+    }(Array))(), e = function() {
+        function t(t) {
+            return t instanceof jQuery && $(t).data("TaskData") ? $(t).data("TaskData") : (t.tid = parseInt(t.tid), 
+            t.status = parseInt(t.status), Object.defineProperty(this, "tid", {
+                value: t.tid,
+                writeable: !1
+            }), Object.defineProperty(this, "playlist", {
+                value: t.playlist,
+                writeable: !1
+            }), Object.defineProperty(this, "name", {
+                value: t.name,
+                writeable: !1
+            }), Object.defineProperty(this, "owner", {
+                value: t.owner,
+                writeable: !1
+            }), Object.defineProperty(this, "src_type", {
+                value: t.src_type,
+                writeable: !1
+            }), Object.defineProperty(this, "src", {
+                value: t.src,
+                writeable: !1
+            }), Object.defineProperty(this, "time", {
+                get: function() {
+                    return t.time;
+                },
+                set: function(e) {
+                    return t.time = parseInt(e);
+                }
+            }), Object.defineProperty(this, "tag", {
+                get: function() {
+                    var e, r, i, a, n;
+                    if (null == t.tag) for (t.tag = s.task.sample.clone(), this.tag.data("TaskData", this).attr("tid", this.tid), 
+                    this.tag.addClass("src-" + t.src_type.toLowerCase()), $(".thumb", this.tag).attr("href", this.src || "#"), 
+                    $(".name", this.tag).text(this.name), $(".owner", this.tag).text(this.owner), this.tag.addClass("status-" + STATUS_NAME[this.status]), 
+                    n = [ "added_time", "thumb", "quality", "size", "dl_size", "sub_task", "sub_task_ok" ], 
+                    i = 0, a = n.length; a > i; i++) r = n[i], e = this[r], t[r] = null, this[r] = e;
+                    return t.tag;
+                }
+            }), Object.defineProperty(this, "status", {
+                get: function() {
+                    return t.status;
+                },
+                set: function(e) {
+                    var s, i;
+                    return i = this.status, t.status = parseInt(e), this.status !== i && (s = r.get(this.playlist), 
+                    s.toggle(i, this.status)), this.status === STATUS.DOWNLOAD ? a.download = this : a.download === this && (a.download = !1), 
+                    this.tag.removeClass("status-" + STATUS_NAME[i]), this.tag.addClass("status-" + STATUS_NAME[this.status]), 
+                    null != this.dltag ? (this.dltag.removeClass("status-" + STATUS_NAME[i]), this.dltag.addClass("status-" + STATUS_NAME[this.status])) : void 0;
+                }
+            }), Object.defineProperty(this, "quality", {
+                get: function() {
+                    return t.quality;
+                },
+                set: function(e) {
+                    var s, r, i, a;
+                    if (r = "", null != e) for (i = 0, a = e.length; a > i; i++) if (s = e[i], null != s) {
+                        if (s = s.toLowerCase(), "" !== r && r !== s) {
+                            r = "multi";
+                            break;
+                        }
+                        r = s;
+                    }
+                    return $(".quality", this.tag).attr("class", "quality quality-" + r), t.quality = e;
+                }
+            }), Object.defineProperty(this, "added_time", {
+                get: function() {
+                    return t.added_time;
+                },
+                set: function(e) {
+                    return $(".time", this.tag).text(new Date(1e3 * e).toFormat("yyyy-MM-dd")), null != this.dltag && $(".time", this.dltag).text(new Date(1e3 * e).toFormat("yyyy-MM-dd")), 
+                    t.added_time = e;
+                }
+            }), Object.defineProperty(this, "thumb", {
+                get: function() {
+                    return t.thumb;
+                },
+                set: function(e) {
+                    var s;
+                    if (e !== this.thumb) return null != (s = r.get(this.playlist)) && (s.thumb = e), 
+                    $(".thumb .img", this.tag).empty().append($("<img onerror=\"this.src='data:image/gif;base64,R0lGODlhAwADAIAAAAAAAP///yH5BAEHAAEALAAAAAADAAMAAAIDjH8FADs='\" />").attr("src", e)), 
+                    null != this.dltag && $(".thumb .img", this.dltag).empty().append($("<img onerror=\"this.src='data:image/gif;base64,R0lGODlhAwADAIAAAAAAAP///yH5BAEHAAEALAAAAAADAAMAAAIDjH8FADs='\" />").attr("src", e)), 
+                    t.thumb = e;
+                }
+            }), Object.defineProperty(this, "size", {
+                get: function() {
+                    return t.size;
+                },
+                set: function(e) {
+                    if (t.size = parseInt(e) || 0, 1 > this.size) {
+                        if ($(".est-size, dl-size", this.tag).empty(), this.dltag) return $(".est-size, dl-size", this.dltag).empty();
+                    } else if ($(".est-size", this.tag).html("&nbsp;/&nbsp;" + $.filesize(this.size)), 
+                    this.dltag) return $(".est-size", this.dltag).html("&nbsp;/&nbsp;" + $.filesize(this.size));
+                }
+            }), Object.defineProperty(this, "dl_size", {
+                get: function() {
+                    return t.dl_size;
+                },
+                set: function(e) {
+                    return t.dl_size = parseInt(e) || 0, $(".dl-size", this.tag).text($.filesize(this.dl_size)), 
+                    this.dltag && $(".dl-size", this.dltag).text($.filesize(this.dl_size)), $(".bar", this.tag).width(100 * (this.dl_size / this.size) + "%"), 
+                    this.dltag ? $(".bar", this.dltag).width(100 * (this.dl_size / this.size) + "%") : void 0;
+                }
+            }), Object.defineProperty(this, "sub_task", {
+                get: function() {
+                    return t.sub_task || 0;
+                },
+                set: function(e) {
+                    return t.sub_task = parseInt(e) || 0, this.sub_task > 0 && ($(this.tag).addClass("has-sub"), 
+                    $(".total-sub", this.tag).html("&nbsp;/&nbsp;" + this.sub_task), this.dltag && $(".total-sub", this.dltag).html("&nbsp;/&nbsp;" + this.sub_task), 
+                    $(".bar", this.tag).width(100 * (this.sub_task_ok / this.sub_task) + "%"), this.dltag) ? $(".bar", this.dltag).width(100 * (this.sub_task_ok / this.sub_task) + "%") : void 0;
+                }
+            }), Object.defineProperty(this, "sub_task_ok", {
+                get: function() {
+                    return t.sub_task_ok || 0;
+                },
+                set: function(e) {
+                    return t.sub_task_ok = parseInt(e) || 0, $(".ok-sub", this.tag).text(this.sub_task_ok), 
+                    this.dltag && $(".ok-sub", this.dltag).text(this.sub_task_ok), this.sub_task > 0 && ($(".bar", this.tag).width(100 * (this.sub_task_ok / this.sub_task) + "%"), 
+                    this.dltag) ? $(".bar", this.dltag).width(100 * (this.sub_task_ok / this.sub_task) + "%") : void 0;
+                }
+            }), void 0);
         }
-      });
-      Object.defineProperty(this, "status", {
+        return t.prototype.dltag = null, t.prototype.del = function() {
+            return $(this.tag).fadeOut(500, function() {
+                return $(this).remove();
+            }), this.dltag && $(this.dltag).fadeOut(500, function() {
+                return $(this).remove();
+            }), delete a[this.tid], r.get(this.playlist).del(this);
+        }, t;
+    }(), a = [], n = {
+        index: 0,
+        download: !1,
+        group: null,
+        auto_review: null
+    }, Object.defineProperty(a, "download", {
         get: function() {
-          return data.status;
+            return n.download;
         },
-        set: function(val) {
-          var belong, temp;
-          temp = this.status;
-          data.status = parseInt(val);
-          if (this.status !== temp) {
-            belong = group.get(this.playlist);
-            belong.toggle(temp, this.status);
-          }
-          if (this.status === STATUS.DOWNLOAD) {
-            task.download = this;
-          } else if (task.download === this) {
-            task.download = false;
-          }
-          this.tag.removeClass('status-' + STATUS_NAME[temp]);
-          this.tag.addClass('status-' + STATUS_NAME[this.status]);
-          if (this.dltag != null) {
-            this.dltag.removeClass('status-' + STATUS_NAME[temp]);
-            return this.dltag.addClass('status-' + STATUS_NAME[this.status]);
-          }
+        set: function(t) {
+            var e, i;
+            return i = this.download, i !== t ? (i !== !1 && (i.status === STATUS.DOWNLOAD && (i.time = new Date().getTime() / 1e3, 
+            i.status = STATUS.COMPLETE), null != i.dltag && (i.dltag.remove(), i.dltag = null), 
+            e = r.get(i.playlist), null != e.dltag && (e.dltag.remove(), e.dltag = null)), t && (t.dltag || (t.dltag = t.tag.clone()), 
+            $(".item", s.task.download).is(t.dltag) || s.task.download.append(t.dltag), e = r.get(t.playlist), 
+            null == e.dltag && (e.dltag = e.tag.clone()), $(".item", s.group.download).is(e.dltag) || s.group.download.append(e.dltag)), 
+            n.download = t) : void 0;
         }
-      });
-      Object.defineProperty(this, "quality", {
-        get: function() {
-          return data.quality;
-        },
-        set: function(val) {
-          var item, quality, _i, _len;
-          quality = '';
-          if (val != null) {
-            for (_i = 0, _len = val.length; _i < _len; _i++) {
-              item = val[_i];
-              if (item == null) {
-                continue;
-              }
-              item = item.toLowerCase();
-              if (quality !== '' && quality !== item) {
-                quality = 'multi';
-                break;
-              }
-              quality = item;
-            }
-          }
-          $(".quality", this.tag).attr('class', 'quality quality-' + quality);
-          return data.quality = val;
-        }
-      });
-      Object.defineProperty(this, "added_time", {
-        get: function() {
-          return data.added_time;
-        },
-        set: function(val) {
-          $(".time", this.tag).text(new Date(val * 1000).toFormat("yyyy-MM-dd"));
-          if (this.dltag != null) {
-            $(".time", this.dltag).text(new Date(val * 1000).toFormat("yyyy-MM-dd"));
-          }
-          return data.added_time = val;
-        }
-      });
-      Object.defineProperty(this, "thumb", {
-        get: function() {
-          return data.thumb;
-        },
-        set: function(val) {
-          var _ref;
-          if (val === this.thumb) {
-            return;
-          }
-          if ((_ref = group.get(this.playlist)) != null) {
-            _ref.thumb = val;
-          }
-          $('.thumb .img', this.tag).empty().append($('<img onerror="this.src=\'data:image/gif;base64,R0lGODlhAwADAIAAAAAAAP///yH5BAEHAAEALAAAAAADAAMAAAIDjH8FADs=\'" />').attr('src', val));
-          if (this.dltag != null) {
-            $('.thumb .img', this.dltag).empty().append($('<img onerror="this.src=\'data:image/gif;base64,R0lGODlhAwADAIAAAAAAAP///yH5BAEHAAEALAAAAAADAAMAAAIDjH8FADs=\'" />').attr('src', val));
-          }
-          return data.thumb = val;
-        }
-      });
-      Object.defineProperty(this, "size", {
-        get: function() {
-          return data.size;
-        },
-        set: function(val) {
-          data.size = parseInt(val) || 0;
-          if (this.size < 1) {
-            $(".est-size, dl-size", this.tag).empty();
-            if (this.dltag) {
-              return $(".est-size, dl-size", this.dltag).empty();
-            }
-          } else {
-            $(".est-size", this.tag).html('&nbsp;/&nbsp;' + $.filesize(this.size));
-            if (this.dltag) {
-              return $(".est-size", this.dltag).html('&nbsp;/&nbsp;' + $.filesize(this.size));
-            }
-          }
-        }
-      });
-      Object.defineProperty(this, "dl_size", {
-        get: function() {
-          return data.dl_size;
-        },
-        set: function(val) {
-          data.dl_size = parseInt(val) || 0;
-          $(".dl-size", this.tag).text($.filesize(this.dl_size));
-          if (this.dltag) {
-            $(".dl-size", this.dltag).text($.filesize(this.dl_size));
-          }
-          $(".bar", this.tag).width((this.dl_size / this.size * 100) + "%");
-          if (this.dltag) {
-            return $(".bar", this.dltag).width((this.dl_size / this.size * 100) + "%");
-          }
-        }
-      });
-      Object.defineProperty(this, "sub_task", {
-        get: function() {
-          return data.sub_task || 0;
-        },
-        set: function(val) {
-          data.sub_task = parseInt(val) || 0;
-          if (this.sub_task > 0) {
-            $(this.tag).addClass('has-sub');
-            $(".total-sub", this.tag).html('&nbsp;/&nbsp;' + this.sub_task);
-            if (this.dltag) {
-              $(".total-sub", this.dltag).html('&nbsp;/&nbsp;' + this.sub_task);
-            }
-            $(".bar", this.tag).width((this.sub_task_ok / this.sub_task * 100) + "%");
-            if (this.dltag) {
-              return $(".bar", this.dltag).width((this.sub_task_ok / this.sub_task * 100) + "%");
-            }
-          }
-        }
-      });
-      Object.defineProperty(this, "sub_task_ok", {
-        get: function() {
-          return data.sub_task_ok || 0;
-        },
-        set: function(val) {
-          data.sub_task_ok = parseInt(val) || 0;
-          $(".ok-sub", this.tag).text(this.sub_task_ok);
-          if (this.dltag) {
-            $(".ok-sub", this.dltag).text(this.sub_task_ok);
-          }
-          if (this.sub_task > 0) {
-            $(".bar", this.tag).width((this.sub_task_ok / this.sub_task * 100) + "%");
-            if (this.dltag) {
-              return $(".bar", this.dltag).width((this.sub_task_ok / this.sub_task * 100) + "%");
-            }
-          }
-        }
-      });
-      this;
-
-    }
-
-    TaskData.prototype.del = function() {
-      $(this.tag).fadeOut(500, function() {
-        return $(this).remove();
-      });
-      if (this.dltag) {
-        $(this.dltag).fadeOut(500, function() {
-          return $(this).remove();
+    }), a.push = function(t) {
+        return $(t).each(function() {
+            var t, s;
+            return s = new e(this), a[s.tid] = s, t = r.get(s.playlist), t || (t = r.push({
+                name: s.playlist,
+                owner: s.owner,
+                thumb: s.thumb,
+                src: s.src_type
+            })), t.push(s);
         });
-      }
-      delete task[this.tid];
-      return group.get(this.playlist).del(this);
-    };
+    }, a.reset = function() {
+        for (var t; this.length > 0; ) this.pop();
+        return t = !1, r.reset(), this.toggleGroup(), $(".item", s.task.download).remove(), 
+        this;
+    }, a.toggleGroup = function(t) {
+        var e;
+        return e = null, n.group = null != t ? t : null, null != n.auto_review && (clearInterval(n.auto_review), 
+        delete n.auto_review), $(".item", s.task.list).remove(), n.index = 0, n.auto_review = setInterval(function() {
+            return r.draw(), a.draw();
+        }, 300);
+    }, a.draw = function() {
+        var t, e;
+        if (!(null != n.group && n.index < n.group.length)) return this;
+        if (e = s.task.cursor.offset().top - $(window).scrollTop(), 1.5 * $(window).height() > e) {
+            for (t = []; ;) if (t.push(n.group[n.index].tag), n.index++, !(n.index % 5 > 0 && n.index < n.group.length)) break;
+            return s.task.cursor.before(t);
+        }
+    }, a.setListen = function(t, e) {
+        return i[t] = e;
+    }, $(function() {
+        var e, n;
+        return e = $("#group"), s.group = {
+            download: $(".wrapper-download .download", e),
+            list: $(".wrapper-list", e),
+            sample: $(".item", e).detach(),
+            cursor: $(".wrapper-list .none", e),
+            filter: $(".wrapper-filter .filter", e)
+        }, n = $(".task"), s.task = {
+            download: $(".wrapper-download .download", n),
+            list: $(".wrapper-list", n),
+            sample: $(".item", n).detach(),
+            cursor: $(".wrapper-list .none", n),
+            filter: $(".wrapper-filter .filter", n)
+        }, a.reset(), $(".item", e).live("click", function() {
+            var t;
+            return t = r.get($(this).attr("key")), _gaq.push([ "_trackEvent", "Group", "See", t.name ]), 
+            a.toggleGroup(t);
+        }), $(".cancel", e).live("click", function() {
+            var e, s, r, a;
+            return r = $(this).parents(".item:first"), e = new t(r), _gaq.push([ "_trackEvent", "Group", "Cancel", e.name ]), 
+            s = [], $(e).each(function() {
+                switch (this.status) {
+                  case STATUS.CANCEL:
+                  case STATUS.COMPLETE:
+                    break;
 
-    return TaskData;
+                  default:
+                    return this.status = STATUS.CANCEL, this.time = new Date().getTime() / 1e3, s.push(this.tid);
+                }
+            }), "function" == typeof i[a = TASK.GROUP_CANCEL] ? i[a](s) : void 0;
+        }), $(".reload", e).live("click", function() {
+            var e, s, r, a;
+            return r = $(this).parents(".item:first"), e = new t(r), _gaq.push([ "_trackEvent", "Group", "Reload", e.name ]), 
+            s = [], $(e).each(function() {
+                switch (this.status) {
+                  case STATUS.RELOAD:
+                  case STATUS.WAIT:
+                    break;
 
-  })();
-  /*
-    Task Object
-  */
-
-  task = [];
-  task_obj = {
-    index: 0,
-    download: false,
-    group: null,
-    auto_review: null
-  };
-  Object.defineProperty(task, 'download', {
-    get: function() {
-      return task_obj.download;
-    },
-    set: function(task_data) {
-      var belong, temp;
-      temp = this.download;
-      if (temp === task_data) {
-        return;
-      }
-      if (temp !== false) {
-        if (temp.status === STATUS.DOWNLOAD) {
-          temp.time = new Date().getTime() / 1000;
-          temp.status = STATUS.COMPLETE;
-        }
-        if (temp.dltag != null) {
-          temp.dltag.remove();
-          temp.dltag = null;
-        }
-        belong = group.get(temp.playlist);
-        if (belong.dltag != null) {
-          belong.dltag.remove();
-          belong.dltag = null;
-        }
-      }
-      if (task_data) {
-        if (!task_data.dltag) {
-          task_data.dltag = task_data.tag.clone();
-        }
-        if (!$('.item', doc.task.download).is(task_data.dltag)) {
-          doc.task.download.append(task_data.dltag);
-        }
-        belong = group.get(task_data.playlist);
-        if (belong.dltag == null) {
-          belong.dltag = belong.tag.clone();
-        }
-        if (!$('.item', doc.group.download).is(belong.dltag)) {
-          doc.group.download.append(belong.dltag);
-        }
-      }
-      return task_obj.download = task_data;
-    }
-  });
-  task.push = function(data) {
-    return $(data).each(function() {
-      var belong, item;
-      item = new TaskData(this);
-      task[item.tid] = item;
-      belong = group.get(item.playlist);
-      if (!belong) {
-        belong = group.push({
-          name: item.playlist,
-          owner: item.owner,
-          thumb: item.thumb,
-          src: item.src_type
+                  default:
+                    return this.dl_size = 0, this.sub_task_ok = 0, this.status = STATUS.RELOAD, this.time = new Date().getTime() / 1e3, 
+                    s.push(this.tid);
+                }
+            }), "function" == typeof i[a = TASK.GROUP_RELOAD] ? i[a](s) : void 0;
+        }), $("select", s.group.filter).on("change", function() {
+            var t, e, r, i, a, n, o, l, u;
+            for (t = $(this).parent().attr("id"), r = RegExp("^" + t + "-.+"), i = $("option:selected", this), 
+            n = i.val(), a = [], $(this).prev().text(i.text()), u = $(s.group.list).attr("class").split(" "), 
+            o = 0, l = u.length; l > o; o++) e = u[o], r.exec(e) && a.push(e);
+            return a.length > 0 && $(s.group.list).removeClass(a.join(" ")), i.is(":first-child") ? void 0 : $(s.group.list).addClass(t + "-" + n);
+        }).change(), $(".cancel", n).live("click", function() {
+            var t, e, s;
+            return e = $(this).parents(".item:first"), t = e.attr("tid"), _gaq.push([ "_trackEvent", "Task", "Cancel", a[t].name ]), 
+            a[t] && (a[t].status = STATUS.CANCEL, a[t].time = new Date().getTime() / 1e3), "function" == typeof i[s = TASK.TASK_CANCEL] ? i[s](t) : void 0;
+        }), $(".reload", n).live("click", function() {
+            var t, e, s;
+            return e = $(this).parents(".item:first"), t = e.attr("tid"), _gaq.push([ "_trackEvent", "Task", "Reload", a[t].name ]), 
+            a[t] && (a[t].dl_size = 0, a[t].sub_task_ok = 0, a[t].status = STATUS.RELOAD, a[t].time = new Date().getTime() / 1e3), 
+            "function" == typeof i[s = TASK.TASK_RELOAD] ? i[s](t) : void 0;
+        }), $(s.task.filter).delegate("li", "click", function() {
+            var t, e, r, i, a, n;
+            for (e = RegExp("^filter-status-.+"), r = [], n = $(s.task.list).attr("class").split(" "), 
+            i = 0, a = n.length; a > i; i++) t = n[i], e.exec(t) && r.push(t);
+            return r.length > 0 && $(s.task.list).removeClass(r.join(" ")), $(s.task.list).addClass("filter-status-" + $(this).attr("for")), 
+            $(this).addClass("active"), $(this).siblings().removeClass("active");
         });
-      }
-      return belong.push(item);
-    });
-  };
-  task.reset = function() {
-    var download;
-    while (this.length > 0) {
-      this.pop();
-    }
-    download = false;
-    group.reset();
-    this.toggleGroup();
-    $(".item", doc.task.download).remove();
-    return this;
-  };
-  task.toggleGroup = function(playlist) {
-    var target;
-    target = null;
-    task_obj.group = playlist != null ? playlist : null;
-    if (task_obj.auto_review != null) {
-      clearInterval(task_obj.auto_review);
-      delete task_obj.auto_review;
-    }
-    $(".item", doc.task.list).remove();
-    task_obj.index = 0;
-    return task_obj.auto_review = setInterval(function() {
-      group.draw();
-      return task.draw();
-    }, 300);
-  };
-  task.draw = function() {
-    var draw, top;
-    if (!((task_obj.group != null) && task_obj.index < task_obj.group.length)) {
-      return this;
-    }
-    top = doc.task.cursor.offset().top - $(window).scrollTop();
-    if (top < ($(window).height() * 1.5)) {
-      draw = [];
-      while (true) {
-        draw.push(task_obj.group[task_obj.index].tag);
-        task_obj.index++;
-        if (!(task_obj.index % 5 > 0 && task_obj.index < task_obj.group.length)) {
-          break;
-        }
-      }
-      return doc.task.cursor.before(draw);
-    }
-  };
-  task.setListen = function(event_code, action) {
-    return listen[event_code] = action;
-  };
-  $(function() {
-    var group_wrap, task_wrap;
-    group_wrap = $('#group');
-    doc.group = {
-      download: $('.wrapper-download .download', group_wrap),
-      list: $('.wrapper-list', group_wrap),
-      sample: $('.item', group_wrap).detach(),
-      cursor: $('.wrapper-list .none', group_wrap),
-      filter: $('.wrapper-filter .filter', group_wrap)
-    };
-    task_wrap = $('.task');
-    doc.task = {
-      download: $('.wrapper-download .download', task_wrap),
-      list: $('.wrapper-list', task_wrap),
-      sample: $('.item', task_wrap).detach(),
-      cursor: $('.wrapper-list .none', task_wrap),
-      filter: $('.wrapper-filter .filter', task_wrap)
-    };
-    task.reset();
-    /*
-        Event
-    */
-
-    $(".item", group_wrap).live('click', function() {
-      var temp;
-      temp = group.get($(this).attr("key"));
-      _gaq.push(['_trackEvent', 'Group', 'See', temp.name]);
-      return task.toggleGroup(temp);
-    });
-    $(".cancel", group_wrap).live('click', function() {
-      var group_data, target, wrap, _name;
-      wrap = $(this).parents(".item:first");
-      group_data = new GroupData(wrap);
-      _gaq.push(['_trackEvent', 'Group', 'Cancel', group_data.name]);
-      target = [];
-      $(group_data).each(function() {
-        switch (this.status) {
-          case STATUS.CANCEL:
-          case STATUS.COMPLETE:
-            break;
-          default:
-            this.status = STATUS.CANCEL;
-            this.time = new Date().getTime() / 1000;
-            return target.push(this.tid);
-        }
-      });
-      return typeof listen[_name = TASK.GROUP_CANCEL] === "function" ? listen[_name](target) : void 0;
-    });
-    $(".reload", group_wrap).live('click', function() {
-      var group_data, target, wrap, _name;
-      wrap = $(this).parents(".item:first");
-      group_data = new GroupData(wrap);
-      _gaq.push(['_trackEvent', 'Group', 'Reload', group_data.name]);
-      target = [];
-      $(group_data).each(function() {
-        switch (this.status) {
-          case STATUS.RELOAD:
-          case STATUS.WAIT:
-            break;
-          default:
-            this.dl_size = 0;
-            this.sub_task_ok = 0;
-            this.status = STATUS.RELOAD;
-            this.time = new Date().getTime() / 1000;
-            return target.push(this.tid);
-        }
-      });
-      return typeof listen[_name = TASK.GROUP_RELOAD] === "function" ? listen[_name](target) : void 0;
-    });
-    $("select", doc.group.filter).on("change", function() {
-      var id, item, reg, selected, target, val, _i, _len, _ref;
-      id = $(this).parent().attr("id");
-      reg = new RegExp('^' + id + '-.+');
-      selected = $("option:selected", this);
-      val = selected.val();
-      target = [];
-      _gaq.push(['_trackEvent', 'Group', id, val]);
-      $(this).prev().text(selected.text());
-      _ref = $(doc.group.list).attr('class').split(' ');
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        item = _ref[_i];
-        if (reg.exec(item)) {
-          target.push(item);
-        }
-      }
-      if (target.length > 0) {
-        $(doc.group.list).removeClass(target.join(' '));
-      }
-      if (!selected.is(":first-child")) {
-        return $(doc.group.list).addClass(id + '-' + val);
-      }
-    }).change();
-    $(".cancel", task_wrap).live('click', function() {
-      var tid, wrap, _name;
-      wrap = $(this).parents(".item:first");
-      tid = wrap.attr("tid");
-      _gaq.push(['_trackEvent', 'Task', 'Cancel', task[tid].name]);
-      if (task[tid]) {
-        task[tid].status = STATUS.CANCEL;
-        task[tid].time = new Date().getTime() / 1000;
-      }
-      return typeof listen[_name = TASK.TASK_CANCEL] === "function" ? listen[_name](tid) : void 0;
-    });
-    $(".reload", task_wrap).live('click', function() {
-      var tid, wrap, _name;
-      wrap = $(this).parents(".item:first");
-      tid = wrap.attr("tid");
-      _gaq.push(['_trackEvent', 'Task', 'Reload', task[tid].name]);
-      if (task[tid]) {
-        task[tid].dl_size = 0;
-        task[tid].sub_task_ok = 0;
-        task[tid].status = STATUS.RELOAD;
-        task[tid].time = new Date().getTime() / 1000;
-      }
-      return typeof listen[_name = TASK.TASK_RELOAD] === "function" ? listen[_name](tid) : void 0;
-    });
-    return $(doc.task.filter).delegate("li", 'click', function() {
-      var item, reg, target, _i, _len, _ref;
-      reg = new RegExp('^filter-status-.+');
-      target = [];
-      _gaq.push(['_trackEvent', 'Task', 'Status', $(this).attr('for')]);
-      _ref = $(doc.task.list).attr('class').split(' ');
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        item = _ref[_i];
-        if (reg.exec(item)) {
-          target.push(item);
-        }
-      }
-      if (target.length > 0) {
-        $(doc.task.list).removeClass(target.join(' '));
-      }
-      $(doc.task.list).addClass('filter-status-' + $(this).attr('for'));
-      $(this).addClass("active");
-      return $(this).siblings().removeClass("active");
-    });
-  });
-  return task;
-})();
-
+    }), a;
+}();
