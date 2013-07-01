@@ -23,4 +23,3 @@ $.filesize = function(size, pos) {
   }
   return (size / Math.pow(1024, unit.length - 1)).toFixed(pos) + unit[unit.length - 1];
 };
-

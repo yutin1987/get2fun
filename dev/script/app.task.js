@@ -1,381 +1,4 @@
-/*
-Variable Initialization
-*/
-
-var req_server, sys, watch_action;
-
-sys = {
-  time: 0,
-  watch: null,
-  user: null
-};
-
-/*
-request to server
-v: get_task, get_tasks, cancel_task, redownload_task, clear_tasks, pause_server
-*/
-
-
-req_server = function(v, data, success, failed) {
-  if (data == null) {
-    data = {};
-  }
-  data._ = Math.random();
-  return $.ajax("http://" + ADDRESS + PATH + API.TASK + "?v=" + v, {
-    type: "POST",
-    data: data,
-    dataType: "json",
-    timeout: 2000,
-    success: function(res) {
-      if (res.code < 0) {
-        return typeof failed === "function" ? failed(res) : void 0;
-      } else {
-        return typeof success === "function" ? success(res.value) : void 0;
-      }
-    },
-    error: function(xhr, ajaxOptions, thrownError) {
-      return typeof failed === "function" ? failed({
-        code: -400
-      }) : void 0;
-    }
-  });
-};
-
-/*
-Watch Action
-*/
-
-
-watch_action = function() {
-  return req_server("get_tasks", {
-    time: sys.time
-  }, function(data) {
-    $("#control").addClass("online");
-    $('body').removeClass('guest');
-    $(data).each(function() {
-      var target, tid;
-
-      tid = parseInt(this.tid);
-      target = $.task[tid];
-      if (target == null) {
-        return $.task.push({
-          tid: this.tid,
-          src_type: this.srcType,
-          added_time: this.added_time,
-          owner: this.owner,
-          name: this.name,
-          playlist: this.playlist,
-          quality: this.quality,
-          src: this.srcUrl,
-          thumb: this.cover,
-          time: this.time,
-          status: 4,
-          size: this.size,
-          dl_size: this.dlSize,
-          sub_task: this.subTaskTotal,
-          sub_task_ok: this.subTaskOk
-        });
-      } else if (this.time >= target.time) {
-        target.thumb = this.cover;
-        target.time = this.time;
-        target.status = this.status;
-        target.quality = this.quality;
-        target.size = this.size;
-        target.dl_size = this.dlSize;
-        target.sub_task = this.subTaskTotal;
-        target.sub_task_ok = this.subTaskOk;
-        if (this.time > sys.time) {
-          return sys.time = this.time;
-        }
-      }
-    });
-    return sys.watch = setTimeout(watch_action, WATCH_TIME);
-  }, function(res) {
-    $("#control").removeClass("online");
-    if (res.code === -2) {
-      $('body').addClass('guest');
-    }
-    return sys.watch = setTimeout(watch_action, WATCH_TIME * 5);
-  });
-};
-
-/*
-Main
-*/
-
-
-$(function() {
-  /*
-  Initialization button
-  */
-
-  var load, login_action, sys_status, sys_user;
-
-  $('#logo').click(function() {
-    $('body').toggleClass('temp-green');
-    if ($('body').hasClass('temp-green')) {
-      _gaq.push(['_trackEvent', 'Configs', 'setColor', 'Green']);
-      return $.cookie('temp', 'temp-green', {
-        expiress: 365
-      });
-    } else {
-      _gaq.push(['_trackEvent', 'Configs', 'setColor', 'Blue']);
-      return $.removeCookie('temp');
-    }
-  });
-  if ($.cookie('temp') === 'temp-green') {
-    $('body').addClass('temp-green');
-  }
-  $(".box-nav .nav-refresh").click(function() {
-    _gaq.push(['_trackEvent', 'Operate', 'Refresh', $.task.length]);
-    $.task.reset();
-    sys.time = 0;
-    return load();
-  });
-  $(".box-nav .nav-clear").click(function() {
-    _gaq.push(['_trackEvent', 'Operate', 'Clean', $.task.length]);
-    req_server("clear_tasks", {
-      time: sys.time
-    });
-    return $($.task).each(function() {
-      if (!this) {
-        return;
-      }
-      switch (this.status) {
-        case STATUS.RELOAD:
-        case STATUS.CANCEL:
-        case STATUS.COMPLETE:
-          if (sys.user === "admin" || this.owner === sys.user) {
-            return this.del();
-          }
-      }
-    });
-  });
-  $(".box-nav .nav-program").click(function() {
-    return _gaq.push(['_trackEvent', 'Operate', 'Program', '']);
-  });
-  $(".box-nav .nav-fb").click(function() {
-    return _gaq.push(['_trackEvent', 'Operate', 'Facebook', '']);
-  });
-  $(".box-nav .nav-ext").click(function() {
-    return _gaq.push(['_trackEvent', 'Operate', 'Extension', '']);
-  });
-  $(".box-nav .nav-logout").click(function() {
-    var data;
-
-    _gaq.push(['_trackEvent', 'Operate', 'logout', sys.user]);
-    data = {
-      _: Math.random(),
-      user: 'logout',
-      pwd: 'logout'
-    };
-    sys.user = null;
-    $('.login').removeClass('invalid');
-    return $.ajax("http://" + ADDRESS + PATH + API.LOGIN + "?logout", {
-      type: "POST",
-      data: data,
-      dataType: "json",
-      timeout: 4000
-    });
-  });
-  $('#dialog-chrome a').click(function() {
-    _gaq.push(['_trackEvent', 'Check', 'Is not chrome', $('#dialog-chrome .donot').is(':checked')]);
-    $('body').removeClass('no-chrome');
-    if ($('#dialog-chrome .donot').is(':checked')) {
-      $.cookie('donot-chrome', '1', {
-        expiress: 365
-      });
-    }
-    return true;
-  });
-  if (!($.browser.chrome === true || ($.cookie('donot-chrome') != null))) {
-    $('body').addClass('no-chrome');
-  }
-  $('#dialog-ext a').click(function() {
-    _gaq.push(['_trackEvent', 'Check', 'Not has ext', $('#dialog-ext .donot').is(':checked')]);
-    $('body').addClass('has-ext');
-    if ($('#dialog-ext .donot').is(':checked')) {
-      $.cookie('donot-ext', '1', {
-        expiress: 365
-      });
-    }
-    return true;
-  });
-  if ($.browser.chrome !== true || ($.cookie('donot-ext') != null)) {
-    $('body').addClass('has-ext');
-  }
-  $('#dialog-qpkg a, #dialog-error a').click(function() {
-    $('body').removeClass('has-error no-qpkg');
-    return true;
-  });
-  sys_status = function(listen) {
-    return $.ajax("http://" + ADDRESS + PATH + API.INFO, {
-      type: "POST",
-      dataType: "json",
-      data: {
-        it: 'server'
-      },
-      timeout: 14000,
-      success: function(res) {
-        if (res.server != null) {
-          if (res.server.qpkg_status !== 'TRUE') {
-            $('body').addClass('no-qpkg');
-          } else if (res.server.process_status !== 1 || res.server.server_status === 0) {
-            $('body').addClass('has-error');
-          } else {
-            $('body').removeClass('no-qpkg has-error');
-          }
-          switch (res.server.server_status) {
-            case 0:
-              $('#control').attr('class', 'server-stopped');
-              break;
-            case 1:
-              $('#control').attr('class', 'server-running');
-              break;
-            case 2:
-              $('#control').attr('class', 'server-paused');
-          }
-        } else {
-          $('body').addClass('has-error');
-        }
-        if (listen !== false) {
-          return setTimeout(sys_status, 10000);
-        }
-      },
-      error: function(xhr, ajaxOptions, thrownError) {
-        if (listen !== false) {
-          return setTimeout(sys_status, 10000);
-        }
-      }
-    });
-  };
-  sys_status();
-  sys_user = function(listen) {
-    return $.ajax("http://" + ADDRESS + PATH + API.LOGIN + "?check", {
-      type: "POST",
-      dataType: "json",
-      timeout: 14000,
-      success: function(res) {
-        if (res.status === "true") {
-          sys.user = res.user;
-        } else {
-          $('body').addClass('guest');
-        }
-        if (listen !== false) {
-          return setTimeout(sys_user, 10000);
-        }
-      },
-      error: function(xhr, ajaxOptions, thrownError) {
-        if (listen !== false) {
-          return setTimeout(sys_user, 10000);
-        }
-      }
-    });
-  };
-  sys_user();
-  $.task.setListen(TASK.GROUP_CANCEL, function(tid) {
-    if (tid.length > 0) {
-      return req_server("cancel_task", {
-        tid: tid
-      });
-    }
-  });
-  $.task.setListen(TASK.GROUP_RELOAD, function(tid) {
-    if (tid.length > 0) {
-      return req_server("redownload_task", {
-        tid: tid
-      });
-    }
-  });
-  $.task.setListen(TASK.TASK_CANCEL, function(tid) {
-    if (tid != null) {
-      return req_server("cancel_task", {
-        tid: [tid]
-      });
-    }
-  });
-  $.task.setListen(TASK.TASK_RELOAD, function(tid) {
-    if (tid != null) {
-      return req_server("redownload_task", {
-        tid: [tid]
-      });
-    }
-  });
-  login_action = function() {
-    var data, pwd, user;
-
-    user = $('#username').val();
-    pwd = $('#password').val();
-    data = {
-      _: Math.random(),
-      user: user,
-      pwd: pwd
-    };
-    $('.login').removeClass('invalid');
-    $('.login').addClass('proceed');
-    return $.ajax("http://" + ADDRESS + PATH + API.LOGIN, {
-      type: "POST",
-      data: data,
-      dataType: "json",
-      timeout: 4000,
-      success: function(res) {
-        if (String(res) === 'true') {
-          $('body').removeClass('guest');
-        } else {
-          $('.login').addClass('invalid');
-          $('body').addClass('guest');
-        }
-        sys.user = user;
-        return $('.login').removeClass('proceed');
-      },
-      error: function(xhr, ajaxOptions, thrownError) {
-        $('.login').removeClass('proceed');
-        return $('body').addClass('guest');
-      }
-    });
-  };
-  $('.login').keypress(function(e) {
-    var key;
-
-    key = e.keyCode || e.which;
-    if (key === 13) {
-      return login_action();
-    }
-  });
-  $('#login-submit').click(login_action);
-  $('.login .remember').click(function() {
-    return $(this).toggleClass('checked');
-  });
-  $("#control").click(function() {
-    sys_status(false);
-    if ($(this).hasClass('server-stopped')) {
-      return false;
-    }
-    req_server('pause_server');
-    return $(this).toggleClass("server-paused");
-  });
-  /*
-  System load
-  */
-
-  load = function() {
-    if (sys.watch != null) {
-      clearTimeout(sys.watch);
-      delete sys.watch;
-    }
-    return sys.watch = setTimeout(watch_action, WATCH_TIME);
-  };
-  return load();
-});
-
-$(function() {
-  $(window).resize(function() {
-    $(".task .wrapper-list").css("min-height", $(window).height() - 203);
-    return $("#group .wrapper-overflow, #group .wrapper-list").height($(window).height() - 203);
-  });
-  return $(window).resize();
-});
-
+// Generated by CoffeeScript 1.4.0
 var TASK,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -389,11 +12,10 @@ TASK = {
 
 $.task = (function() {
   /*
-  Task Static Variable
+    Task Static Variable
   */
 
   var GroupData, TaskData, doc, group, listen, task, task_obj;
-
   doc = {
     group: {
       sample: null,
@@ -412,10 +34,11 @@ $.task = (function() {
   };
   listen = [];
   /*
-  GroupData Object
+    GroupData Object
   */
 
   GroupData = (function(_super) {
+
     __extends(GroupData, _super);
 
     function GroupData(data) {
@@ -433,7 +56,6 @@ $.task = (function() {
       Object.defineProperty(this, 'tag', {
         get: function() {
           var temp, val, _i, _len, _ref;
-
           if (data.tag == null) {
             data.tag = doc.group.sample.clone();
             data.tag.data("GroupData", this).attr("key", data.name);
@@ -467,7 +89,6 @@ $.task = (function() {
         },
         set: function(val) {
           var temp;
-
           if (val == null) {
             return;
           }
@@ -496,7 +117,6 @@ $.task = (function() {
         },
         set: function(val) {
           var temp;
-
           if (val == null) {
             return;
           }
@@ -552,7 +172,6 @@ $.task = (function() {
 
     GroupData.prototype.del = function(task_data) {
       var index;
-
       index = $.inArray(task_data, this);
       if (index > -1) {
         this.splice(index, 1);
@@ -600,7 +219,7 @@ $.task = (function() {
 
   })(Array);
   /*
-  Group Object
+    Group Object
   */
 
   $.group = group = new ((function(_super) {
@@ -672,7 +291,6 @@ $.task = (function() {
 
     _Class.prototype.del = function(group_data) {
       var index;
-
       delete obj.data[group_data.name];
       index = $.inArray(group_data, this);
       if (index > -1) {
@@ -705,7 +323,6 @@ $.task = (function() {
 
     _Class.prototype.draw = function() {
       var draw, top;
-
       if (obj.index >= this.length) {
         return obj.index = this.length;
       }
@@ -728,10 +345,11 @@ $.task = (function() {
 
   })(Array));
   /*
-  TaskData Object
+    TaskData Object
   */
 
   TaskData = (function() {
+
     TaskData.prototype.dltag = null;
 
     function TaskData(data) {
@@ -775,7 +393,6 @@ $.task = (function() {
       Object.defineProperty(this, "tag", {
         get: function() {
           var temp, val, _i, _len, _ref;
-
           if (data.tag == null) {
             data.tag = doc.task.sample.clone();
             this.tag.data("TaskData", this).attr("tid", this.tid);
@@ -801,7 +418,6 @@ $.task = (function() {
         },
         set: function(val) {
           var belong, temp;
-
           temp = this.status;
           data.status = parseInt(val);
           if (this.status !== temp) {
@@ -827,7 +443,6 @@ $.task = (function() {
         },
         set: function(val) {
           var item, quality, _i, _len;
-
           quality = '';
           if (val != null) {
             for (_i = 0, _len = val.length; _i < _len; _i++) {
@@ -865,7 +480,6 @@ $.task = (function() {
         },
         set: function(val) {
           var _ref;
-
           if (val === this.thumb) {
             return;
           }
@@ -952,6 +566,7 @@ $.task = (function() {
         }
       });
       this;
+
     }
 
     TaskData.prototype.del = function() {
@@ -971,7 +586,7 @@ $.task = (function() {
 
   })();
   /*
-  Task Object
+    Task Object
   */
 
   task = [];
@@ -987,7 +602,6 @@ $.task = (function() {
     },
     set: function(task_data) {
       var belong, temp;
-
       temp = this.download;
       if (temp === task_data) {
         return;
@@ -1028,7 +642,6 @@ $.task = (function() {
   task.push = function(data) {
     return $(data).each(function() {
       var belong, item;
-
       item = new TaskData(this);
       task[item.tid] = item;
       belong = group.get(item.playlist);
@@ -1045,7 +658,6 @@ $.task = (function() {
   };
   task.reset = function() {
     var download;
-
     while (this.length > 0) {
       this.pop();
     }
@@ -1057,7 +669,6 @@ $.task = (function() {
   };
   task.toggleGroup = function(playlist) {
     var target;
-
     target = null;
     task_obj.group = playlist != null ? playlist : null;
     if (task_obj.auto_review != null) {
@@ -1073,7 +684,6 @@ $.task = (function() {
   };
   task.draw = function() {
     var draw, top;
-
     if (!((task_obj.group != null) && task_obj.index < task_obj.group.length)) {
       return this;
     }
@@ -1095,7 +705,6 @@ $.task = (function() {
   };
   $(function() {
     var group_wrap, task_wrap;
-
     group_wrap = $('#group');
     doc.group = {
       download: $('.wrapper-download .download', group_wrap),
@@ -1114,19 +723,17 @@ $.task = (function() {
     };
     task.reset();
     /*
-    Event
+        Event
     */
 
     $(".item", group_wrap).live('click', function() {
       var temp;
-
       temp = group.get($(this).attr("key"));
       _gaq.push(['_trackEvent', 'Group', 'See', temp.name]);
       return task.toggleGroup(temp);
     });
     $(".cancel", group_wrap).live('click', function() {
       var group_data, target, wrap, _name;
-
       wrap = $(this).parents(".item:first");
       group_data = new GroupData(wrap);
       _gaq.push(['_trackEvent', 'Group', 'Cancel', group_data.name]);
@@ -1146,7 +753,6 @@ $.task = (function() {
     });
     $(".reload", group_wrap).live('click', function() {
       var group_data, target, wrap, _name;
-
       wrap = $(this).parents(".item:first");
       group_data = new GroupData(wrap);
       _gaq.push(['_trackEvent', 'Group', 'Reload', group_data.name]);
@@ -1168,13 +774,11 @@ $.task = (function() {
     });
     $("select", doc.group.filter).on("change", function() {
       var id, item, reg, selected, target, val, _i, _len, _ref;
-
       id = $(this).parent().attr("id");
       reg = new RegExp('^' + id + '-.+');
       selected = $("option:selected", this);
       val = selected.val();
       target = [];
-      _gaq.push(['_trackEvent', 'Group', id, val]);
       $(this).prev().text(selected.text());
       _ref = $(doc.group.list).attr('class').split(' ');
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -1192,7 +796,6 @@ $.task = (function() {
     }).change();
     $(".cancel", task_wrap).live('click', function() {
       var tid, wrap, _name;
-
       wrap = $(this).parents(".item:first");
       tid = wrap.attr("tid");
       _gaq.push(['_trackEvent', 'Task', 'Cancel', task[tid].name]);
@@ -1204,7 +807,6 @@ $.task = (function() {
     });
     $(".reload", task_wrap).live('click', function() {
       var tid, wrap, _name;
-
       wrap = $(this).parents(".item:first");
       tid = wrap.attr("tid");
       _gaq.push(['_trackEvent', 'Task', 'Reload', task[tid].name]);
@@ -1218,10 +820,8 @@ $.task = (function() {
     });
     return $(doc.task.filter).delegate("li", 'click', function() {
       var item, reg, target, _i, _len, _ref;
-
       reg = new RegExp('^filter-status-.+');
       target = [];
-      _gaq.push(['_trackEvent', 'Task', 'Status', $(this).attr('for')]);
       _ref = $(doc.task.list).attr('class').split(' ');
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         item = _ref[_i];
