@@ -298,7 +298,7 @@ $ ->
   load()
 
 ###
-YouTube Search
+HappyGet App
 ###
 hg2App = angular.module('hg2', []);
 
@@ -306,8 +306,8 @@ hg2App.filter 'startFrom', () ->
   (input, start) -> input.slice(start)
 
 RootCtrl = ($scope) ->
-  $scope.search = off
   $scope.searchActive = 'inactive'
+  $scope.guest = off
 
   $scope.play = (video) ->
     $scope.$broadcast('play', video)
@@ -319,6 +319,12 @@ RootCtrl = ($scope) ->
     $scope.searchActive = if enable then 'active' else 'inactive'
     $scope.$apply()
 
+###
+###
+
+###
+YouTube Search
+###
 SearchCtrl = ($scope, $rootScope, $http) ->
   delete $http.defaults.headers.common['X-Requested-With']
   $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded"
@@ -397,6 +403,9 @@ SearchCtrl = ($scope, $rootScope, $http) ->
     item = $scope.items[index+$scope.pageStart]
     $scope.play(item)
 
+###
+Player
+###
 PlayerCtrl = ($scope, $timeout, $http) ->
   $scope.video = {}
   $scope.playlist = ''
