@@ -369,7 +369,7 @@ $(function() {
 });
 
 /*
-HappyGet App
+YouTube Search
 */
 
 
@@ -382,8 +382,8 @@ hg2App.filter('startFrom', function() {
 });
 
 RootCtrl = function($scope) {
+  $scope.search = false;
   $scope.searchActive = 'inactive';
-  $scope.guest = false;
   $scope.play = function(video) {
     return $scope.$broadcast('play', video);
   };
@@ -395,15 +395,6 @@ RootCtrl = function($scope) {
     return $scope.$apply();
   });
 };
-
-/*
-*/
-
-
-/*
-YouTube Search
-*/
-
 
 SearchCtrl = function($scope, $rootScope, $http) {
   delete $http.defaults.headers.common['X-Requested-With'];
@@ -499,11 +490,6 @@ SearchCtrl = function($scope, $rootScope, $http) {
     return $scope.play(item);
   };
 };
-
-/*
-Player
-*/
-
 
 PlayerCtrl = function($scope, $timeout, $http) {
   $scope.video = {};
