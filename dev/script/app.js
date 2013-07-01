@@ -2,7 +2,7 @@
 Variable Initialization
 */
 
-var req_server, sys, watch_action;
+var PlayerCtrl, RootCtrl, SearchCtrl, hg2App, req_server, sys, watch_action;
 
 sys = {
   time: 0,
@@ -367,6 +367,222 @@ $(function() {
   };
   return load();
 });
+
+/*
+YouTube Search
+*/
+
+
+hg2App = angular.module('hg2', []);
+
+hg2App.filter('startFrom', function() {
+  return function(input, start) {
+    return input.slice(start);
+  };
+});
+
+RootCtrl = function($scope) {
+  $scope.search = false;
+  $scope.searchActive = 'inactive';
+  $scope.play = function(video) {
+    return $scope.$broadcast('play', video);
+  };
+  $scope.updatePlaylist = function(playlist) {
+    return $scope.$broadcast('updatePlaylist', playlist);
+  };
+  return $scope.$on('search', function(e, enable) {
+    $scope.searchActive = enable ? 'active' : 'inactive';
+    return $scope.$apply();
+  });
+};
+
+SearchCtrl = function($scope, $rootScope, $http) {
+  delete $http.defaults.headers.common['X-Requested-With'];
+  $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+  $scope.items = [];
+  $scope.qVal = '';
+  $scope.page = 1;
+  $scope.pageTotal = 1;
+  $scope.pageStart = 0;
+  $scope.pageCount = 8;
+  $scope.nextPageToken = null;
+  $scope.$watch('page', function(newValue, oldValue) {
+    if (!$scope.nextPageToken) {
+      return;
+    }
+    if ($scope.page > $scope.items.length / $scope.pageCount - 3) {
+      return $scope.request($scope.nextPageToken);
+    }
+  });
+  $scope.prevPage = function() {
+    if ($scope.page > 1) {
+      $scope.page -= 1;
+    }
+    return $scope.pageStart = ($scope.page - 1) * $scope.pageCount;
+  };
+  $scope.nextPage = function() {
+    if ($scope.page < $scope.pageTotal) {
+      $scope.page += 1;
+    }
+    return $scope.pageStart = ($scope.page - 1) * $scope.pageCount;
+  };
+  $scope.request = function(page) {
+    var params;
+
+    params = {
+      key: 'AIzaSyCpOMFgf1ZKObU6zyAjckcLrMuD56ZVzfM',
+      q: $scope.qVal,
+      part: 'snippet',
+      maxResults: 50
+    };
+    if (page) {
+      params.pageToken = page;
+    }
+    return $http({
+      method: 'GET',
+      url: 'https://www.googleapis.com/youtube/v3/search',
+      params: params
+    }).success(function(res, status, headers, config) {
+      $scope.pageTotal = Math.ceil(res.pageInfo.totalResults / $scope.pageCount);
+      $.each(res.items, function(i, item) {
+        return $scope.items.push({
+          vid: item.id.videoId,
+          title: item.snippet.title,
+          thumb: item.snippet.thumbnails["default"].url,
+          bigthumb: item.snippet.thumbnails.high.url,
+          availableQuality: null,
+          quality: {
+            Original: false,
+            HD1080: false,
+            HD720: false,
+            Medium: false,
+            Audio: true
+          },
+          url: 'http://www.youtube.com/watch?v=' + item.id.videoId
+        });
+      });
+      return $scope.nextPageToken = res.nextPageToken ? res.nextPageToken : null;
+    });
+  };
+  $scope.search = function() {
+    $scope.updatePlaylist($scope.qVal);
+    $scope.items = [];
+    $scope.page = 1;
+    $scope.pageTotal = 1;
+    $scope.pageStart = 0;
+    $scope.nextPageToken = null;
+    $scope.request();
+    return $scope.$emit('search', true);
+  };
+  $scope.cancel = function() {
+    $scope.$emit('search', false);
+    $scope.items = [];
+    $scope.qVal = '';
+    $scope.page = 1;
+    $scope.pageTotal = 1;
+    $scope.pageStart = 0;
+    return $scope.nextPageToken = null;
+  };
+  return $scope.look = function(index) {
+    var item;
+
+    item = $scope.items[index + $scope.pageStart];
+    return $scope.play(item);
+  };
+};
+
+PlayerCtrl = function($scope, $timeout, $http) {
+  $scope.video = {};
+  $scope.playlist = '';
+  $scope.player = false;
+  $scope.$on('updatePlaylist', function(e, playlist) {
+    return $scope.playlist = playlist;
+  });
+  $scope.$on('play', function(e, video) {
+    $scope.video = video;
+    $scope.player = true;
+    swfobject.embedSWF('http://www.youtube.com/v/' + video.vid + '?enablejsapi=1&playerapiid=ytplayer&version=3&autoplay=1', "ytplayer", "640", "360", "8", null, null, {
+      allowScriptAccess: "always"
+    });
+    if (!video.availableQuality) {
+      return (function() {
+        var getAvailableQualityLevels;
+
+        getAvailableQualityLevels = arguments.callee;
+        return $timeout((function() {
+          var quality;
+
+          quality = typeof ytplayer.getAvailableQualityLevels === "function" ? ytplayer.getAvailableQualityLevels() : void 0;
+          if ((quality != null ? quality.length : void 0) > 0) {
+            return $scope.video.availableQuality = {
+              HD1080: quality.indexOf('hd1080') ? true : void 0,
+              HD720: quality.indexOf('hd720') ? true : void 0,
+              Medium: quality.indexOf('medium') ? true : void 0,
+              Original: quality.indexOf('highres') ? true : void 0
+            };
+          } else {
+            return getAvailableQualityLevels();
+          }
+        }), 1000);
+      })();
+    }
+  });
+  $scope.download = function(all) {
+    var limit, quality;
+
+    limit = 1;
+    quality = [];
+    if ($scope.video.quality.Audio) {
+      quality.push('Audio');
+      limit += 1;
+    }
+    if (all) {
+      quality.push('All');
+    } else {
+      if ($scope.video.quality.Original) {
+        quality.push('Original');
+      }
+      if ($scope.video.quality.HD1080) {
+        quality.push('1080P');
+      }
+      if ($scope.video.quality.HD720) {
+        quality.push('720P');
+      }
+      if ($scope.video.quality.Medium) {
+        quality.push('360P');
+      }
+      if (quality.length < limit) {
+        angular.forEach($scope.video.availableQuality, function(value, key) {
+          quality.push(key);
+          return $scope.video.quality[key] = true;
+        });
+      }
+    }
+    $scope.close();
+    return $http({
+      method: 'POST',
+      url: "/hg2/api2/add_task.php",
+      data: $.param({
+        sourceType: 'youtube',
+        items: [
+          {
+            id: $scope.video.vid,
+            title: $scope.video.title,
+            url: $scope.video.url,
+            thumb: $scope.video.thumb,
+            bigthumb: $scope.video.bigthumb,
+            playlist: $scope.playlist,
+            quality: quality
+          }
+        ]
+      })
+    });
+  };
+  return $scope.close = function() {
+    $scope.player = false;
+    return ytplayer.stopVideo();
+  };
+};
 
 $(function() {
   $(window).resize(function() {

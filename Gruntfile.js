@@ -37,11 +37,16 @@ module.exports = function(grunt) {
     },
     uglify: {
       my_target: {
-        options:{
-          beautify: true
+        options: {
+          beautify: false,
+          report: false,
+          mangle: false
+            //except: ['$scope','$http']
         },
         files: {
-          './script/page.js': ['./dev/script/helper*.js','./dev/script/page.js']
+          //'./script/fw.js': ['./dev/script/jquery.js','./dev/script/jquery.cookie.js','./dev/script/dateformat.js','./dev/script/bootstrap.js','./dev/script/angular.js'],
+          './script/app.js': ['./dev/script/app.js'],
+          './script/helper.js': ['./dev/script/helper*.js']
         }
       }
     },
@@ -55,7 +60,7 @@ module.exports = function(grunt) {
     },
     watch: {
       files: ['**/*.jade','**/*.coffee','**/*.sass'],
-      tasks: ['jade','coffee','compass','uglify']
+      tasks: ['jade','coffee','compass','cssmin','uglify']
     }
   });
 

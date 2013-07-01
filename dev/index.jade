@@ -1,5 +1,5 @@
 !!! 5
-html(lang="en")
+html(ng-app="hg2")
   head
     meta(http-equiv='Content-Type', content='text/html;charset=UTF-8')
     meta(name='viewport', content='width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no')
@@ -22,7 +22,8 @@ html(lang="en")
     // Lib
     link(rel='stylesheet', type='text/css', href='./style/bootstrap.css')
     link(rel='stylesheet', type='text/css', href='./style/bootstrap-responsive.css')
-    script(type='text/javascript', src='./script/fw.js')
+    script(type='text/javascript', src='./script/framework.js')
+    script(type='text/javascript', src='./script/helper.js')
 
     //if lt IE 9
     script(src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js")
@@ -39,194 +40,233 @@ html(lang="en")
 
     style(id='filter', type='text/css')
 
-  body#viewport.happyget
-    #header.navbar.navbar-inverse.navbar-fixed-top
-      .navbar-inner 
-        .container
-          a#logo.pull-left(href='#')
-          a#control.server-stopped(href='#')
-            .icon
-              .circle
-              .img
-            span.text.text-running.i18n(text='running') Running
-            span.text.text-stopped.i18n(text='stopped') Stopped
-            span.text.text-paused.i18n(text='paused') Paused
-          p.box-ver V2.0
-          ul.box-nav
-            li: a.nav-logout.i18n(href='#logout',text='extension') Logout
-            li.separation
-            li: a.nav-ext.i18n(href='https://chrome.google.com/webstore/detail/ljciphafakdahicbelljmdbnadjopffb',target='_blank',text='extension') Extension
-            li.separation
-            li: a.nav-fb.i18n(href='https://www.facebook.com/ILoveHappyget',target='_blank',text='extension') Page
-            li: a.nav-program.i18n(href='http://www.doguluskaien.com/ext/link.html?welcome',target='_blank',text='extension') Program
-            li.separation
-            li: a.nav-clear.i18n(href='#',text='clear') Clear
-            li: a.nav-refresh.i18n(href='#',text='refresh') Refresh
-    #fixed
-      .login
-        .form-horizontal
-          .input.input-username
-            .left
-            .right
-            i.icon-user
-            input#username(type='text', placeholder='Username')
-          .input.input-password
-            .left
-            .right
-            i.icon-lock
-            input#password(type='password', placeholder='Password')
-          .message *Invalid username or password
-          .toolbar
-            label.remember.pull-left
-              | Remember me
-            button#login-submit(type='submit').pull-right SIGN IN
-        .tipbox
-          label Login...
-      #group
-        .wrapper-download
-          .legend.i18n(text='download') DOWNLOAD
-          .download
-            .none NO DOWNLOAD
-        .wrapper-filter
-          .legend.i18n(text='play_list') PLAY LIST
-          .filter
-            #filter-status.term
-              .left
-              .right
-              .arrow
-              span.i18n(text='all_status') All Status
-              select
-                option(value='all') All Status
-                option(value='wait') Wait
-                option(value='complete') Completed
-                option(value='cancel') Cancel
-                option(value='fail') Failed
-            #filter-owner.term
-              .left
-              .right
-              .arrow
-              span.i18n(text='all_owner') All Owner
-              select
-                option All Owner
-            #filter-src.term
-              .left
-              .right
-              .arrow
-              span.i18n(text='all_source') All Source
-              select
-                option All Source
-        .wrapper-overflow
-          .wrapper-list
-            .item(href='#')
-              .name
-              .thumb
+  body.happyget
+    #viewport(ng-controller="RootCtrl",class="search-{{searchActive}}")
+      #header.navbar.navbar-inverse.navbar-fixed-top
+        .navbar-inner 
+          .container
+            a#logo.pull-left(href='#')
+            a#control.server-stopped(href='#')
+              .icon
+                .circle
                 .img
-                .status-icon
-                .src-icon
-              .button
-                .reload.pull-left
-                .cancel.pull-left
-              .total
-            .none NONE LIST
-      .task
-        .wrapper-download
-          .download
-            .none NO DOWNLOAD
-        .wrapper-filter
-          .legend.i18n(text='task') TASKS
-          .filter
-            ul
-              li.active(for='all')
-                .left
-                .right
-                span All Status
-              li(for='wait')
-                .left
-                .right
-                span Wait
-              li(for='complete')
-                .left
-                .right
-                span Complete
-              li(for='cancel')
-                .left
-                .right
-                span Cancel
-              li(for='fail')
-                .left
-                .right
-                span Fail
-      #dialog-chrome.dialog
-        p 
-          | Your browser is not 
-          b &nbsp;Google Chrome&nbsp;
-          | , displaying may be incorrect or unsmooth.
-        p
-          | Would you like to use
-          b &nbsp;Google Chrome&nbsp;
-          | ?
+              span.text.text-running.i18n(text='running') Running
+              span.text.text-stopped.i18n(text='stopped') Stopped
+              span.text.text-paused.i18n(text='paused') Paused
+            p.box-ver V2.0
+            ul.box-nav
+              li: a.nav-logout.i18n(href='#logout',text='extension') Logout
+              li.separation
+              li: a.nav-ext.i18n(href='https://chrome.google.com/webstore/detail/ljciphafakdahicbelljmdbnadjopffb',target='_blank',text='extension') Extension
+              li.separation
+              li: a.nav-fb.i18n(href='https://www.facebook.com/ILoveHappyget',target='_blank',text='extension') Page
+              li: a.nav-program.i18n(href='http://www.doguluskaien.com/ext/link.html?welcome',target='_blank',text='extension') Program
+              li.separation
+              li: a.nav-clear.i18n(href='#',text='clear') Clear
+              li: a.nav-refresh.i18n(href='#',text='refresh') Refresh
+      #search(ng-controller="SearchCtrl")
         .input
-          input.donot(type='checkbox')
-          span Don’t show this message again.
-        .btn-bar
-          a.btn(href="#") No, Continue
-          a.btn.btn-primary(href="http://chrome.google.com/",target="_blank") Yes, Go get it
-      #dialog-ext.dialog
-        p 
-          b HappyGet2 Extension&nbsp;
-          | is not installed, and you would be able to view the download status only.
-        p
-          | Would you like to install 
-          b &nbsp;HappyGet2 Extension&nbsp;
-          | ?
-        .input
-          input.donot(type='checkbox')
-          span Don’t show this message again.
-        .btn-bar
-          a.btn(href='#') No, Continue
-          a.btn.btn-primary(href="https://chrome.google.com/webstore/detail/ljciphafakdahicbelljmdbnadjopffb",target="_blank") Yes, Go get it
-      #dialog-qpkg.dialog
-        p 
-          b HappyGet2 QPKG/App &nbsp;
-          | is not started.
-        p 
-          | Please go to
-          b &nbsp;QPKG/App Center&nbsp;
-          | and enable it.
-        .btn-bar
-          a.btn.btn-primary(href='./api/go_server.php',target='_blank') Go to QPKG Center
-      #dialog-error.dialog
-        p
-          b HappyGet2&nbsp;
-          | Server is not running correctly.
-        p
-          | Please go to 
-          b &nbsp;QPKG/App Center&nbsp;
-          | and restart it.
-        .btn-bar
-          a.btn.btn-primary(href='./api/go_server.php',target='_blank') Go to QPKG Center
-    #content.container
+          form.input-append(ng-submit="search()")
+            input(type='text',placeholder='YouTube Search',ng-model="qVal")
+            input.btn(type="submit",value="Search")
+            input.btn(type="button",value="Cancel",ng-click="cancel()")
+          button(ng-click="prevPage()") PrevPage
+          span {{page}} / {{pageTotal}}
+          button(ng-click="nextPage()") NextPage
+        .response
+          .item(ng-repeat="item in items | startFrom:pageStart | limitTo:pageCount",ng-click="look($index)")
+            img(src="{{item.thumb}}")
+      #player(ng-controller="PlayerCtrl",ng-show="player")
+        #ytplayer.windows
+        .step.playlist
+          input(type="text",ng-model="playlist")
+        .step.audio
+          input(type="checkbox",ng-model="video.quality.Audio")
+          span Audio
+        .step.download
+          .quality(ng-show="video.availableQuality")
+            span(ng-show="video.availableQuality.Original")
+              input(type="checkbox",ng-model="video.quality.Original")
+              span Original
+            span(ng-show="video.availableQuality.HD1080")
+              input(type="checkbox",ng-model="video.quality.HD1080")
+              span 1080P
+            span(ng-show="video.availableQuality.HD720")
+              input(type="checkbox",ng-model="video.quality.HD720")
+              span 720P
+            span(ng-show="video.availableQuality.Medium")
+              input(type="checkbox",ng-model="video.quality.Medium")
+              span 360P
+            input(type="button",ng-click="download(0)",value="Download")
+          .all
+            input(type="button",ng-click="download(1)",value="Download all quality")
+        .step.close
+          span(ng-click="close()") CLOSE
+      #fixed
+        .login
+          .form-horizontal
+            .input.input-username
+              .left
+              .right
+              i.icon-user
+              input#username(type='text', placeholder='Username')
+            .input.input-password
+              .left
+              .right
+              i.icon-lock
+              input#password(type='password', placeholder='Password')
+            .message *Invalid username or password
+            .toolbar
+              label.remember.pull-left
+                | Remember me
+              button#login-submit(type='submit').pull-right SIGN IN
+          .tipbox
+            label Login...
+        #group
+          .wrapper-download
+            .legend.i18n(text='download') DOWNLOAD
+            .download
+              .none NO DOWNLOAD
+          .wrapper-filter
+            .legend.i18n(text='play_list') PLAY LIST
+            .filter
+              #filter-status.term
+                .left
+                .right
+                .arrow
+                span.i18n(text='all_status') All Status
+                select
+                  option(value='all') All Status
+                  option(value='wait') Wait
+                  option(value='complete') Completed
+                  option(value='cancel') Cancel
+                  option(value='fail') Failed
+              #filter-owner.term
+                .left
+                .right
+                .arrow
+                span.i18n(text='all_owner') All Owner
+                select
+                  option All Owner
+              #filter-src.term
+                .left
+                .right
+                .arrow
+                span.i18n(text='all_source') All Source
+                select
+                  option All Source
+          .wrapper-overflow
+            .wrapper-list
+              .item(href='#')
+                .name
+                .thumb
+                  .img
+                  .status-icon
+                  .src-icon
+                .button
+                  .reload.pull-left
+                  .cancel.pull-left
+                .total
+              .none NONE LIST
         .task
-          .wrapper-list.filter-status-all
-            .item
-              .name
-              a.thumb(href='#',target='_blank')
-                .img
-                .status-icon
-                .quality
-              .button
-                .reload.pull-left
-                .cancel.pull-left
-              .owner
-              .time
-              .progress-bar
-                .progress.progress-striped
-                  .bar
-                    .striped
-              .size
-                .est-size
-                .dl-size
-              .sub
-                .total-sub
-                .ok-sub
-            .none NONE TASK
+          .wrapper-download
+            .download
+              .none NO DOWNLOAD
+          .wrapper-filter
+            .legend.i18n(text='task') TASKS
+            .filter
+              ul
+                li.active(for='all')
+                  .left
+                  .right
+                  span All Status
+                li(for='wait')
+                  .left
+                  .right
+                  span Wait
+                li(for='complete')
+                  .left
+                  .right
+                  span Complete
+                li(for='cancel')
+                  .left
+                  .right
+                  span Cancel
+                li(for='fail')
+                  .left
+                  .right
+                  span Fail
+        #dialog-chrome.dialog
+          p 
+            | Your browser is not 
+            b &nbsp;Google Chrome&nbsp;
+            | , displaying may be incorrect or unsmooth.
+          p
+            | Would you like to use
+            b &nbsp;Google Chrome&nbsp;
+            | ?
+          .input
+            input.donot(type='checkbox')
+            span Don’t show this message again.
+          .btn-bar
+            a.btn(href="#") No, Continue
+            a.btn.btn-primary(href="http://chrome.google.com/",target="_blank") Yes, Go get it
+        #dialog-ext.dialog
+          p 
+            b HappyGet2 Extension&nbsp;
+            | is not installed, and you would be able to view the download status only.
+          p
+            | Would you like to install 
+            b &nbsp;HappyGet2 Extension&nbsp;
+            | ?
+          .input
+            input.donot(type='checkbox')
+            span Don’t show this message again.
+          .btn-bar
+            a.btn(href='#') No, Continue
+            a.btn.btn-primary(href="https://chrome.google.com/webstore/detail/ljciphafakdahicbelljmdbnadjopffb",target="_blank") Yes, Go get it
+        #dialog-qpkg.dialog
+          p 
+            b HappyGet2 QPKG/App &nbsp;
+            | is not started.
+          p 
+            | Please go to
+            b &nbsp;QPKG/App Center&nbsp;
+            | and enable it.
+          .btn-bar
+            a.btn.btn-primary(href='./api/go_server.php',target='_blank') Go to QPKG Center
+        #dialog-error.dialog
+          p
+            b HappyGet2&nbsp;
+            | Server is not running correctly.
+          p
+            | Please go to 
+            b &nbsp;QPKG/App Center&nbsp;
+            | and restart it.
+          .btn-bar
+            a.btn.btn-primary(href='./api/go_server.php',target='_blank') Go to QPKG Center
+      #content.container
+          .task
+            .wrapper-list.filter-status-all
+              .item
+                .name
+                a.thumb(href='#',target='_blank')
+                  .img
+                  .status-icon
+                  .quality
+                .button
+                  .reload.pull-left
+                  .cancel.pull-left
+                .owner
+                .time
+                .progress-bar
+                  .progress.progress-striped
+                    .bar
+                      .striped
+                .size
+                  .est-size
+                  .dl-size
+                .sub
+                  .total-sub
+                  .ok-sub
+              .none NONE TASK
