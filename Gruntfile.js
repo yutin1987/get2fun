@@ -41,7 +41,8 @@ module.exports = function(grunt) {
           beautify: true
         },
         files: {
-          './script/page.js': ['./dev/script/helper*.js','./dev/script/page.js']
+          './script/app.js': ['./dev/script/app.js'],
+          './script/helper.js': ['./dev/script/helper.js']
         }
       }
     },
