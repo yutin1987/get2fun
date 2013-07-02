@@ -1,0 +1,22 @@
+@import "compass"
+@import "configs.sass"
+
+#search
+  $width: $main-width - 640px - 20px
+  width: $width
+  float: right
+  margin-top: $header-height
+  .item
+    height: 100px
+    .thumb
+      float: left
+      background-size: contain
+      width: 120px
+      height: 90px
+    .title,
+    .description
+      float: left
+      width: $width - 130px
+      color: #FFF
+      +ui-text()
+    .download

@@ -1,0 +1,81 @@
+@import "compass"
+@import "configs.sass"
+
+$login-width: 290px
+
+.controls.input-prepend
+  display: block
+
+#login
+  position: absolute
+  z-index: 10
+  width: $login-width
+  margin-left: -$login-width / 2
+  top: $header-height+5px
+  left: 50%
+  padding: 30px 8px
+  input
+    background: none
+    border: none
+    height: 50px - 8px
+    width: $login-width - 24px - 20px - 12px
+    margin-left: 5px
+    &:focus
+      +box-shadow(none)
+  button
+    +background-image(linear-gradient(#5dc0ea, #2781a7))
+    +border-radius
+    border: 1px #082b3a solid
+    color: rgba(#1c4b66, 0.26)
+  .input
+    height: 50px
+    margin: 0px 12px
+    margin-bottom: 10px
+    position: relative
+    vertical-align: middle
+    margin: 0px 12px
+    +transition(opacity 250ms ease-in-out 50ms)
+    .left,
+    .right
+      position: absolute
+      top: 0px
+      width: 12px
+      height: 50px
+    .left
+      left: -12px
+    .right
+      right: -12px
+  .toolbar
+    height: 42px
+    .remember
+      height: 30px
+      margin-top: 6px
+      padding-left: 36px
+      line-height: 30px
+      vertical-align: middle
+      background-repeat: no-repeat
+      cursor: pointer
+      color: #d4d4d4
+      float: left
+    .submit
+      height: 42px
+      width: 132px
+      color: #FFF
+      float: right
+  .tipbox
+    display: none
+    +opacity(0)
+    position: absolute
+    top: 0px
+    left: 0px
+    width: 100%
+    height: 100%
+    text-align: center
+    line-height: 120px
+    vertical-align: middle
+  &.proceed
+    .input
+      +opacity(0)
+    .tipbox
+      display: block
+      +opacity(1)

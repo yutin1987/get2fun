@@ -11,7 +11,8 @@ module.exports = function(grunt) {
           }
         },
         files: {
-          "./index.html": ["./dev/*.jade"]
+          "./index.html": ["./dev/index.jade"],
+          "./search_youtube.html": ["./dev/search_youtube.jade"]
         }
       }
     },
@@ -38,24 +39,35 @@ module.exports = function(grunt) {
     uglify: {
       my_target: {
         options:{
-          beautify: true
+          mangle: false,
+          beautify: false,
+          compress: false,
+          report: false
         },
         files: {
-          './script/page.js': ['./dev/script/helper*.js','./dev/script/page.js']
+          //'./script/app.js': ['./dev/script/app.js'],
+          './script/search_youtube.js': ['./dev/script/search_youtube.js']
         }
       }
     },
     cssmin: {
       combine: {
         files: {
-          './style/app_layout.css': ['./dev/style/app_layout.*.css'],
-          './style/app_style.css': ['./dev/style/app_style.*.css']
+          //'./style/app_layout.css': ['./dev/style/app_layout.*.css'],
+          //'./style/app_style.css': ['./dev/style/app_style.*.css'],
+          './style/search_youtube.css': [
+            './dev/style/global.css',
+            './dev/style/header.css',
+            './dev/style/login.css',
+            './dev/style/player.css',
+            './dev/style/search.css'
+          ]
         }
       }
     },
     watch: {
       files: ['**/*.jade','**/*.coffee','**/*.sass'],
-      tasks: ['jade','coffee','compass','uglify']
+      tasks: ['jade','coffee','compass','uglify','cssmin']
     }
   });
 

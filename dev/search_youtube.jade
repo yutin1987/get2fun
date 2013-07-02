@@ -1,0 +1,88 @@
+!!! 5
+html(ng-app='hg2')
+  head
+    meta(http-equiv='Content-Type', content='text/html;charset=UTF-8')
+    meta(name='viewport', content='width=device-width, initial-scale=0.5, minimum-scale=0.5, maximum-scale=0.5, user-scalable=no')
+    meta(name='description', content='')
+    meta(name='author', content='')
+    title HappyGet2 like YouTube
+    link(rel="shortcut icon", href="./favicon.ico")
+
+    script(type="text/javascript")
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-33503929-3']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    // Lib
+    link(rel='stylesheet', type='text/css', href='./style/bootstrap.css')
+    script(type='text/javascript', src='./script/framework.js')
+
+    //if lt IE 9
+    script(src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js")
+
+    // Page
+    script(type='text/javascript', src='./script/search_youtube.js')
+    link(rel='stylesheet', type='text/css', href='./style/search_youtube.css')
+
+  body#viewport(ng-controller="MainCtrl")
+    #header.navbar.navbar-inverse.navbar-fixed-top
+      .navbar-inner 
+        .container
+          a.logo.pull-left(href='#')
+          a.control.server-stopped(href='#')
+            .icon
+              .circle
+              .img
+            span.text.text-running.i18n(text='running')
+            span.text.text-stopped.i18n(text='stopped')
+            span.text.text-paused.i18n(text='paused')
+          p.box-ver V2.0
+          ul.box-nav
+            li: a.nav-logout.i18n(href='#logout',text='extension') Logout
+            li.separation
+            li: a.nav-fb.i18n(href='https://www.facebook.com/ILoveHappyget',target='_blank',text='extension') Page
+            li.separation
+            li: a.nav-refresh.i18n(href='./index.html',text='refresh') List
+    #login(ng-controller="LoginCtrl",ng-show='guest')
+      .form-horizontal
+        .input.input-username
+          .left
+          .right
+          i.icon-user
+          input(type='text',placeholder='Username',ng-model='username')
+        .input.input-password
+          .left
+          .right
+          i.icon-lock
+          input(type='password',placeholder='Password',ng-model='password')
+        .message(ng-show='error') *Invalid username or password
+        .toolbar
+          label.remember(ng-click='rememberMe()',ng-class="remember") Remember me
+          button.submit(type='submit',ng-click='login()') SIGN IN
+      .tipbox
+        label Login...
+    .container
+      #player(ng-controller="PlayerCtrl")
+        .frame
+          iframe(id="ytplayer",type="text/html",width="640",height="360",src="https://www.youtube.com/embed/{{video.vid}}?autohide=1",frameborder="0",allowfullscreen)
+        .step.playlist
+        .step.audio
+        .step.quality
+      #search(ng-controller="SearchCtrl")
+        form(ng-submit="search()")
+          .input-append
+            input(type='text',placeholder='Search YouTube',ng-model='keyword')
+            button.btn(type='submit') Search
+        .results
+          .item(ng-repeat="item in items | startFrom:pageurlStart | limitTo:pageCount",ng-click="look($index)")
+            .thumb(ng-click='look($index)', style="background-image:url({{item.thumb}});")
+            .title {{item.title}}
+            .description {{item.description}}
+            .download
+              button(type='button') Download
