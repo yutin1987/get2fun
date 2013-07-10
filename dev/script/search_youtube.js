@@ -7,10 +7,32 @@ PATH = '/hg2/';
 API = {
   TASK: 'api/dls5.php',
   LOGIN: 'api2/login2.php',
-  INFO: 'api2/info.php'
+  INFO: 'api2/info.php',
+  YT_QUALITY: 'api4fe/ytquality.php'
 };
 
 WATCH_TIME = 1000;
+
+$(function() {
+  var body, device, userAgent;
+
+  userAgent = navigator.userAgent;
+  body = $('body');
+  device = /Android|webOS|iPhone|iPad|iPod|BlackBerry|PlayBook|Windows|Macintosh/i.exec(userAgent);
+  if (device) {
+    device = device[0].toLowerCase();
+    switch (device) {
+      case 'iphone':
+      case 'ipad':
+      case 'ipod':
+        body.addClass('device-ios');
+        break;
+      case 'macintosh':
+        device = 'mac';
+    }
+    return body.addClass('device-' + device);
+  }
+});
 
 hg2App = angular.module('hg2', []);
 
@@ -20,15 +42,49 @@ hg2App.filter('startFrom', function() {
   };
 });
 
-MainCtrl = function($scope) {
+MainCtrl = function($scope, $timeout) {
+  var resize;
+
   $scope.guest = false;
   $scope.admin = false;
+  $scope.width = 0;
+  $scope.height = 0;
+  resize = function() {
+    $scope.width = $(document).width();
+    return $scope.height = $(document).height();
+  };
+  (function() {
+    resize();
+    return $timeout(arguments.callee, 3000);
+  })();
   $scope.play = function(video) {
     return $scope.$broadcast('play', video);
   };
-  return $scope.updatePlaylist = function(playlist) {
+  $scope.updatePlaylist = function(playlist) {
     return $scope.$broadcast('updatePlaylist', playlist);
   };
+  return $scope.$on('download', function(e, video, playlist, quality) {
+    video.download = true;
+    $scope.$broadcast('downloaded', video);
+    return $.ajax({
+      type: 'POST',
+      url: "/hg2/api2/add_task.php",
+      data: {
+        sourceType: 'youtube',
+        items: [
+          {
+            id: video.vid,
+            title: video.title,
+            url: video.url,
+            thumb: video.thumb,
+            bigthumb: video.bigthumb,
+            playlist: playlist,
+            quality: quality
+          }
+        ]
+      }
+    });
+  });
 };
 
 LoginCtrl = function($scope) {
@@ -72,33 +128,42 @@ LoginCtrl = function($scope) {
 SearchCtrl = function($scope) {
   $scope.items = [];
   $scope.keyword = '';
-  $scope.page = 1;
-  $scope.pageTotal = 1;
-  $scope.pageStart = 0;
-  $scope.pageCount = 8;
+  $scope.playlist = '';
+  $scope.page = {
+    now: 1,
+    total: 1,
+    start: 0,
+    count: 8
+  };
   $scope.nextPageToken = null;
   $scope.reqServer = false;
-  $scope.$watch('page', function(newValue, oldValue) {
+  $scope.$watch('height', function() {
+    return $scope.page.count = Math.floor(($scope.height - 282) / 160);
+  });
+  $scope.$watch('page.now', function(newValue, oldValue) {
     if ($scope.reqServer === true || !$scope.nextPageToken) {
       return;
     }
-    if ($scope.page > $scope.items.length / $scope.pageCount - 3) {
+    if ($scope.page.now > $scope.items.length / $scope.page.count - 3) {
       return $scope.request($scope.nextPageToken);
     }
   });
-  $scope.prevPage = function() {
-    if ($scope.page > 1) {
-      $scope.page -= 1;
+  $scope.gotoPage = function(page) {
+    if (page < 1 || page > $scope.page.total) {
+      return;
     }
-    return $scope.pageStart = ($scope.page - 1) * $scope.pageCount;
+    $scope.page.now = page;
+    return $scope.page.start = ($scope.page.now - 1) * $scope.page.count;
   };
-  $scope.nextPage = function() {
-    if ($scope.page < $scope.pageTotal) {
-      $scope.page += 1;
+  $scope.pageDisable = function(value) {
+    value += $scope.page.now;
+    if (value < 1 || value > $scope.page.total) {
+      return true;
+    } else {
+      return false;
     }
-    return $scope.pageStart = ($scope.page - 1) * $scope.pageCount;
   };
-  $scope.request = function(page) {
+  $scope.request = function(key) {
     var params;
 
     params = {
@@ -107,20 +172,20 @@ SearchCtrl = function($scope) {
       part: 'snippet',
       maxResults: 50
     };
-    if (page) {
-      params.pageToken = page;
+    if (key) {
+      params.pageToken = key;
     }
     $scope.reqServer = true;
     return $.ajax({
       type: 'GET',
       url: 'https://www.googleapis.com/youtube/v3/search',
       data: params,
-      dataType: "json"
+      dataType: 'jsonp'
     }).done(function(res, status) {
       if (status !== 'success') {
         return;
       }
-      $scope.pageTotal = Math.ceil(res.pageInfo.totalResults / $scope.pageCount);
+      $scope.page.total = Math.ceil(res.pageInfo.totalResults / $scope.page.count);
       $.each(res.items, function(i, item) {
         return $scope.items.push({
           vid: item.id.videoId,
@@ -128,6 +193,7 @@ SearchCtrl = function($scope) {
           thumb: item.snippet.thumbnails["default"].url,
           bigthumb: item.snippet.thumbnails.high.url,
           availableQuality: null,
+          description: item.snippet.description,
           quality: {
             Original: false,
             HD1080: false,
@@ -135,6 +201,7 @@ SearchCtrl = function($scope) {
             Medium: false,
             Audio: true
           },
+          download: false,
           url: 'http://www.youtube.com/watch?v=' + item.id.videoId
         });
       });
@@ -145,17 +212,26 @@ SearchCtrl = function($scope) {
   };
   $scope.search = function() {
     $scope.items = [];
-    $scope.page = 1;
-    $scope.pageTotal = 1;
-    $scope.pageStart = 0;
+    $scope.page.now = 1;
+    $scope.page.total = 1;
+    $scope.page.start = 0;
     $scope.nextPageToken = null;
+    $scope.page.count = Math.floor(($scope.height - 282) / 160);
     $scope.request();
-    return $scope.updatePlaylist($scope.keyword);
+    $scope.updatePlaylist($scope.keyword);
+    $scope.playlist = $scope.keyword;
+    return $('#search input').blur();
+  };
+  $scope.download = function(index) {
+    var item;
+
+    item = $scope.items[index + $scope.page.start];
+    return $scope.$emit('download', item, $scope.playlist, ['all']);
   };
   return $scope.look = function(index) {
     var item;
 
-    item = $scope.items[index + $scope.pageStart];
+    item = $scope.items[index + $scope.page.start];
     return $scope.play(item);
   };
 };
@@ -166,15 +242,53 @@ Player
 
 
 PlayerCtrl = function($scope, $timeout) {
-  $scope.video = {};
+  $scope.video = null;
   $scope.playlist = '';
   $scope.player = false;
+  $scope.$watch('width', function() {
+    return $('#ytplayer').css({
+      width: $scope.width * 0.4,
+      height: $scope.width * 0.4 / 16 * 9
+    });
+  });
   $scope.$on('updatePlaylist', function(e, playlist) {
     return $scope.playlist = playlist;
   });
   $scope.$on('play', function(e, video) {
     $scope.video = video;
-    return $scope.player = true;
+    $scope.player = true;
+    if (!$scope.video.availableQuality) {
+      return $.ajax({
+        type: 'GET',
+        url: API.YT_QUALITY,
+        data: {
+          vid: video.vid
+        },
+        dataType: 'json'
+      }).done(function(res) {
+        var availableQuality, qualitys;
+
+        if (res.status === 'success') {
+          qualitys = res.data.split(',');
+          availableQuality = {};
+          angular.forEach(qualitys, function(quality, key) {
+            quality = quality.split('\\\/');
+            switch (parseInt(quality[0], 10)) {
+              case 18:
+                return availableQuality.Medium = true;
+              case 22:
+                return availableQuality.HD720 = true;
+              case 37:
+                return availableQuality.HD1080 = true;
+              case 38:
+                return availableQuality.Original = true;
+            }
+          });
+          $scope.video.availableQuality = availableQuality;
+          return $scope.$apply();
+        }
+      });
+    }
   });
   return $scope.download = function(all) {
     var limit, quality;
@@ -207,24 +321,6 @@ PlayerCtrl = function($scope, $timeout) {
         });
       }
     }
-    $scope.close();
-    return $http({
-      method: 'POST',
-      url: "/hg2/api2/add_task.php",
-      data: $.param({
-        sourceType: 'youtube',
-        items: [
-          {
-            id: $scope.video.vid,
-            title: $scope.video.title,
-            url: $scope.video.url,
-            thumb: $scope.video.thumb,
-            bigthumb: $scope.video.bigthumb,
-            playlist: $scope.playlist,
-            quality: quality
-          }
-        ]
-      })
-    });
+    return $scope.$emit('download', $scope.video, $scope.playlist, quality);
   };
 };

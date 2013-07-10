@@ -37,7 +37,6 @@ html()
     link(rel='stylesheet', type='text/css', href='./style/app_layout.css')
     link(rel='stylesheet', type='text/css', href='./style/app_style.css')
 
-
     style(id='filter', type='text/css')
 
   body#viewport.happyget(ng-controller="RootCtrl",class="search-{{searchActive}}")
@@ -61,6 +60,7 @@ html()
             li: a.nav-fb.i18n(href='https://www.facebook.com/ILoveHappyget',target='_blank',text='extension') Page
             li: a.nav-program.i18n(href='http://www.doguluskaien.com/ext/link.html?welcome',target='_blank',text='extension') Program
             li.separation
+            li: a.nav-search.i18n(href='./search_youtube.html',text='search') Search
             li: a.nav-clear.i18n(href='#',text='clear') Clear
             li: a.nav-refresh.i18n(href='#',text='refresh') Refresh
     #fixed

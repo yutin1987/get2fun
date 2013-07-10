@@ -1,22 +1,121 @@
 @import "compass"
 @import "configs.sass"
 
+$form-height: 88px
+$item-height: 160px
+$page-height: 94px
+
 #search
-  $width: $main-width - 640px - 20px
-  width: $width
-  float: right
-  margin-top: $header-height
-  .item
-    height: 100px
-    .thumb
-      float: left
-      background-size: contain
-      width: 120px
-      height: 90px
-    .title,
-    .description
-      float: left
-      width: $width - 130px
-      color: #FFF
-      +ui-text()
-    .download
+  width: 60%
+  height: 100%
+  position: fixed
+  top: 0px
+  left: 0%
+  background: #637084
+  form
+    height: $form-height
+    background: #000
+    margin-top: $header-height
+    padding: 0px 340px 0px 20px
+    background: inline-image('youtube_search_form.png')
+    .input-wrap
+      position: relative
+      width: 100%
+      padding-top: 14px
+    input
+      width: 100%
+      height: 48px
+      padding: 6px 0px 3px 0px
+      line-height: 48px
+      text-indent: 20px
+      +border-radius(15px)
+    button
+      position: absolute
+      right: -160px
+      top: 14px
+      width: 160px
+      height: 48px + 9px
+      +border-radius(0px)
+      &.btn-hd
+        right: -320px
+  .results
+    .item
+      height: $item-height
+      overflow: hidden
+      position: relative
+      padding-left: 210px
+      .thumb:hover,
+      .title:hover,
+      .description:hover
+        /* style */
+        cursor: pointer
+        text-decoration: underline
+      .thumb
+        background-size: contain
+        width: 200px
+        height: 150px
+        position: absolute
+        left: 5px
+        top: 5px
+      .title
+        display: block
+        overflow: hidden
+        text-overflow: ellipsis
+        white-space: nowrap
+        font-size: 36px
+        color: #BDEEFF
+        margin: 5px 0px 3px 0px
+        .device-ios &
+          font-size: 18px
+      .description
+        display: block
+        overflow: hidden
+        text-overflow: ellipsis
+        height: 48px
+        font-size: 24px
+        color: #F3F3F3
+        margin-top: 3px
+        .device-ios &
+          font-size: 12px
+      .download
+        width: 200px
+        height: 60px
+        background: inline-image('youtube_download_choose.png')
+        position: absolute
+        right: 5px
+        bottom: 5px
+        &.downloaded
+          background: inline-image('youtube_download_all.png')
+  .page-tools
+    position: absolute
+    left: 0px
+    bottom: 0px
+    width: 100%
+    height: $page-height
+    text-align: center
+    line-height: $page-height
+    background: inline-image('youtube_search_page.png')
+    .item
+      display: inline-block
+      margin: 0px 3px
+      cursor: pointer
+      font-size: 200%
+      width: $page-height
+      height: $page-height
+      &.disable
+        color: rgba(255,255,255,0)
+        cursor: default
+    .prev-page,
+    .next-page
+      background-repeat: no-repeat
+      background-position: center center
+      &.disable
+        background: none
+    .prev-page
+      background-image: inline-image("youtube_prev_page.png")
+    .next-page
+      background-image: inline-image("youtube_next_page.png")
+
+@media screen and (max-device-width: 641px)
+  #search
+    width: 100%

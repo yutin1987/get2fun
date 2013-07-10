@@ -2,7 +2,8 @@
 html(ng-app='hg2')
   head
     meta(http-equiv='Content-Type', content='text/html;charset=UTF-8')
-    meta(name='viewport', content='width=device-width, initial-scale=0.5, minimum-scale=0.5, maximum-scale=0.5, user-scalable=no')
+    meta(name='viewport', content='width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no')
+    meta(name='apple-mobile-web-app-capable',content='yes')
     meta(name='description', content='')
     meta(name='author', content='')
     title HappyGet2 like YouTube
@@ -31,24 +32,21 @@ html(ng-app='hg2')
     link(rel='stylesheet', type='text/css', href='./style/search_youtube.css')
 
   body#viewport(ng-controller="MainCtrl")
-    #header.navbar.navbar-inverse.navbar-fixed-top
-      .navbar-inner 
-        .container
-          a.logo.pull-left(href='#')
-          a.control.server-stopped(href='#')
-            .icon
-              .circle
-              .img
-            span.text.text-running.i18n(text='running')
-            span.text.text-stopped.i18n(text='stopped')
-            span.text.text-paused.i18n(text='paused')
-          p.box-ver V2.0
-          ul.box-nav
-            li: a.nav-logout.i18n(href='#logout',text='extension') Logout
-            li.separation
-            li: a.nav-fb.i18n(href='https://www.facebook.com/ILoveHappyget',target='_blank',text='extension') Page
-            li.separation
-            li: a.nav-refresh.i18n(href='./index.html',text='refresh') List
+    #header
+      a.logo.pull-left(href='#')
+      a.control.server-stopped(href='#')
+        .circle
+        .img
+        span.text.text-running.i18n(text='running')
+        span.text.text-stopped.i18n(text='stopped')
+        span.text.text-paused.i18n(text='paused')
+      p.box-ver V2.0
+      ul.box-nav
+        li: a.nav-logout.i18n(href='#logout',text='extension') Logout
+        li.separation
+        li: a.nav-page.i18n(href='https://www.facebook.com/ILoveHappyget',target='_blank',text='extension') Page
+        li.separation
+        li: a.nav-downloadlist.i18n(href='./index.html',text='refresh') List
     #login(ng-controller="LoginCtrl",ng-show='guest')
       .form-horizontal
         .input.input-username
@@ -67,22 +65,62 @@ html(ng-app='hg2')
           button.submit(type='submit',ng-click='login()') SIGN IN
       .tipbox
         label Login...
-    .container
-      #player(ng-controller="PlayerCtrl")
-        .frame
-          iframe(id="ytplayer",type="text/html",width="640",height="360",src="https://www.youtube.com/embed/{{video.vid}}?autohide=1",frameborder="0",allowfullscreen)
-        .step.playlist
-        .step.audio
-        .step.quality
-      #search(ng-controller="SearchCtrl")
-        form(ng-submit="search()")
-          .input-append
-            input(type='text',placeholder='Search YouTube',ng-model='keyword')
-            button.btn(type='submit') Search
-        .results
-          .item(ng-repeat="item in items | startFrom:pageurlStart | limitTo:pageCount",ng-click="look($index)")
-            .thumb(ng-click='look($index)', style="background-image:url({{item.thumb}});")
-            .title {{item.title}}
-            .description {{item.description}}
-            .download
-              button(type='button') Download
+    #search(ng-controller="SearchCtrl")
+      form(ng-submit="search()")
+        .input-wrap
+          input(type='text',placeholder='Search YouTube',ng-model='keyword')
+          button.btn-sd(type='submit') Search
+          button.btn-hd(type='button') OnlyHD
+      .results
+        .item(ng-repeat="item in items | startFrom:page.start | limitTo:page.count")
+          .thumb(ng-click='look($index)', style="background-image:url({{item.thumb}});")
+          .title(ng-click='look($index)') {{item.title}}
+          .description(ng-click='look($index)') {{item.description}}
+          .download(ng-click='download($index)',ng-class="{'downloaded': item.download}")
+      .page-tools
+        .item.prev-page(ng-click="gotoPage(page.now-1)",ng-class="{'disable': pageDisable(-1)}") &nbsp;
+        .item(ng-click="gotoPage(page.now-2)",ng-class="{'disable': pageDisable(-2)}") {{page.now-2}}
+        .item(ng-click="gotoPage(page.now-1)",ng-class="{'disable': pageDisable(-1)}") {{page.now-1}}
+        .item {{page.now}}
+        .item(ng-click="gotoPage(page.now+1)",ng-class="{'disable': pageDisable(+1)}") {{page.now+1}}
+        .item(ng-click="gotoPage(page.now+2)",ng-class="{'disable': pageDisable(+2)}") {{page.now+2}}
+        .item.next-page(ng-click="gotoPage(page.now+1)",ng-class="{'disable': pageDisable(+1)}") &nbsp;
+    #player(ng-controller="PlayerCtrl")
+      .frame
+        iframe(id="ytplayer",type="text/html",src="https://www.youtube.com/embed/{{video.vid}}?autohide=1",frameborder="0",allowfullscreen)
+      .dl-settings
+        .subtitle Download Settings
+        .msg-unable(ng-hide="video") 請選擇影片
+        .msg-downloaded(ng-show="video.download") 已經下載
+        form(ng-submit="download()",ng-show="video && !video.download")
+          .step.playlist
+            .column
+              label Playlists:
+            .input
+              input(type="text",placeholder="Playlists",ng-model="playlist")
+          .step.audio
+            .column
+              label Audio:
+            .input
+              label.checkbox(ng-class="{'checked': video.quality.Audio}")
+                input(type="checkbox", ng-model="video.quality.Audio")
+                span Categorise MV
+          .step.qualitys
+            .column Quality:
+            .input
+              .download-all
+                button(type="button",ng-click="download()")
+              .download-choose
+                label.checkbox(ng-class="{'checked': video.quality.Original, 'enable': video.availableQuality.Original}")
+                  input(type="checkbox", ng-model="video.quality.Original")
+                  span Original
+                label.checkbox(ng-class="{'checked': video.quality.HD1080, 'enable': video.availableQuality.HD1080}")
+                  input(type="checkbox", ng-model="video.quality.HD1080")
+                  span HD1080P
+                label.checkbox(ng-class="{'checked': video.quality.HD720, 'enable': video.availableQuality.HD720}")
+                  input(type="checkbox", ng-model="video.quality.HD720")
+                  span HD720P
+                label.checkbox(ng-class="{'checked': video.quality.Medium, 'enable': video.availableQuality.Medium}")
+                  input(type="checkbox", ng-model="video.quality.Medium")
+                  span 360P
+                button(type="button",ng-click="download(1)")

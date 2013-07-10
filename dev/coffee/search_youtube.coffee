@@ -6,17 +6,43 @@ API =
   TASK: 'api/dls5.php'
   LOGIN: 'api2/login2.php'
   INFO: 'api2/info.php'
+  YT_QUALITY: 'api4fe/ytquality.php'
 
 WATCH_TIME = 1000
+
+$(() ->
+  userAgent = navigator.userAgent
+  body = $('body')
+
+  device = /Android|webOS|iPhone|iPad|iPod|BlackBerry|PlayBook|Windows|Macintosh/i.exec(userAgent)
+  if device
+    device = device[0].toLowerCase()
+    switch device
+      when 'iphone', 'ipad', 'ipod' then body.addClass 'device-ios'
+      when 'macintosh' then device = 'mac'
+    body.addClass 'device-'+device
+)
 
 hg2App = angular.module('hg2', []);
 
 hg2App.filter 'startFrom', () ->
   (input, start) -> input.slice(start)
 
-MainCtrl = ($scope) ->
+MainCtrl = ($scope,$timeout) ->
   $scope.guest = no
   $scope.admin = no
+
+  $scope.width = 0
+  $scope.height= 0
+
+  resize = () ->
+    $scope.width = $(document).width()
+    $scope.height = $(document).height()
+
+  (() ->
+    resize()
+    $timeout arguments.callee, 3000
+  )()
 
   $scope.play = (video) ->
     $scope.$broadcast('play', video)
@@ -24,6 +50,26 @@ MainCtrl = ($scope) ->
   $scope.updatePlaylist = (playlist) ->
     $scope.$broadcast('updatePlaylist', playlist)
 
+  $scope.$on 'download', (e, video, playlist, quality) ->
+    video.download = yes
+    $scope.$broadcast('downloaded', video)
+    $.ajax
+      type: 'POST'
+      url: "/hg2/api2/add_task.php"
+      data: 
+        sourceType: 'youtube'
+        #sourceKind: null
+        #cookie_string: document.cookie
+        #cookie_domain: null
+        items: [
+          id: video.vid
+          title: video.title
+          url: video.url
+          thumb: video.thumb
+          bigthumb: video.bigthumb
+          playlist: playlist
+          quality: quality #'1080P','720P','360P','Original','Audio','Highest','All'
+        ]
 
 LoginCtrl = ($scope) ->
   $scope.username = ''
@@ -61,42 +107,49 @@ SearchCtrl = ($scope) ->
   $scope.items = []
 
   $scope.keyword = ''
-  $scope.page = 1
-  $scope.pageTotal = 1
-  $scope.pageStart = 0
-  $scope.pageCount = 8
+  $scope.playlist = ''
+  $scope.page =
+    now: 1
+    total: 1
+    start: 0
+    count: 8
   $scope.nextPageToken = null
   $scope.reqServer = off
 
-  $scope.$watch 'page', (newValue,oldValue) ->
+  $scope.$watch 'height', () ->
+    $scope.page.count = Math.floor(($scope.height - 282) / 160)
+
+  $scope.$watch 'page.now', (newValue,oldValue) ->
     return if $scope.reqServer is on || !$scope.nextPageToken
-    $scope.request($scope.nextPageToken) if $scope.page > $scope.items.length/$scope.pageCount - 3
+    $scope.request($scope.nextPageToken) if $scope.page.now > $scope.items.length/$scope.page.count - 3
 
-  $scope.prevPage = () ->
-    $scope.page -= 1 if $scope.page > 1
-    $scope.pageStart = ($scope.page-1) * $scope.pageCount
 
-  $scope.nextPage = () ->
-    $scope.page += 1 if $scope.page < $scope.pageTotal
-    $scope.pageStart = ($scope.page-1) * $scope.pageCount
+  $scope.gotoPage = (page) ->
+    return if page < 1 or page > $scope.page.total
+    $scope.page.now = page
+    $scope.page.start = ($scope.page.now-1) * $scope.page.count
 
-  $scope.request = (page) ->
+  $scope.pageDisable = (value) ->
+    value += $scope.page.now
+    if value < 1 or value > $scope.page.total then true else false
+
+  $scope.request = (key) ->
     params = 
       key: 'AIzaSyCpOMFgf1ZKObU6zyAjckcLrMuD56ZVzfM'
       q: $scope.keyword
       part: 'snippet'
       maxResults: 50
 
-    params.pageToken = page if page
+    params.pageToken = key if key
     $scope.reqServer = on
     $.ajax
       type: 'GET'
       url: 'https://www.googleapis.com/youtube/v3/search'
       data: params
-      dataType: "json"
+      dataType: 'jsonp'
     .done (res, status) ->
       return if status isnt 'success'
-      $scope.pageTotal = Math.ceil(res.pageInfo.totalResults / $scope.pageCount)
+      $scope.page.total = Math.ceil(res.pageInfo.totalResults / $scope.page.count)
       $.each res.items, (i, item) ->
         $scope.items.push
           vid: item.id.videoId
@@ -104,12 +157,14 @@ SearchCtrl = ($scope) ->
           thumb: item.snippet.thumbnails.default.url
           bigthumb: item.snippet.thumbnails.high.url
           availableQuality: null
+          description: item.snippet.description
           quality:
             Original: off
             HD1080: off
             HD720: off
             Medium: off
             Audio: on
+          download: no
           url: 'http://www.youtube.com/watch?v='+item.id.videoId
       $scope.nextPageToken = if res.nextPageToken then res.nextPageToken else null
       $scope.reqServer = off
@@ -117,15 +172,25 @@ SearchCtrl = ($scope) ->
 
   $scope.search = () ->
     $scope.items = []
-    $scope.page = 1
-    $scope.pageTotal = 1
-    $scope.pageStart = 0
+    $scope.page.now = 1
+    $scope.page.total = 1
+    $scope.page.start = 0
     $scope.nextPageToken = null
+    $scope.page.count = Math.floor(($scope.height - 282) / 160)
     $scope.request()
     $scope.updatePlaylist $scope.keyword
+    $scope.playlist = $scope.keyword
+    $('#search input').blur()
+
+  $scope.download = (index) ->
+    item = $scope.items[index+$scope.page.start]
+    $scope.$emit 'download', item, $scope.playlist, ['all']
+  
+  # $scope.$on 'downloaded', (e, video) ->
+    # $scope.$apply()
 
   $scope.look = (index) ->
-    item = $scope.items[index+$scope.pageStart]
+    item = $scope.items[index+$scope.page.start]
     $scope.play(item)
 
 ###
@@ -133,10 +198,14 @@ Player
 ###
 PlayerCtrl = ($scope, $timeout) ->
 
-  $scope.video = {}
+  $scope.video = null
   $scope.playlist = ''
   $scope.player = off
 
+  $scope.$watch 'width', () ->
+    $('#ytplayer').css
+      width: $scope.width*0.4
+      height: $scope.width*0.4/16*9
 
   $scope.$on 'updatePlaylist', (e, playlist) ->
     $scope.playlist = playlist
@@ -147,23 +216,30 @@ PlayerCtrl = ($scope, $timeout) ->
 
     $scope.video = video
     $scope.player = on
-
-
-    # ( ->
-    #   getAvailableQualityLevels = arguments.callee
-    #   $timeout ( ->
-    #     quality = ytplayer.getAvailableQualityLevels?()
-    #     if quality?.length > 0
-    #       ytplayer.stopVideo()
-    #       $scope.video.availableQuality =
-    #         HD1080: on if quality.indexOf('hd1080')
-    #         HD720: on if quality.indexOf('hd720')
-    #         Medium: on if quality.indexOf('medium')
-    #         Original: on if quality.indexOf('highres')
-    #     else
-    #       getAvailableQualityLevels()
-    #   ), 1000
-    # )()
+    
+    unless $scope.video.availableQuality
+      $.ajax
+        type: 'GET'
+        url: API.YT_QUALITY
+        data: {vid: video.vid}
+        dataType: 'json'
+      .done (res) ->
+        if res.status is 'success'
+          qualitys = res.data.split ','
+          availableQuality = {}
+          angular.forEach qualitys, (quality, key) ->
+            quality = quality.split '\\\/'
+            switch parseInt(quality[0],10)
+              when 18
+                availableQuality.Medium = on
+              when 22
+                availableQuality.HD720 = on
+              when 37
+               availableQuality.HD1080 = on
+              when 38
+               availableQuality.Original = on
+          $scope.video.availableQuality = availableQuality
+          $scope.$apply()
 
   $scope.download = (all) ->
     limit = 1
@@ -183,24 +259,8 @@ PlayerCtrl = ($scope, $timeout) ->
         angular.forEach $scope.video.availableQuality, (value, key) ->
           quality.push key
           $scope.video.quality[key] = on
-    
-    $scope.close()
 
-    $http
-      method: 'POST'
-      url: "/hg2/api2/add_task.php"
-      data: $.param(
-        sourceType: 'youtube'
-        #sourceKind: null
-        #cookie_string: document.cookie
-        #cookie_domain: null
-        items: [
-          id: $scope.video.vid
-          title: $scope.video.title
-          url: $scope.video.url
-          thumb: $scope.video.thumb
-          bigthumb: $scope.video.bigthumb
-          playlist: $scope.playlist
-          quality: quality #'1080P','720P','360P','Original','Audio','Highest','All'
-        ]
-      )
+    $scope.$emit 'download', $scope.video, $scope.playlist, quality
+
+  # $scope.$on 'downloaded', (e, video) ->
+    # $scope.$apply()

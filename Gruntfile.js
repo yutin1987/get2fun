@@ -54,7 +54,7 @@ module.exports = function(grunt) {
       combine: {
         files: {
           //'./style/app_layout.css': ['./dev/style/app_layout.*.css'],
-          //'./style/app_style.css': ['./dev/style/app_style.*.css'],
+          './style/app_style.css': ['./dev/style/app_style.*.css'],
           './style/search_youtube.css': [
             './dev/style/global.css',
             './dev/style/header.css',
@@ -67,7 +67,7 @@ module.exports = function(grunt) {
     },
     watch: {
       files: ['**/*.jade','**/*.coffee','**/*.sass'],
-      tasks: ['jade','coffee','compass','uglify','cssmin']
+      tasks: ['jade','coffee','uglify','compass','cssmin']
     }
   });
 
@@ -78,6 +78,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
-  grunt.registerTask('default', ['jade','coffee','compass','uglify','cssmin','watch']);
+  grunt.registerTask('default', ['jade','coffee','uglify','compass','cssmin','watch']);
 
 };

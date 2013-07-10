@@ -1,112 +1,134 @@
 @import "compass"
 @import "configs.sass"
+=keyframes($name)
+  @-webkit-keyframes #{$name}
+    @content
+  @-moz-keyframes #{$name}
+    @content
+  @-ms-keyframes #{$name}
+    @content
+  @keyframes #{$name}
+    @content
+
++keyframes('running')
+  0%
+    +rotate(0deg)
+  50%
+    +rotate(180deg)
+    +single-box-shadow(#00ccff, 0, 0, 17px)
+  100%
+    +rotate(360deg)
+
++keyframes('stoppe')
+  0%
+    border-color: #ff0000 rgba(0, 0, 0, 0)
+  50%
+    border-color: rgba(0, 0, 0, 0) #ff0000
+  100%
+    border-color: #ff0000 rgba(0, 0, 0, 0)
+
++keyframes('paused')
+  0%
+    border-color: rgba(0, 0, 0, 0) #ff9900
+  50%
+    border-color: rgba(0, 0, 0, 0)
+  100%
+    border-color: rgba(0, 0, 0, 0) #ff9900
 
 #header
-  height: $header-height
   overflow: hidden
-  background-image: inline-image('blue_logo.png')
-  background-repeat: no-repeat
-  background-position: center center
-  .navbar-inner
-    background-image: inline-image('navbar-bg.png')
+  position: fixed
+  top: 0px
+  left: 0px
+  width: 100%
+  height: $header-height
+  background: #000
+  background-image: inline-image('youtube_header_bg.png')
+  z-index: 11
   .logo
-    width: 385px
-    height: 68px
+    width: 265px
+    height: 100px
     display: block
     text-align: center
+    background-image: inline-image('blue_logo.png')
+    background-size: contain
+    background-repeat: no-repeat
+    position: absolute
+    left: 10px
+    top: 0px
   .box-ver
     position: absolute
-    right: 0px
+    right: 10px
     top: 0px
   .box-nav
     position: absolute
-    right: 6px
-    top: 0px
+    right: 30px
+    top: 10px
     list-style: none
+    height: 80px
     li
       float: right
+      height: 80px
       &.separation
         background-image: inline-image('separation.png')
         background-repeat: no-repeat
-        background-position: center 22px
+        background-position: center center
         width: 9px
-        height: 75px
     a
       display: block
-      padding: 42px 6px 3px 6px
-      width: 54px
-      height: 30px
+      padding: 56px 6px 12px 6px
+      width: 80px
       font-size: 12px
       text-align: center
-      background-position: center 9px
+      background-position: center 7px
       background-repeat: no-repeat
       color: #FFF
       &:hover
         color: #08c
-      &.nav-clear
-        background-image: inline-image('nav_clear.png')
-        &:hover
-          background-image: inline-image('nav_clear_hover.png')
-        &:active
-          background-image: inline-image('nav_clear_active.png')
-      &.nav-ext
-        background-image: inline-image('nav_ext.png')
-        &:hover
-          background-image: inline-image('nav_ext_hover.png')
-        &:active
-          background-image: inline-image('nav_ext_active.png')
       &.nav-logout
-        background-image: inline-image('nav_logout.png')
+        background-image: inline-image('youtube_nav_logout.png')
         &:hover
-          background-image: inline-image('nav_logout_hover.png')
+          background-image: inline-image('youtube_nav_logout.png')
         &:active
-          background-image: inline-image('nav_logout_active.png')
-      &.nav-refresh
-        background-image: inline-image('nav_refresh.png')
+          background-image: inline-image('youtube_nav_logout.png')
+      &.nav-downloadlist
+        background-image: inline-image('youtube_nav_downloadlist.png')
         &:hover
-          background-image: inline-image('nav_refresh_hover.png')
+          background-image: inline-image('youtube_nav_downloadlist.png')
         &:active
-          background-image: inline-image('nav_refresh_active.png')
-      &.nav-program
-        background-image: inline-image('nav_program.png')
+          background-image: inline-image('youtube_nav_downloadlist.png')
+      &.nav-page
+        background-image: inline-image('youtube_nav_page.png')
         &:hover
-          background-image: inline-image('nav_program_hover.png')
+          background-image: inline-image('youtube_nav_page.png')
         &:active
-          background-image: inline-image('nav_program_active.png')
-      &.nav-fb
-        background-image: inline-image('nav_fb.png')
-        &:hover
-          background-image: inline-image('nav_fb_hover.png')
-        &:active
-          background-image: inline-image('nav_fb_active.png')
+          background-image: inline-image('youtube_nav_page.png')
   .control
-    margin-top: 7px
-    margin-left: 13px
-    float: left
-    .icon
-      float: left
-      position: relative
+    position: absolute
+    top: 10px
+    left: 50%
+    $width: 80px
+    $height: 80px
+    width: $width
+    height: $height
+    margin-left: -$width/2
+    .circle,
     .img
-      width: 52px
-      height: 52px
-      background-repeat: no-repeat
-    .text
-      font-size: 24px
-      line-height: 52px
-      margin-left: 16px
-      float: left
-      display: none
-    .circle
-      background-color: rgba(0, 0, 0, 0)
-      border: 3px solid rgba(0, 0, 0, 0)
-      opacity: 0.9
-      border-radius: 46px
-      width: 46px
-      height: 46px
-      margin: 0 auto
       position: absolute
       top: 0px
       left: 0px
+      border-radius: $width/2
+    .circle
+      width: $width - 12px
+      height: $height - 12px
+      background-color: rgba(0, 0, 0, 0)
+      border: 6px solid rgba(0, 0, 0, 0)
+      opacity: 0.9
+    .img
+      width: $width
+      height: $height
+      background: no-repeat center center
+      background-size: $width $height
     &.server-running
       .img
         background-image: inline-image('control_pause.png')

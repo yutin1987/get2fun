@@ -1,7 +1,114 @@
 @import "compass"
 @import "configs.sass"
 
+#ytplayer
+  width: 100%
+
 #player
-  width: 640px
-  float: left
-  margin-top: $header-height
+  width: 40%
+  height: 100%
+  position: fixed
+  top: 0px
+  right: 0px
+  background: #EBE9E9
+  .frame
+    margin-top: $header-height
+  table, tr, td
+    border-collapse: collapse
+    padding: 0px
+    margin: 0px
+    vertical-align: middle
+  .subtitle
+    margin: 5px 5px 3px 5px
+    padding-bottom: 3px
+    border-bottom: 1px solid #000
+  .dl-settings
+    margin: 0px 5px
+  .step
+    $height: 90px
+    height: $height
+    overflow: visible
+    padding-left: 140px + 53px + 5px
+    margin-right: 50px
+    position: relative
+    .column,
+    .input
+      height: $height
+      overflow: visible
+    .column
+      width: 140px
+      text-align: right
+      padding-right: 53px
+      line-height: $height
+      background: no-repeat right top
+      vertical-align: top
+      position: absolute
+      left: 0px
+      top: 0px
+    .input
+      padding-left: 5px
+      .checkbox
+        cursor: pointer
+        height: 34px
+        line-height: 34px
+        padding-left: 38px
+        background: inline-image("youtube_unchecked.png") no-repeat
+        &.checked
+          background-image: inline-image("youtube_checked.png")
+        input
+          display: none
+    &:nth-child(1) .column
+      background-image: inline-image("youtube_step_1.png")
+    &:nth-child(2) .column
+      background-image: inline-image("youtube_step_2.png")
+    &:nth-child(3) .column
+      background-image: inline-image("youtube_step_3.png")
+    &.playlist
+      input
+        height: 60px
+        margin: 15px 0px
+        width: 80%
+        +border-radius(15px)
+    &.audio
+      .checkbox
+        height: $height
+        line-height: $height
+        vertical-align: middle
+        background-position: 0 center
+    &.qualitys
+      padding-top: 10px
+      button
+        border: none
+        width: 200px
+        height: 60px
+      .checkbox
+        float: left
+        width: 145px
+      .download-all
+        background: #F2F8FA
+        border: 1px solid #9DC5E4
+        padding: 6px
+        button
+          background: inline-image("youtube_download_all.png")
+          &.active
+            //background: inline-image("youtube_download_all_active.png")
+      .download-choose
+        background: #F2F8FA
+        border: 1px solid #9DC5E4
+        padding: 6px
+        margin-top: 20px
+        .checkbox
+          color: #999
+          margin: 0px 0px 10px 0px
+          &.enable
+            color: #000
+        button
+          clear: both
+          display: block
+          background: inline-image("youtube_download_choose.png")
+          &.active
+            //background: inline-image("youtube_download_choose_active.png")
+
+@media screen and (max-device-width: 641px)
+  #player
+    display: none
