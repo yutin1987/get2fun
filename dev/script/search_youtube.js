@@ -43,10 +43,11 @@ hg2App.filter('startFrom', function() {
 });
 
 MainCtrl = function($scope, $timeout) {
-  var resize;
+  var resize, sys_info, sys_user;
 
-  $scope.guest = false;
   $scope.admin = false;
+  $scope.user = null;
+  $scope.serverStatus = 'stopped';
   $scope.width = 0;
   $scope.height = 0;
   resize = function() {
@@ -57,11 +58,73 @@ MainCtrl = function($scope, $timeout) {
     resize();
     return $timeout(arguments.callee, 3000);
   })();
+  (sys_user = function() {
+    return $.ajax("http://" + ADDRESS + PATH + API.LOGIN + "?check", {
+      type: "POST",
+      dataType: "json",
+      timeout: 14000
+    }).always(function(res, status) {
+      if (status === 'success' && res.status === "true") {
+        $scope.user = res.user;
+      } else {
+        $scope.user = null;
+      }
+      $scope.$apply();
+      return $timeout(sys_user, 5000);
+    });
+  })();
+  (sys_info = function() {
+    return $.ajax("http://" + ADDRESS + PATH + API.INFO, {
+      type: "POST",
+      dataType: "json",
+      data: {
+        it: 'server'
+      },
+      timeout: 14000
+    }).always(function(res, status) {
+      var _ref;
+
+      if (status === 'success' && ((_ref = res.server) != null ? _ref.server_status : void 0) !== 0) {
+        switch (res.server.server_status) {
+          case 1:
+            $scope.serverStatus = 'running';
+            break;
+          case 2:
+            $scope.serverStatus = 'paused';
+        }
+      } else {
+        $scope.serverStatus = 'stopped';
+      }
+      $scope.$apply();
+      return $timeout(sys_info, 10000);
+    });
+  })();
   $scope.play = function(video) {
     return $scope.$broadcast('play', video);
   };
+  $scope.logout = function() {
+    var data;
+
+    $scope.admin = false;
+    $scope.user = null;
+    data = {
+      _: Math.random(),
+      user: 'logout',
+      pwd: 'logout'
+    };
+    return $.ajax("http://" + ADDRESS + PATH + API.LOGIN + "?logout", {
+      type: "POST",
+      data: data,
+      dataType: "json",
+      timeout: 4000
+    });
+  };
   $scope.updatePlaylist = function(playlist) {
     return $scope.$broadcast('updatePlaylist', playlist);
+  };
+  $scope.updateUser = function(user, admin) {
+    $scope.user = user;
+    return $scope.admin = admin;
   };
   return $scope.$on('download', function(e, video, playlist, quality) {
     video.download = true;
@@ -93,27 +156,27 @@ LoginCtrl = function($scope) {
   $scope.remember = true;
   $scope.error = false;
   $scope.reqServer = false;
-  $scope.rememberMe = function() {
-    return $scope.remember = $scope.remember ? false : true;
-  };
   return $scope.login = function() {
+    var username;
+
     $scope.reqServer = true;
+    username = $scope.username;
     return $.ajax("http://" + ADDRESS + PATH + API.LOGIN, {
       type: "POST",
       data: {
         _: Math.random(),
-        user: $scope.username,
+        user: username,
         pwd: $scope.password
       },
       dataType: "json",
       timeout: 4000
-    }).done(function(res, status) {
-      if (status === 'success' || String(res)(!'true')) {
-        $scope.guest = true;
+    }).always(function(res, status) {
+      if (status === 'success' || String(res) !== 'true') {
+        $scope.user = username;
         $scope.admin = false;
         $scope.error = true;
       } else {
-        $scope.guest = false;
+        $scope.user = null;
         if ($scope.username === 'admin') {
           $scope.admin = true;
         }
@@ -181,7 +244,7 @@ SearchCtrl = function($scope) {
       url: 'https://www.googleapis.com/youtube/v3/search',
       data: params,
       dataType: 'jsonp'
-    }).done(function(res, status) {
+    }).always(function(res, status) {
       if (status !== 'success') {
         return;
       }

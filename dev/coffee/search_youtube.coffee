@@ -29,8 +29,9 @@ hg2App.filter 'startFrom', () ->
   (input, start) -> input.slice(start)
 
 MainCtrl = ($scope,$timeout) ->
-  $scope.guest = no
   $scope.admin = no
+  $scope.user = null
+  $scope.serverStatus = 'stopped'
 
   $scope.width = 0
   $scope.height= 0
@@ -44,11 +45,59 @@ MainCtrl = ($scope,$timeout) ->
     $timeout arguments.callee, 3000
   )()
 
+  (sys_user = () ->
+    $.ajax "http://" + ADDRESS + PATH + API.LOGIN + "?check",
+      type: "POST"
+      dataType: "json"
+      timeout: 14000
+    .always (res, status) ->
+      if status is 'success' and res.status is "true"
+        $scope.user = res.user
+      else
+        $scope.user = null
+      $scope.$apply()
+      $timeout sys_user, 5000
+  )()
+  
+  (sys_info = () ->
+    $.ajax "http://" + ADDRESS + PATH + API.INFO,
+      type: "POST"
+      dataType: "json"
+      data: {it: 'server'}
+      timeout: 14000
+    .always (res, status) ->
+      if status is 'success' and res.server?.server_status isnt 0
+        switch res.server.server_status
+          when 1 then $scope.serverStatus = 'running'
+          when 2 then $scope.serverStatus = 'paused'
+      else
+        $scope.serverStatus = 'stopped'
+      $scope.$apply()
+      $timeout sys_info, 10000
+  )()
+
   $scope.play = (video) ->
     $scope.$broadcast('play', video)
 
+  $scope.logout = () ->
+    $scope.admin = no
+    $scope.user = null
+    data =
+      _ : Math.random()
+      user: 'logout'
+      pwd: 'logout'
+    $.ajax "http://" + ADDRESS + PATH + API.LOGIN + "?logout",
+      type: "POST"
+      data: data
+      dataType: "json"
+      timeout: 4000
+
   $scope.updatePlaylist = (playlist) ->
     $scope.$broadcast('updatePlaylist', playlist)
+
+  $scope.updateUser = (user, admin) ->
+    $scope.user = user
+    $scope.admin = admin
 
   $scope.$on 'download', (e, video, playlist, quality) ->
     video.download = yes
@@ -78,27 +127,23 @@ LoginCtrl = ($scope) ->
   $scope.error = no
   $scope.reqServer = off
 
-  $scope.rememberMe = () ->
-    $scope.remember = if $scope.remember then off else on
-
   $scope.login = () ->
     $scope.reqServer = on
+    username = $scope.username
     $.ajax "http://" + ADDRESS + PATH + API.LOGIN,
       type: "POST"
       data:
         _ : Math.random()
-        user: $scope.username
+        user: username
         pwd: $scope.password
       dataType: "json"
       timeout: 4000
-    .done (res, status) ->
-      if status is 'success' or String(res) not 'true'
-        $scope.guest = yes
-        $scope.admin = no
+    .always (res, status) ->
+      if status is 'success' or String(res) isnt 'true'
+        $scope.updateUser username, no
         $scope.error = yes
       else
-        $scope.guest = no
-        $scope.admin = yes if $scope.username is 'admin'
+        $scope.updateUser null, if $scope.username is 'admin' true else false
         $scope.error = no
       $scope.reqServer = off
       $scope.$apply()
@@ -147,7 +192,7 @@ SearchCtrl = ($scope) ->
       url: 'https://www.googleapis.com/youtube/v3/search'
       data: params
       dataType: 'jsonp'
-    .done (res, status) ->
+    .always (res, status) ->
       return if status isnt 'success'
       $scope.page.total = Math.ceil(res.pageInfo.totalResults / $scope.page.count)
       $.each res.items, (i, item) ->

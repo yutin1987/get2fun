@@ -34,7 +34,7 @@ html(ng-app='hg2')
   body#viewport(ng-controller="MainCtrl")
     #header
       a.logo.pull-left(href='#')
-      a.control.server-stopped(href='#')
+      a.control(href='#',ng-class="'server-'+serverStatus")
         .circle
         .img
         span.text.text-running.i18n(text='running')
@@ -42,30 +42,26 @@ html(ng-app='hg2')
         span.text.text-paused.i18n(text='paused')
       p.box-ver V2.0
       ul.box-nav
-        li: a.nav-logout.i18n(href='#logout',text='extension') Logout
+        li: a.nav-logout.i18n(href='#logout',text='extension',ng-click="logout()") Logout
         li.separation
         li: a.nav-page.i18n(href='https://www.facebook.com/ILoveHappyget',target='_blank',text='extension') Page
         li.separation
         li: a.nav-downloadlist.i18n(href='./index.html',text='refresh') List
-    #login(ng-controller="LoginCtrl",ng-show='guest')
-      .form-horizontal
-        .input.input-username
-          .left
-          .right
-          i.icon-user
+    #login(ng-controller="LoginCtrl",ng-hide='user')
+      form.form-horizontal(ng-submit='login()', ng-hide="reqServer")
+        .input
           input(type='text',placeholder='Username',ng-model='username')
-        .input.input-password
-          .left
-          .right
-          i.icon-lock
+        .input
           input(type='password',placeholder='Password',ng-model='password')
         .message(ng-show='error') *Invalid username or password
         .toolbar
-          label.remember(ng-click='rememberMe()',ng-class="remember") Remember me
-          button.submit(type='submit',ng-click='login()') SIGN IN
-      .tipbox
+          label.checkbox(ng-class="{'checked':remember}") 
+            input(type="checkbox", ng-model="remember")
+            span Remember me
+          button.submit(type='submit') SIGN IN
+      .tipbox(ng-show="reqServer")
         label Login...
-    #search(ng-controller="SearchCtrl")
+    #search(ng-controller="SearchCtrl",ng-show='user')
       form(ng-submit="search()")
         .input-wrap
           input(type='text',placeholder='Search YouTube',ng-model='keyword')
@@ -85,7 +81,7 @@ html(ng-app='hg2')
         .item(ng-click="gotoPage(page.now+1)",ng-class="{'disable': pageDisable(+1)}") {{page.now+1}}
         .item(ng-click="gotoPage(page.now+2)",ng-class="{'disable': pageDisable(+2)}") {{page.now+2}}
         .item.next-page(ng-click="gotoPage(page.now+1)",ng-class="{'disable': pageDisable(+1)}") &nbsp;
-    #player(ng-controller="PlayerCtrl")
+    #player(ng-controller="PlayerCtrl",ng-show='user')
       .frame
         iframe(id="ytplayer",type="text/html",src="https://www.youtube.com/embed/{{video.vid}}?autohide=1",frameborder="0",allowfullscreen)
       .dl-settings
