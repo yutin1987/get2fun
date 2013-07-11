@@ -127,6 +127,9 @@ MainCtrl = function($scope, $timeout) {
     return $scope.admin = admin;
   };
   return $scope.$on('download', function(e, video, playlist, quality) {
+    if (video.download) {
+      return;
+    }
     video.download = true;
     $scope.$broadcast('downloaded', video);
     return $.ajax({
@@ -196,6 +199,7 @@ SearchCtrl = function($scope) {
   };
   $scope.nextPageToken = null;
   $scope.reqServer = false;
+  $scope.videoDefinition = 'any';
   $scope.$watch('height', function() {
     return $scope.page.count = Math.floor(($scope.height - 282) / 160);
   });
@@ -229,7 +233,9 @@ SearchCtrl = function($scope) {
       key: 'AIzaSyCpOMFgf1ZKObU6zyAjckcLrMuD56ZVzfM',
       q: $scope.keyword,
       part: 'snippet',
-      maxResults: 50
+      maxResults: 50,
+      type: 'video',
+      videoDefinition: $scope.videoDefinition
     };
     if (key) {
       params.pageToken = key;
@@ -269,7 +275,8 @@ SearchCtrl = function($scope) {
       return $scope.$apply();
     });
   };
-  $scope.search = function() {
+  $scope.search = function(definition) {
+    $scope.videoDefinition = definition ? 'high' : 'any';
     $scope.items = [];
     $scope.page.now = 1;
     $scope.page.total = 1;

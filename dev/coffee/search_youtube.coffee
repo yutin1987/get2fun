@@ -100,6 +100,7 @@ MainCtrl = ($scope,$timeout) ->
     $scope.admin = admin
 
   $scope.$on 'download', (e, video, playlist, quality) ->
+    return if video.download
     video.download = yes
     $scope.$broadcast('downloaded', video)
     $.ajax
@@ -160,6 +161,7 @@ SearchCtrl = ($scope) ->
     count: 8
   $scope.nextPageToken = null
   $scope.reqServer = off
+  $scope.videoDefinition = 'any'
 
   $scope.$watch 'height', () ->
     $scope.page.count = Math.floor(($scope.height - 282) / 160)
@@ -184,6 +186,8 @@ SearchCtrl = ($scope) ->
       q: $scope.keyword
       part: 'snippet'
       maxResults: 50
+      type: 'video'
+      videoDefinition: $scope.videoDefinition
 
     params.pageToken = key if key
     $scope.reqServer = on
@@ -215,7 +219,8 @@ SearchCtrl = ($scope) ->
       $scope.reqServer = off
       $scope.$apply()
 
-  $scope.search = () ->
+  $scope.search = (definition) ->
+    $scope.videoDefinition = if definition then 'high' else 'any'
     $scope.items = []
     $scope.page.now = 1
     $scope.page.total = 1
