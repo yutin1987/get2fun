@@ -139,12 +139,12 @@ LoginCtrl = ($scope) ->
       dataType: "json"
       timeout: 4000
     .always (res, status) ->
-      if status is 'success' or String(res) isnt 'true'
-        $scope.updateUser username, no
-        $scope.error = yes
-      else
-        $scope.updateUser null, if $scope.username is 'admin' true else false
+      if status is 'success' and String(res) is 'true'
+        $scope.updateUser username, if $scope.username is 'admin' then yes else no
         $scope.error = no
+      else
+        $scope.updateUser null, no 
+        $scope.error = yes
       $scope.reqServer = off
       $scope.$apply()
 

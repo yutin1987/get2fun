@@ -171,16 +171,12 @@ LoginCtrl = function($scope) {
       dataType: "json",
       timeout: 4000
     }).always(function(res, status) {
-      if (status === 'success' || String(res) !== 'true') {
-        $scope.user = username;
-        $scope.admin = false;
-        $scope.error = true;
-      } else {
-        $scope.user = null;
-        if ($scope.username === 'admin') {
-          $scope.admin = true;
-        }
+      if (status === 'success' && String(res) === 'true') {
+        $scope.updateUser(username, $scope.username === 'admin' ? true : false);
         $scope.error = false;
+      } else {
+        $scope.updateUser(null, false);
+        $scope.error = true;
       }
       $scope.reqServer = false;
       return $scope.$apply();
