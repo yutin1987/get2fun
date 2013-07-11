@@ -70,11 +70,6 @@
   background-image: -moz-linear-gradient(#5dc0ea, #2781a7);
   background-image: -o-linear-gradient(#5dc0ea, #2781a7);
   background-image: linear-gradient(#5dc0ea, #2781a7);
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  -ms-border-radius: 5px;
-  -o-border-radius: 5px;
-  border-radius: 5px;
   border: 1px #082b3a solid;
   font-size: 38px;
   line-height: 40px;
@@ -87,7 +82,7 @@
   -o-border-radius: 20px;
   border-radius: 20px;
 }
-/* line 59, /Users/justin/WebServer/hg2/dev/sass/login.sass */
+/* line 58, /Users/justin/WebServer/hg2/dev/sass/login.sass */
 #login .tipbox {
   position: absolute;
   top: 0px;
@@ -99,7 +94,7 @@
   vertical-align: middle;
   color: white;
 }
-/* line 69, /Users/justin/WebServer/hg2/dev/sass/login.sass */
+/* line 68, /Users/justin/WebServer/hg2/dev/sass/login.sass */
 #login .message {
   font-size: 200%;
   text-align: right;

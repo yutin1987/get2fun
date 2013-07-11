@@ -65,8 +65,8 @@ html(ng-app='hg2')
       form(ng-submit="search()")
         .input-wrap
           input(type='text',placeholder='Search YouTube',ng-model='keyword')
-          button.btn-sd(type='submit') Search
-          button.btn-hd(type='button') OnlyHD
+          button.btn-sd(type='submit')
+          button.btn-hd(type='button')
       .results
         .item(ng-repeat="item in items | startFrom:page.start | limitTo:page.count")
           .thumb(ng-click='look($index)', style="background-image:url({{item.thumb}});")
@@ -86,7 +86,9 @@ html(ng-app='hg2')
         iframe(id="ytplayer",type="text/html",src="https://www.youtube.com/embed/{{video.vid}}?autohide=1",frameborder="0",allowfullscreen)
       .dl-settings
         .subtitle Download Settings
-        .msg-unable(ng-hide="video") 請選擇影片
+        .msg-unable(ng-hide="video")
+          .icon
+          .msg 請選擇影片
         .msg-downloaded(ng-show="video.download") 已經下載
         form(ng-submit="download()",ng-show="video && !video.download")
           .step.playlist

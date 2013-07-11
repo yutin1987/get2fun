@@ -2,7 +2,7 @@
 @import "configs.sass"
 
 $form-height: 88px
-$item-height: 160px
+$item-height: 176px
 $page-height: 94px
 
 #search
@@ -16,7 +16,7 @@ $page-height: 94px
     height: $form-height
     background: #000
     margin-top: $header-height
-    padding: 0px 340px 0px 20px
+    padding: 0px 186px 0px 20px
     background: inline-image('youtube_search_form.png')
     .input-wrap
       position: relative
@@ -25,20 +25,24 @@ $page-height: 94px
     input
       width: 100%
       height: 48px
-      padding: 6px 0px 3px 0px
+      padding: 6px 0px 1px 0px
       line-height: 48px
       text-indent: 20px
-      +border-radius(15px)
+      +border-radius(15px 0px 0px 15px)
     button
       position: absolute
-      right: -160px
       top: 14px
-      width: 160px
-      height: 48px + 9px
-      +border-radius(0px)
+      height: 58px
+      &.btn-sd
+        background: inline-image('youtube_search_submit.png')
+        width: 60px
+        right: -60px
       &.btn-hd
-        right: -320px
+        background: inline-image('youtube_search_submit_hd.png')
+        width: 106px
+        right: -60px + -106px
   .results
+    background: inline-image('youtube_search_item_bg.png')
     .item
       height: $item-height
       overflow: hidden
@@ -55,8 +59,8 @@ $page-height: 94px
         width: 200px
         height: 150px
         position: absolute
-        left: 5px
-        top: 5px
+        left: 13px
+        top: 14px
       .title
         display: block
         overflow: hidden
@@ -64,7 +68,7 @@ $page-height: 94px
         white-space: nowrap
         font-size: 36px
         color: #BDEEFF
-        margin: 5px 0px 3px 0px
+        margin: 14px 0px 3px 0px
         .device-ios &
           font-size: 18px
       .description
@@ -82,10 +86,10 @@ $page-height: 94px
         height: 60px
         background: inline-image('youtube_download_choose.png')
         position: absolute
-        right: 5px
+        right: 13px
         bottom: 5px
         &.downloaded
-          background: inline-image('youtube_download_all.png')
+          background: inline-image('youtube_downloaded.png')
   .page-tools
     position: absolute
     left: 0px
