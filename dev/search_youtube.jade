@@ -66,7 +66,7 @@ html(ng-app='hg2')
         .input-wrap
           input(type='text',placeholder='Search YouTube',ng-model='keyword')
           button.btn-sd(type='submit')
-          button.btn-hd(type='button')
+          button.btn-hd(type='button', ng-click="search(1)")
       .results
         .item(ng-repeat="item in items | startFrom:page.start | limitTo:page.count")
           .thumb(ng-click='look($index)', style="background-image:url({{item.thumb}});")
