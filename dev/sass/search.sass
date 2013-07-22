@@ -45,52 +45,55 @@ $page-height: 94px
     background: inline-image('youtube_search_item_bg.png')
     .item
       height: $item-height
-      overflow: hidden
       position: relative
-      padding-left: 226px
-      .thumb:hover,
-      .title:hover,
-      .description:hover
-        /* style */
-        cursor: pointer
-        text-decoration: underline
-      .thumb
-        background-size: contain
-        width: 200px
-        height: 150px
-        position: absolute
-        left: 13px
-        top: 14px
-      .title
-        display: block
-        overflow: hidden
-        text-overflow: ellipsis
-        white-space: nowrap
-        font-size: 36px
-        color: #BDEEFF
-        margin: 14px 0px 3px 0px
-        .device-ios &
-          font-size: 18px
-      .description
-        display: block
-        overflow: hidden
-        text-overflow: ellipsis
-        height: 48px
-        font-size: 24px
-        color: #F3F3F3
-        margin-top: 3px
-        .device-ios &
-          font-size: 12px
+      overflow: hidden
+      padding-right: 110px
+      .wrap
+        padding-left: 226px
+        position: relative
+        height: $item-height
+        margin-top: 14px
+        .thumb
+          background-size: contain
+          width: 200px
+          height: 150px
+          position: absolute
+          left: 13px
+          top: 0px
+        .title
+          display: block
+          overflow: hidden
+          text-overflow: ellipsis
+          white-space: nowrap
+          font-size: 36px
+          color: #BDEEFF
+          margin: 0px 0px 3px 0px
+          .device-ios &
+            font-size: 18px
+        .description
+          display: block
+          overflow: hidden
+          text-overflow: ellipsis
+          height: 48px
+          font-size: 24px
+          color: #F3F3F3
+          margin-top: 3px
+          .device-ios &
+            font-size: 12px
+        &:hover
+          cursor: pointer
+          .title
+            text-decoration: underline
       .download
-        width: 200px
-        height: 60px
-        background: inline-image('youtube_download_choose.png')
+        width: 100px
+        height: $item-height
+        background: inline-image('youtube_download.png') center center no-repeat
         position: absolute
-        right: 13px
-        bottom: 5px
+        right: 0px
+        top: 0px
         cursor: pointer
         &.downloaded
-          background: inline-image('youtube_downloaded.png')
+          background-image: inline-image('youtube_downloaded.png')
           cursor: default
   .page-tools
     position: absolute

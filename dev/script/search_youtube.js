@@ -201,7 +201,7 @@ SearchCtrl = function($scope) {
   $scope.reqServer = false;
   $scope.videoDefinition = 'any';
   $scope.$watch('height', function() {
-    return $scope.page.count = Math.floor(($scope.height - 282) / 160);
+    return $scope.page.count = Math.floor(($scope.height - 282) / 176);
   });
   $scope.$watch('page.now', function(newValue, oldValue) {
     if ($scope.reqServer === true || !$scope.nextPageToken) {

@@ -69,9 +69,10 @@ html(ng-app='hg2')
           button.btn-hd(type='button', ng-click="search(1)")
       .results
         .item(ng-repeat="item in items | startFrom:page.start | limitTo:page.count")
-          .thumb(ng-click='look($index)', style="background-image:url({{item.thumb}});")
-          .title(ng-click='look($index)') {{item.title}}
-          .description(ng-click='look($index)') {{item.description}}
+          .wrap(ng-click='look($index)')
+            .thumb(style="background-image:url({{item.thumb}});")
+            .title {{item.title}}
+            .description {{item.description}}
           .download(ng-click='download($index)',ng-class="{'downloaded': item.download}")
       .page-tools
         .item.prev-page(ng-click="gotoPage(page.now-1)",ng-class="{'disable': pageDisable(-1)}") &nbsp;
@@ -91,7 +92,7 @@ html(ng-app='hg2')
           .msg You didn't select video.
         .msg-downloaded(ng-show="video.download")
           .icon
-          .msg Video download
+          .msg Video download.
         form(ng-submit="download()",ng-show="video && !video.download")
           .step.playlist
             .column
@@ -102,7 +103,7 @@ html(ng-app='hg2')
             .column
               label Audio:
             .input
-              label.checkbox(ng-class="{'checked': video.quality.Audio}")
+              label.checkbox.enable(ng-class="{'checked': video.quality.Audio}")
                 input(type="checkbox", ng-model="video.quality.Audio")
                 span Categorise as MV
           .step.qualitys

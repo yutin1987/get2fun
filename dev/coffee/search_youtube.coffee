@@ -164,7 +164,7 @@ SearchCtrl = ($scope) ->
   $scope.videoDefinition = 'any'
 
   $scope.$watch 'height', () ->
-    $scope.page.count = Math.floor(($scope.height - 282) / 160)
+    $scope.page.count = Math.floor(($scope.height - 282) / 176)
 
   $scope.$watch 'page.now', (newValue,oldValue) ->
     return if $scope.reqServer is on || !$scope.nextPageToken
