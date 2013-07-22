@@ -1,7 +1,7 @@
 <?php
     error_reporting(0);
 
-    $vid = preg_replace('/\W/i',"",$_GET['vid'].$_POST['vid']);
+    $vid = preg_replace('/[^\w\-]/i',"",$_GET['vid'].$_POST['vid']);
 
     if(empty($vid)) exit(json_encode(array('status'=>'miss vid','data'=>"")));
 

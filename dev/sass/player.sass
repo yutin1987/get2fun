@@ -108,16 +108,22 @@
           background: inline-image("youtube_download_choose.png")
           &.active
             //background: inline-image("youtube_download_choose_active.png")
-  .msg-unable
+  .msg-unable,
+  .msg-downloaded
     .icon
       width: 80%
       height: 200px
-      background: inline-image("youtube_player_empty.png") no-repeat center center
       background-size: contain
     .msg
       margin-top: 10px
       font-size: 200%
       text-align: center
+    .msg-unable
+      .icon
+        background: inline-image("youtube_player_empty.png") no-repeat center center
+    .msg-downloaded
+      .icon
+        background: inline-image("youtube_player_downloaded.png") no-repeat center center
 
 @media screen and (max-device-width: 641px)
   #player

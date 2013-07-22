@@ -6,7 +6,7 @@ html(ng-app='hg2')
     meta(name='apple-mobile-web-app-capable',content='yes')
     meta(name='description', content='')
     meta(name='author', content='')
-    title HappyGet2 like YouTube
+    title HappyGet2
     link(rel="shortcut icon", href="./favicon.ico")
 
     script(type="text/javascript")
@@ -88,8 +88,10 @@ html(ng-app='hg2')
         .subtitle Download Settings
         .msg-unable(ng-hide="video")
           .icon
-          .msg 請選擇影片
-        .msg-downloaded(ng-show="video.download") 已經下載
+          .msg You didn't select video.
+        .msg-downloaded(ng-show="video.download")
+          .icon
+          .msg Video download
         form(ng-submit="download()",ng-show="video && !video.download")
           .step.playlist
             .column
@@ -102,7 +104,7 @@ html(ng-app='hg2')
             .input
               label.checkbox(ng-class="{'checked': video.quality.Audio}")
                 input(type="checkbox", ng-model="video.quality.Audio")
-                span Categorise MV
+                span Categorise as MV
           .step.qualitys
             .column Quality:
             .input

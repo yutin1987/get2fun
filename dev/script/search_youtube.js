@@ -234,7 +234,8 @@ SearchCtrl = function($scope) {
       q: $scope.keyword,
       part: 'snippet',
       maxResults: 50,
-      type: 'video',
+      type: 'video,movie',
+      order: 'viewCount',
       videoDefinition: $scope.videoDefinition
     };
     if (key) {
