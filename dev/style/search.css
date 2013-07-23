@@ -273,31 +273,31 @@
   background-size: 23px 20px;
 }
 
-/* line 185, /Users/justin/WebServer/hg2/dev/sass/search.sass */
-.device-iphone #search #search {
+/* line 184, /Users/justin/WebServer/hg2/dev/sass/search.sass */
+.device-iphone #search {
   width: 100%;
 }
-/* line 188, /Users/justin/WebServer/hg2/dev/sass/search.sass */
-.device-iphone #search #search .page-tools .item {
+/* line 187, /Users/justin/WebServer/hg2/dev/sass/search.sass */
+.device-iphone #search .page-tools .item {
   display: none;
 }
-/* line 190, /Users/justin/WebServer/hg2/dev/sass/search.sass */
-.device-iphone #search #search .page-tools .prev-page,
-.device-iphone #search #search .page-tools .next-page,
-.device-iphone #search #search .page-tools .now-page {
+/* line 189, /Users/justin/WebServer/hg2/dev/sass/search.sass */
+.device-iphone #search .page-tools .prev-page,
+.device-iphone #search .page-tools .next-page,
+.device-iphone #search .page-tools .now-page {
   display: inline-block;
 }
 
 @media screen and (max-width: 767px) {
-  /* line 196, /Users/justin/WebServer/hg2/dev/sass/search.sass */
+  /* line 195, /Users/justin/WebServer/hg2/dev/sass/search.sass */
   #search {
     width: 100%;
   }
-  /* line 199, /Users/justin/WebServer/hg2/dev/sass/search.sass */
+  /* line 198, /Users/justin/WebServer/hg2/dev/sass/search.sass */
   #search .page-tools .item {
     display: none;
   }
-  /* line 201, /Users/justin/WebServer/hg2/dev/sass/search.sass */
+  /* line 200, /Users/justin/WebServer/hg2/dev/sass/search.sass */
   #search .page-tools .prev-page,
   #search .page-tools .next-page,
   #search .page-tools .now-page {
