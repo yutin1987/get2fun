@@ -254,8 +254,13 @@
   margin: 0px 0px 5px 0px;
 }
 
-@media screen and (max-device-width: 641px) {
-  /* line 173, /Users/justin/WebServer/hg2/dev/sass/player.sass */
+/* line 172, /Users/justin/WebServer/hg2/dev/sass/player.sass */
+.device-iphone #player {
+  display: none;
+}
+
+@media screen and (max-width: 767px) {
+  /* line 176, /Users/justin/WebServer/hg2/dev/sass/player.sass */
   #player {
     display: none;
   }

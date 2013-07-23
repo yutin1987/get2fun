@@ -78,8 +78,12 @@ body {
   margin: 0px;
   background: none;
 }
+/* line 71, /Users/justin/WebServer/hg2/dev/sass/global.sass */
+body.device-android {
+  zoom: 0.5;
+}
 
-/* line 72, /Users/justin/WebServer/hg2/dev/sass/global.sass */
+/* line 74, /Users/justin/WebServer/hg2/dev/sass/global.sass */
 .ui-text {
   overflow: hidden;
   white-space: nowrap;
@@ -87,7 +91,7 @@ body {
   display: block;
 }
 
-/* line 78, /Users/justin/WebServer/hg2/dev/sass/global.sass */
+/* line 80, /Users/justin/WebServer/hg2/dev/sass/global.sass */
 .container {
   width: 940px;
   position: relative;

@@ -126,11 +126,7 @@ $nav-height: 80px
       background-size: $control-width $control-height
     &.server-running
       .img
-        background-image: inline-image('control_pause.png')
-      &:hover .img
-        background-image: inline-image('control_pause_hover.png')
-      &:active .img
-        background-image: inline-image('control_pause_active.png')
+        background-image: inline-image('control_online.png')
       .text
         color: #2187e7
         &.text-running
@@ -139,30 +135,9 @@ $nav-height: 80px
         border-color: #00ccff rgba(0, 0, 0, 0)
         +single-box-shadow(#2187e7, 0, 0, 35px)
         +experimental('animation', running 3s infinite linear)
-    &.server-paused
-      .img
-        background-image: inline-image('control_run.png')
-      &:hover .img
-        background-image: inline-image('control_run_hover.png')
-      &:active .img
-        background-image: inline-image('control_run_active.png')
-      .text
-        color: #ff9900
-        &.text-paused
-          display: block
-        &.text-running
-          display: none
-      .circle
-        border-color: rgba(0, 0, 0, 0) #ff9900
-        +single-box-shadow(#666, 0, 0, 17px)
-        +experimental('animation', paused 1.8s infinite ease-in-out)
     &.server-stopped
       .img
-        background-image: inline-image('control_stop.png')
-      &:hover .img
-        background-image: inline-image('control_stop_hover.png')
-      &:active .img
-        background-image: inline-image('control_stop_active.png')
+        background-image: inline-image('control_offline.png')
       .text
         color: #ff0000
         &.text-stopped
@@ -174,7 +149,6 @@ $nav-height: 80px
         border-color: #ff0000 rgba(0, 0, 0, 0)
         +single-box-shadow(#666, 0, 0, 17px)
         +experimental('animation', stoppe 1.8s infinite ease-in-out)
-
 
 .device-desktop #header
   height: $header-height/2

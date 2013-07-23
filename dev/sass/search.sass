@@ -181,6 +181,24 @@ $page-height: 94px
     .next-page
       +background-size(23px 20px)
 
-@media screen and (max-device-width: 641px)
+.device-iphone #search
   #search
     width: 100%
+    .page-tools
+      .item
+        display: none
+      .prev-page,
+      .next-page,
+      .now-page
+        display: inline-block
+
+@media screen and (max-width: 767px)
+  #search
+    width: 100%
+    .page-tools
+      .item
+        display: none
+      .prev-page,
+      .next-page,
+      .now-page
+        display: inline-block

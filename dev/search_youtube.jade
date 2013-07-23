@@ -78,7 +78,7 @@ html(ng-app='hg2')
         .item.prev-page(ng-click="gotoPage(page.now-1)",ng-class="{'disable': pageDisable(-1)}") &nbsp;
         .item(ng-click="gotoPage(page.now-2)",ng-class="{'disable': pageDisable(-2)}") {{page.now-2}}
         .item(ng-click="gotoPage(page.now-1)",ng-class="{'disable': pageDisable(-1)}") {{page.now-1}}
-        .item {{page.now}}
+        .item.now-page {{page.now}}
         .item(ng-click="gotoPage(page.now+1)",ng-class="{'disable': pageDisable(+1)}") {{page.now+1}}
         .item(ng-click="gotoPage(page.now+2)",ng-class="{'disable': pageDisable(+2)}") {{page.now+2}}
         .item.next-page(ng-click="gotoPage(page.now+1)",ng-class="{'disable': pageDisable(+1)}") &nbsp;
