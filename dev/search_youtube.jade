@@ -2,11 +2,11 @@
 html(ng-app='hg2')
   head
     meta(http-equiv='Content-Type', content='text/html;charset=UTF-8')
-    meta(name='viewport', content='width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no')
+    meta(name='viewport', content='width=device-width, initial-scale=0.5, minimum-scale=0.5, maximum-scale=0.5, user-scalable=no')
     meta(name='apple-mobile-web-app-capable',content='yes')
     meta(name='description', content='')
     meta(name='author', content='')
-    title HappyGet2 like YouTube
+    title HappyGet2
     link(rel="shortcut icon", href="./favicon.ico")
 
     script(type="text/javascript")
@@ -40,8 +40,8 @@ html(ng-app='hg2')
         span.text.text-running.i18n(text='running')
         span.text.text-stopped.i18n(text='stopped')
         span.text.text-paused.i18n(text='paused')
-      p.box-ver V2.0
-      ul.box-nav
+      p.ver V2.0
+      ul.nav
         li: a.nav-logout.i18n(href='#logout',text='extension',ng-click="logout()") Logout
         li.separation
         li: a.nav-page.i18n(href='https://www.facebook.com/ILoveHappyget',target='_blank',text='extension') Page
@@ -69,15 +69,16 @@ html(ng-app='hg2')
           button.btn-hd(type='button', ng-click="search(1)")
       .results
         .item(ng-repeat="item in items | startFrom:page.start | limitTo:page.count")
-          .thumb(ng-click='look($index)', style="background-image:url({{item.thumb}});")
-          .title(ng-click='look($index)') {{item.title}}
-          .description(ng-click='look($index)') {{item.description}}
+          .wrap(ng-click='look($index)')
+            .thumb(style="background-image:url({{item.thumb}});")
+            .title {{item.title}}
+            .description {{item.description}}
           .download(ng-click='download($index)',ng-class="{'downloaded': item.download}")
       .page-tools
         .item.prev-page(ng-click="gotoPage(page.now-1)",ng-class="{'disable': pageDisable(-1)}") &nbsp;
         .item(ng-click="gotoPage(page.now-2)",ng-class="{'disable': pageDisable(-2)}") {{page.now-2}}
         .item(ng-click="gotoPage(page.now-1)",ng-class="{'disable': pageDisable(-1)}") {{page.now-1}}
-        .item {{page.now}}
+        .item.now-page {{page.now}}
         .item(ng-click="gotoPage(page.now+1)",ng-class="{'disable': pageDisable(+1)}") {{page.now+1}}
         .item(ng-click="gotoPage(page.now+2)",ng-class="{'disable': pageDisable(+2)}") {{page.now+2}}
         .item.next-page(ng-click="gotoPage(page.now+1)",ng-class="{'disable': pageDisable(+1)}") &nbsp;
@@ -88,8 +89,10 @@ html(ng-app='hg2')
         .subtitle Download Settings
         .msg-unable(ng-hide="video")
           .icon
-          .msg 請選擇影片
-        .msg-downloaded(ng-show="video.download") 已經下載
+          .msg You didn't select video.
+        .msg-downloaded(ng-show="video.download")
+          .icon
+          .msg Video download.
         form(ng-submit="download()",ng-show="video && !video.download")
           .step.playlist
             .column
@@ -100,9 +103,9 @@ html(ng-app='hg2')
             .column
               label Audio:
             .input
-              label.checkbox(ng-class="{'checked': video.quality.Audio}")
+              label.checkbox.enable(ng-class="{'checked': video.quality.Audio}")
                 input(type="checkbox", ng-model="video.quality.Audio")
-                span Categorise MV
+                span Categorise as MV
           .step.qualitys
             .column Quality:
             .input

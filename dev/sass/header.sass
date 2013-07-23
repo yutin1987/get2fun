@@ -1,5 +1,13 @@
 @import "compass"
 @import "configs.sass"
+
+$logo-width: 265px
+$logo-height: 100px
+$control-width: 80px
+$control-height: 80px
+$nav-width: 80px
+$nav-height: 80px
+
 =keyframes($name)
   @-webkit-keyframes #{$name}
     @content
@@ -44,10 +52,11 @@
   height: $header-height
   background: #000
   background-image: inline-image('youtube_header_bg.png')
+  font-size: 80%
   z-index: 11
   .logo
-    width: 265px
-    height: 100px
+    width: $logo-width
+    height: $logo-height
     display: block
     text-align: center
     background-image: inline-image('blue_logo.png')
@@ -56,19 +65,19 @@
     position: absolute
     left: 10px
     top: 0px
-  .box-ver
+  .ver
     position: absolute
     right: 10px
-    top: 0px
-  .box-nav
+    top: 2px
+  .nav
     position: absolute
     right: 30px
     top: 10px
     list-style: none
-    height: 80px
+    height: $nav-height
     li
       float: right
-      height: 80px
+      height: $nav-height
       &.separation
         background-image: inline-image('separation.png')
         background-repeat: no-repeat
@@ -77,65 +86,47 @@
     a
       display: block
       padding: 56px 6px 12px 6px
-      width: 80px
-      font-size: 12px
+      width: $nav-width
       text-align: center
       background-position: center 7px
       background-repeat: no-repeat
+      background-size: 48px 48px
       color: #FFF
       &:hover
         color: #08c
       &.nav-logout
         background-image: inline-image('youtube_nav_logout.png')
-        &:hover
-          background-image: inline-image('youtube_nav_logout.png')
-        &:active
-          background-image: inline-image('youtube_nav_logout.png')
       &.nav-downloadlist
         background-image: inline-image('youtube_nav_downloadlist.png')
-        &:hover
-          background-image: inline-image('youtube_nav_downloadlist.png')
-        &:active
-          background-image: inline-image('youtube_nav_downloadlist.png')
       &.nav-page
         background-image: inline-image('youtube_nav_page.png')
-        &:hover
-          background-image: inline-image('youtube_nav_page.png')
-        &:active
-          background-image: inline-image('youtube_nav_page.png')
   .control
     position: absolute
     top: 10px
     left: 50%
-    $width: 80px
-    $height: 80px
-    width: $width
-    height: $height
-    margin-left: -$width/2
+    width: $control-width
+    height: $control-height
+    margin-left: -$control-width/2
     .circle,
     .img
       position: absolute
       top: 0px
       left: 0px
-      border-radius: $width/2
+      border-radius: $control-width/2
     .circle
-      width: $width - 12px
-      height: $height - 12px
+      width: $control-width - 12px
+      height: $control-height - 12px
       background-color: rgba(0, 0, 0, 0)
       border: 6px solid rgba(0, 0, 0, 0)
       opacity: 0.9
     .img
-      width: $width
-      height: $height
+      width: $control-width
+      height: $control-height
       background: no-repeat center center
-      background-size: $width $height
+      background-size: $control-width $control-height
     &.server-running
       .img
-        background-image: inline-image('control_pause.png')
-      &:hover .img
-        background-image: inline-image('control_pause_hover.png')
-      &:active .img
-        background-image: inline-image('control_pause_active.png')
+        background-image: inline-image('control_online.png')
       .text
         color: #2187e7
         &.text-running
@@ -144,30 +135,9 @@
         border-color: #00ccff rgba(0, 0, 0, 0)
         +single-box-shadow(#2187e7, 0, 0, 35px)
         +experimental('animation', running 3s infinite linear)
-    &.server-paused
-      .img
-        background-image: inline-image('control_run.png')
-      &:hover .img
-        background-image: inline-image('control_run_hover.png')
-      &:active .img
-        background-image: inline-image('control_run_active.png')
-      .text
-        color: #ff9900
-        &.text-paused
-          display: block
-        &.text-running
-          display: none
-      .circle
-        border-color: rgba(0, 0, 0, 0) #ff9900
-        +single-box-shadow(#666, 0, 0, 17px)
-        +experimental('animation', paused 1.8s infinite ease-in-out)
     &.server-stopped
       .img
-        background-image: inline-image('control_stop.png')
-      &:hover .img
-        background-image: inline-image('control_stop_hover.png')
-      &:active .img
-        background-image: inline-image('control_stop_active.png')
+        background-image: inline-image('control_offline.png')
       .text
         color: #ff0000
         &.text-stopped
@@ -179,3 +149,44 @@
         border-color: #ff0000 rgba(0, 0, 0, 0)
         +single-box-shadow(#666, 0, 0, 17px)
         +experimental('animation', stoppe 1.8s infinite ease-in-out)
+
+.device-desktop #header
+  height: $header-height/2
+  font-size: 62.5%
+  .logo
+    width: $logo-width/2
+    height: $logo-height/2
+  .ver
+    top: 1px
+    right: 5px
+  .nav
+    right: 15px
+    top: 5px
+    height: $nav-height/2
+    li
+      height: $nav-height/2
+      &.separation
+        width: 4.5px
+    a
+      padding: 29px 3px 6px 3px
+      width: $nav-width/2
+      background-position: center 3.5px
+      background-size: 24px 24px
+  .control
+    $width: $control-width/2
+    $height: $control-height/2
+    top: 5px
+    width: $width
+    height: $height
+    margin-left: -$width/2
+    .circle,
+    .img
+      border-radius: $width/2
+    .circle
+      width: $width - 6px
+      height: $height - 6px
+      border-width: 3px
+    .img
+      width: $width
+      height: $height
+      background-size: $width $height

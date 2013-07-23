@@ -1,6 +1,8 @@
 @import "compass"
 @import "configs.sass"
 
+$step-height: 90px
+
 #ytplayer
   width: 100%
 
@@ -13,11 +15,6 @@
   background: #EBE9E9
   .frame
     margin-top: $header-height
-  table, tr, td
-    border-collapse: collapse
-    padding: 0px
-    margin: 0px
-    vertical-align: middle
   .subtitle
     margin: 5px 5px 3px 5px
     padding-bottom: 3px
@@ -25,21 +22,20 @@
   .dl-settings
     margin: 0px 5px
   .step
-    $height: 90px
-    height: $height
+    height: $step-height
     overflow: visible
     padding-left: 140px + 53px + 5px
     margin-right: 50px
     position: relative
     .column,
     .input
-      height: $height
+      height: $step-height
+      line-height: $step-height
       overflow: visible
     .column
       width: 140px
       text-align: right
       padding-right: 53px
-      line-height: $height
       background: no-repeat right top
       vertical-align: top
       position: absolute
@@ -52,8 +48,10 @@
         height: 34px
         line-height: 34px
         padding-left: 38px
-        background: inline-image("youtube_unchecked.png") no-repeat
-        &.checked
+        background: inline-image("youtube_unable.png") no-repeat
+        &.enable
+          background-image: inline-image("youtube_unchecked.png")
+        &.enable.checked
           background-image: inline-image("youtube_checked.png")
         input
           display: none
@@ -71,8 +69,8 @@
         +border-radius(15px)
     &.audio
       .checkbox
-        height: $height
-        line-height: $height
+        height: $step-height
+        line-height: $step-height
         vertical-align: middle
         background-position: 0 center
     &.qualitys
@@ -98,27 +96,82 @@
         padding: 6px
         margin-top: 20px
         .checkbox
-          color: #999
           margin: 0px 0px 10px 0px
-          &.enable
-            color: #000
         button
           clear: both
           display: block
           background: inline-image("youtube_download_choose.png")
           &.active
             //background: inline-image("youtube_download_choose_active.png")
-  .msg-unable
+  .msg-unable,
+  .msg-downloaded
     .icon
-      width: 80%
+      width: 100%
       height: 200px
-      background: inline-image("youtube_player_empty.png") no-repeat center center
       background-size: contain
     .msg
       margin-top: 10px
       font-size: 200%
       text-align: center
+  .msg-unable
+    .icon
+      background: inline-image("youtube_player_empty.png") no-repeat center center
+  .msg-downloaded
+    .icon
+      background: inline-image("youtube_player_downloaded.png") no-repeat center center
 
-@media screen and (max-device-width: 641px)
+.device-desktop #player
+  .frame
+    margin-top: $header-height/2
+  .step
+    height: $step-height/2
+    overflow: visible
+    padding-left: (140px + 53px + 5px)/2
+    margin-right: 25px
+    .column,
+    .input
+      height: $step-height/2
+      line-height: $step-height/2
+    .column
+      width: 70px
+      padding-right: 27px
+      +background-size(24px 45px)
+    .input
+      padding-left: 5px
+      .checkbox
+        height: 17px
+        line-height: 17px
+        padding-left: 19px
+        +background-size(17px 17px)
+    &.playlist
+      input
+        height: 30px
+        margin: 7px 0px
+    &.audio
+      .checkbox
+        height: $step-height/2
+        line-height: $step-height/2
+    &.qualitys
+      padding-top: 10px
+      button
+        border: none
+        width: 100px
+        height: 30px
+        +background-size(100px 30px)
+      .checkbox
+        float: left
+        width: 73px
+      .download-all
+        padding: 3px
+      .download-choose
+        padding: 3px
+        margin-top: 10px
+        .checkbox
+          margin: 0px 0px 5px 0px
+
+.device-iphone #player
+  display: none
+
+@media screen and (max-width: 767px)
   #player
     display: none

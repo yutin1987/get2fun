@@ -63,12 +63,13 @@ html
   background-attachment: fixed
 
 body
-  zoom: 0.5
   font-family: "STHeiti", "Microsoft JhengHei", Helvetica, Arial, Verdana, sans-serif
   min-height: 100%
   padding: 0px
   margin: 0px
   background: none
+  &.device-android
+    zoom: 0.5
 
 .ui-text
   overflow: hidden
