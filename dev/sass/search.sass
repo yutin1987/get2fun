@@ -1,7 +1,7 @@
 @import "compass"
 @import "configs.sass"
 
-$form-height: 88px
+$form-height: 108px
 $item-height: 176px
 $page-height: 94px
 
@@ -16,7 +16,7 @@ $page-height: 94px
     height: $form-height
     background: #000
     margin-top: $header-height
-    padding: 0px 186px 0px 20px
+    padding: 0px 260px 0px 20px
     background: inline-image('youtube_search_form.png')
     .input-wrap
       position: relative
@@ -24,23 +24,25 @@ $page-height: 94px
       padding-top: 14px
     input
       width: 100%
-      height: 48px
-      padding: 6px 0px 1px 0px
-      line-height: 48px
+      height: 80px - 12px
+      padding: 10px 0px 2px 0px
+      line-height: 80px - 12px
       text-indent: 20px
+      font-size: 180%
       +border-radius(15px 0px 0px 15px)
     button
       position: absolute
       top: 14px
-      height: 58px
+      width: 120px
+      height: 80px
+      border: none
+      +background-size(120px 80px)
       &.btn-sd
         background: inline-image('youtube_search_submit.png')
-        width: 60px
-        right: -60px
+        right: -120px
       &.btn-hd
         background: inline-image('youtube_search_submit_hd.png')
-        width: 106px
-        right: -60px + -106px
+        right: -120px*2
   .results
     background: inline-image('youtube_search_item_bg.png')
     .item
@@ -68,8 +70,6 @@ $page-height: 94px
           font-size: 36px
           color: #BDEEFF
           margin: 0px 0px 3px 0px
-          .device-ios &
-            font-size: 18px
         .description
           display: block
           overflow: hidden
@@ -78,8 +78,6 @@ $page-height: 94px
           font-size: 24px
           color: #F3F3F3
           margin-top: 3px
-          .device-ios &
-            font-size: 12px
         &:hover
           cursor: pointer
           .title
@@ -87,7 +85,7 @@ $page-height: 94px
       .download
         width: 100px
         height: $item-height
-        background: inline-image('youtube_download.png') center center no-repeat
+        background: inline-image('youtube_download.png') center center no-repeat rgba(255,255,255,0.1)
         position: absolute
         right: 0px
         top: 0px
@@ -124,6 +122,64 @@ $page-height: 94px
       background-image: inline-image("youtube_prev_page.png")
     .next-page
       background-image: inline-image("youtube_next_page.png")
+
+.device-desktop #search
+  form
+    margin-top: $header-height/2
+    height: $form-height/2
+    padding: 0px 130px 0px 10px
+    .input-wrap
+      padding-top: 7px
+    input
+      width: 100%
+      height: 38px - 6px
+      line-height: 38px - 6px
+      padding: 7px 0px 1px 0px
+      font-size: 140%
+    button
+      top: 7px
+      width: 60px
+      height: 40px
+      +background-size(60px 40px)
+      &.btn-sd
+        right: -60px
+      &.btn-hd
+        right: -60px*2
+  .results
+    +background-size(5px 176px)
+    .item
+      height: $item-height/2
+      padding-right: 110px
+      .wrap
+        padding-left: 113px
+        height: $item-height/2
+        margin-top: 6px
+        .thumb
+          width: 100px
+          height: 75px
+          left: 7px
+        .title
+          font-size: 120%
+          margin: 0px 0px 3px 0px
+        .description
+          height: 48px
+          font-size: 100%
+          margin-top: 3px
+      .download
+        width: 50px
+        height: $item-height/2
+        +background-size(45px 45px)
+  .page-tools
+    height: $page-height/2
+    line-height: $page-height/2
+    .item
+      margin: 0px 3px
+      font-size: 140%
+      width: $page-height/2
+      height: $page-height/2
+    .prev-page,
+    .next-page
+      +background-size(23px 20px)
 
 @media screen and (max-device-width: 641px)
   #search

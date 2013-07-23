@@ -27,6 +27,10 @@ $(function() {
       case 'ipod':
         body.addClass('device-ios');
         break;
+      case 'Windows':
+      case 'macintosh':
+        body.addClass('device-desktop');
+        break;
       case 'macintosh':
         device = 'mac';
     }
@@ -201,7 +205,14 @@ SearchCtrl = function($scope) {
   $scope.reqServer = false;
   $scope.videoDefinition = 'any';
   $scope.$watch('height', function() {
-    return $scope.page.count = Math.floor(($scope.height - 282) / 176);
+    var height;
+
+    height = $('#header').height() + $('#search form').height() + $('#search .page-tools').height();
+    if (/Windows|Macintosh/i.exec(navigator.userAgent)) {
+      return $scope.page.count = Math.floor(($scope.height - height) / 88);
+    } else {
+      return $scope.page.count = Math.floor(($scope.height - height) / 176);
+    }
   });
   $scope.$watch('page.now', function(newValue, oldValue) {
     if ($scope.reqServer === true || !$scope.nextPageToken) {

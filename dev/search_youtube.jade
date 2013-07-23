@@ -2,7 +2,7 @@
 html(ng-app='hg2')
   head
     meta(http-equiv='Content-Type', content='text/html;charset=UTF-8')
-    meta(name='viewport', content='width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no')
+    meta(name='viewport', content='width=device-width, initial-scale=0.5, minimum-scale=0.5, maximum-scale=0.5, user-scalable=no')
     meta(name='apple-mobile-web-app-capable',content='yes')
     meta(name='description', content='')
     meta(name='author', content='')
@@ -40,8 +40,8 @@ html(ng-app='hg2')
         span.text.text-running.i18n(text='running')
         span.text.text-stopped.i18n(text='stopped')
         span.text.text-paused.i18n(text='paused')
-      p.box-ver V2.0
-      ul.box-nav
+      p.ver V2.0
+      ul.nav
         li: a.nav-logout.i18n(href='#logout',text='extension',ng-click="logout()") Logout
         li.separation
         li: a.nav-page.i18n(href='https://www.facebook.com/ILoveHappyget',target='_blank',text='extension') Page

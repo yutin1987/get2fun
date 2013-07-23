@@ -19,6 +19,7 @@ $(() ->
     device = device[0].toLowerCase()
     switch device
       when 'iphone', 'ipad', 'ipod' then body.addClass 'device-ios'
+      when 'Windows', 'macintosh' then body.addClass 'device-desktop'
       when 'macintosh' then device = 'mac'
     body.addClass 'device-'+device
 )
@@ -164,7 +165,11 @@ SearchCtrl = ($scope) ->
   $scope.videoDefinition = 'any'
 
   $scope.$watch 'height', () ->
-    $scope.page.count = Math.floor(($scope.height - 282) / 176)
+    height = $('#header').height()+$('#search form').height()+$('#search .page-tools').height()
+    if /Windows|Macintosh/i.exec(navigator.userAgent)
+      $scope.page.count = Math.floor(($scope.height - height) / 88)
+    else
+      $scope.page.count = Math.floor(($scope.height - height) / 176)
 
   $scope.$watch 'page.now', (newValue,oldValue) ->
     return if $scope.reqServer is on || !$scope.nextPageToken
