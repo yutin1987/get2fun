@@ -1,4 +1,4 @@
-@import "compass"
+s@import "compass"
 @import "configs.sass"
 
 $form-height: 108px
@@ -17,7 +17,7 @@ $page-height: 94px
     background: #000
     margin-top: $header-height
     padding: 0px 260px 0px 20px
-    background: inline-image('youtube_search_form.png')
+    background-image: inline-image('youtube_search_form.png')
     .input-wrap
       position: relative
       width: 100%
@@ -38,10 +38,10 @@ $page-height: 94px
       border: none
       +background-size(120px 80px)
       &.btn-sd
-        background: inline-image('youtube_search_submit.png')
+        background-image: inline-image('youtube_search_submit.png')
         right: -120px
       &.btn-hd
-        background: inline-image('youtube_search_submit_hd.png')
+        background-image: inline-image('youtube_search_submit_hd.png')
         right: -120px*2
   .results
     background: inline-image('youtube_search_item_bg.png')
@@ -123,7 +123,7 @@ $page-height: 94px
     .next-page
       background-image: inline-image("youtube_next_page.png")
 
-.device-desktop #search
+#search
   form
     margin-top: $header-height/2
     height: $form-height/2
@@ -181,7 +181,7 @@ $page-height: 94px
     .next-page
       +background-size(23px 20px)
 
-.device-iphone #search
+.device-mobile #search
   width: 100%
   .page-tools
     .item
@@ -190,14 +190,3 @@ $page-height: 94px
     .next-page,
     .now-page
       display: inline-block
-
-@media screen and (max-width: 767px)
-  #search
-    width: 100%
-    .page-tools
-      .item
-        display: none
-      .prev-page,
-      .next-page,
-      .now-page
-        display: inline-block

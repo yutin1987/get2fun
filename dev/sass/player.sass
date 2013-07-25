@@ -87,7 +87,7 @@ $step-height: 90px
         border: 1px solid #9DC5E4
         padding: 6px
         button
-          background: inline-image("youtube_download_all.png")
+          background-image: inline-image("youtube_download_all.png")
           &.active
             //background: inline-image("youtube_download_all_active.png")
       .download-choose
@@ -100,7 +100,7 @@ $step-height: 90px
         button
           clear: both
           display: block
-          background: inline-image("youtube_download_choose.png")
+          background-image: inline-image("youtube_download_choose.png")
           &.active
             //background: inline-image("youtube_download_choose_active.png")
   .msg-unable,
@@ -120,7 +120,7 @@ $step-height: 90px
     .icon
       background: inline-image("youtube_player_downloaded.png") no-repeat center center
 
-.device-desktop #player
+#player
   .frame
     margin-top: $header-height/2
   .step
@@ -169,9 +169,5 @@ $step-height: 90px
         .checkbox
           margin: 0px 0px 5px 0px
 
-.device-iphone #player
+.device-mobile #player
   display: none
-
-@media screen and (max-width: 767px)
-  #player
-    display: none

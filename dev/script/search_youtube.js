@@ -14,27 +14,18 @@ API = {
 WATCH_TIME = 1000;
 
 $(function() {
-  var body, device, userAgent;
+  var body, os, userAgent;
 
   userAgent = navigator.userAgent;
   body = $('body');
-  device = /Android|webOS|iPhone|iPad|iPod|BlackBerry|PlayBook|Windows|Macintosh/i.exec(userAgent);
-  if (device) {
-    device = device[0].toLowerCase();
-    switch (device) {
-      case 'iphone':
-      case 'ipad':
-      case 'ipod':
-        body.addClass('device-ios');
-        break;
-      case 'Windows':
-      case 'macintosh':
-        body.addClass('device-desktop');
-        break;
-      case 'macintosh':
-        device = 'mac';
-    }
-    return body.addClass('device-' + device);
+  os = /Android|webOS|iPhone|iPad|iPod|BlackBerry|PlayBook|Windows|Macintosh/i.exec(userAgent);
+  os = os[0].toLowerCase();
+  body.addClass('device-' + os);
+  if (/Mobile/i.exec(userAgent) || $(window).width() < 767) {
+    body.addClass('device-mobile');
+  }
+  if (os === 'ipad') {
+    return body.removeClass('device-mobile');
   }
 });
 
@@ -192,6 +183,8 @@ LoginCtrl = function($scope) {
 };
 
 SearchCtrl = function($scope) {
+  var listenCount;
+
   $scope.items = [];
   $scope.keyword = '';
   $scope.playlist = '';
@@ -204,16 +197,18 @@ SearchCtrl = function($scope) {
   $scope.nextPageToken = null;
   $scope.reqServer = false;
   $scope.videoDefinition = 'any';
-  $scope.$watch('height', function() {
-    var height;
+  (listenCount = function() {
+    var count, height, reserve;
 
-    height = $('#header').height() + $('#search form').height() + $('#search .page-tools').height();
-    if (/Windows|Macintosh/i.exec(navigator.userAgent)) {
-      return $scope.page.count = Math.floor(($scope.height - height) / 88);
-    } else {
-      return $scope.page.count = Math.floor(($scope.height - height) / 176);
+    height = $(document).height();
+    reserve = $('#header').height() + $('#search form').height() + $('#search .page-tools').height();
+    count = $scope.page.count;
+    $scope.page.count = Math.floor((height - reserve) / 88) || 1;
+    if ($scope.page.count !== count) {
+      $scope.$apply();
     }
-  });
+    return setTimeout(listenCount, 2000);
+  })();
   $scope.$watch('page.now', function(newValue, oldValue) {
     if ($scope.reqServer === true || !$scope.nextPageToken) {
       return;
@@ -304,7 +299,7 @@ SearchCtrl = function($scope) {
     var item;
 
     item = $scope.items[index + $scope.page.start];
-    return $scope.$emit('download', item, $scope.playlist, ['all']);
+    return $scope.$emit('download', item, $scope.playlist, ['Highest', 'Audio']);
   };
   return $scope.look = function(index) {
     var item;
@@ -369,13 +364,11 @@ PlayerCtrl = function($scope, $timeout) {
     }
   });
   return $scope.download = function(all) {
-    var limit, quality;
+    var quality;
 
-    limit = 1;
     quality = [];
     if ($scope.video.quality.Audio) {
       quality.push('Audio');
-      limit += 1;
     }
     if (all) {
       quality.push('All');
@@ -392,11 +385,8 @@ PlayerCtrl = function($scope, $timeout) {
       if ($scope.video.quality.Medium) {
         quality.push('360P');
       }
-      if (quality.length < limit) {
-        angular.forEach($scope.video.availableQuality, function(value, key) {
-          quality.push(key);
-          return $scope.video.quality[key] = true;
-        });
+      if (quality.length < 1) {
+        quality.push('All');
       }
     }
     return $scope.$emit('download', $scope.video, $scope.playlist, quality);

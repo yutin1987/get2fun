@@ -427,61 +427,61 @@
 }
 
 /* line 154, /Users/justin/WebServer/hg2/dev/sass/header.sass */
-.device-desktop #header {
+#header {
   height: 50px;
   font-size: 62.5%;
 }
 /* line 157, /Users/justin/WebServer/hg2/dev/sass/header.sass */
-.device-desktop #header .logo {
+#header .logo {
   width: 132.5px;
   height: 50px;
 }
 /* line 160, /Users/justin/WebServer/hg2/dev/sass/header.sass */
-.device-desktop #header .ver {
+#header .ver {
   top: 1px;
   right: 5px;
 }
 /* line 163, /Users/justin/WebServer/hg2/dev/sass/header.sass */
-.device-desktop #header .nav {
+#header .nav {
   right: 15px;
   top: 5px;
   height: 40px;
 }
 /* line 167, /Users/justin/WebServer/hg2/dev/sass/header.sass */
-.device-desktop #header .nav li {
+#header .nav li {
   height: 40px;
 }
 /* line 169, /Users/justin/WebServer/hg2/dev/sass/header.sass */
-.device-desktop #header .nav li.separation {
+#header .nav li.separation {
   width: 4.5px;
 }
 /* line 171, /Users/justin/WebServer/hg2/dev/sass/header.sass */
-.device-desktop #header .nav a {
+#header .nav a {
   padding: 29px 3px 6px 3px;
   width: 40px;
   background-position: center 3.5px;
   background-size: 24px 24px;
 }
 /* line 176, /Users/justin/WebServer/hg2/dev/sass/header.sass */
-.device-desktop #header .control {
+#header .control {
   top: 5px;
   width: 40px;
   height: 40px;
   margin-left: -20px;
 }
 /* line 183, /Users/justin/WebServer/hg2/dev/sass/header.sass */
-.device-desktop #header .control .circle,
-.device-desktop #header .control .img {
+#header .control .circle,
+#header .control .img {
   border-radius: 20px;
 }
 /* line 186, /Users/justin/WebServer/hg2/dev/sass/header.sass */
-.device-desktop #header .control .circle {
+#header .control .circle {
   width: 34px;
   height: 34px;
   border-width: 3px;
 }
 /* line 190, /Users/justin/WebServer/hg2/dev/sass/header.sass */
-.device-desktop #header .control .img {
+#header .control .img {
   width: 40px;
   height: 40px;
   background-size: 40px 40px;

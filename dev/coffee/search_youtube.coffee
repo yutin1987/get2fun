@@ -12,16 +12,15 @@ WATCH_TIME = 1000
 
 $(() ->
   userAgent = navigator.userAgent
+
   body = $('body')
 
-  device = /Android|webOS|iPhone|iPad|iPod|BlackBerry|PlayBook|Windows|Macintosh/i.exec(userAgent)
-  if device
-    device = device[0].toLowerCase()
-    switch device
-      when 'iphone', 'ipad', 'ipod' then body.addClass 'device-ios'
-      when 'Windows', 'macintosh' then body.addClass 'device-desktop'
-      when 'macintosh' then device = 'mac'
-    body.addClass 'device-'+device
+  os = /Android|webOS|iPhone|iPad|iPod|BlackBerry|PlayBook|Windows|Macintosh/i.exec(userAgent)
+  os = os[0].toLowerCase()
+  body.addClass 'device-'+os
+
+  body.addClass 'device-mobile' if /Mobile/i.exec(userAgent) or $(window).width() < 767
+  body.removeClass 'device-mobile' if os is 'ipad'
 )
 
 hg2App = angular.module('hg2', []);
@@ -164,12 +163,15 @@ SearchCtrl = ($scope) ->
   $scope.reqServer = off
   $scope.videoDefinition = 'any'
 
-  $scope.$watch 'height', () ->
-    height = $('#header').height()+$('#search form').height()+$('#search .page-tools').height()
-    if /Windows|Macintosh/i.exec(navigator.userAgent)
-      $scope.page.count = Math.floor(($scope.height - height) / 88)
-    else
-      $scope.page.count = Math.floor(($scope.height - height) / 176)
+  (listenCount = ->
+    height = $(document).height()
+    reserve = $('#header').height()+$('#search form').height()+$('#search .page-tools').height()
+    count = $scope.page.count
+    $scope.page.count = Math.floor((height - reserve) / 88) || 1
+    $scope.$apply() if $scope.page.count isnt count
+
+    setTimeout listenCount, 2000
+  )()
 
   $scope.$watch 'page.now', (newValue,oldValue) ->
     return if $scope.reqServer is on || !$scope.nextPageToken
@@ -240,7 +242,7 @@ SearchCtrl = ($scope) ->
 
   $scope.download = (index) ->
     item = $scope.items[index+$scope.page.start]
-    $scope.$emit 'download', item, $scope.playlist, ['all']
+    $scope.$emit 'download', item, $scope.playlist, ['Highest','Audio']
   
   # $scope.$on 'downloaded', (e, video) ->
     # $scope.$apply()
@@ -298,11 +300,8 @@ PlayerCtrl = ($scope, $timeout) ->
           $scope.$apply()
 
   $scope.download = (all) ->
-    limit = 1
     quality = []
-    if $scope.video.quality.Audio
-      quality.push 'Audio'
-      limit += 1
+    quality.push 'Audio' if $scope.video.quality.Audio
 
     if all
       quality.push 'All'
@@ -311,10 +310,7 @@ PlayerCtrl = ($scope, $timeout) ->
       quality.push '1080P' if $scope.video.quality.HD1080
       quality.push '720P' if $scope.video.quality.HD720
       quality.push '360P' if $scope.video.quality.Medium
-      if quality.length < limit
-        angular.forEach $scope.video.availableQuality, (value, key) ->
-          quality.push key
-          $scope.video.quality[key] = on
+      quality.push 'All' if quality.length < 1
 
     $scope.$emit 'download', $scope.video, $scope.playlist, quality
 
