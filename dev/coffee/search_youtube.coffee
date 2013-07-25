@@ -180,6 +180,7 @@ SearchCtrl = ($scope) ->
 
   $scope.gotoPage = (page) ->
     return if page < 1 or page > $scope.page.total
+    ga('send', 'event', 'SearchYoutube', 'Page', 'goto', page)
     $scope.page.now = page
     $scope.page.start = ($scope.page.now-1) * $scope.page.count
 
@@ -228,6 +229,7 @@ SearchCtrl = ($scope) ->
       $scope.$apply()
 
   $scope.search = (definition) ->
+    ga('send', 'event', 'SearchYoutube', 'Search', (if definition then 'SearchHigh' else 'SearchAny'), $scope.keyword)
     $scope.videoDefinition = if definition then 'high' else 'any'
     $scope.items = []
     $scope.page.now = 1
@@ -242,6 +244,7 @@ SearchCtrl = ($scope) ->
 
   $scope.download = (index) ->
     item = $scope.items[index+$scope.page.start]
+    ga('send', 'event', 'SearchYoutube', 'Search', 'Download')
     $scope.$emit 'download', item, $scope.playlist, ['Highest','Audio']
   
   # $scope.$on 'downloaded', (e, video) ->
@@ -311,6 +314,8 @@ PlayerCtrl = ($scope, $timeout) ->
       quality.push '720P' if $scope.video.quality.HD720
       quality.push '360P' if $scope.video.quality.Medium
       quality.push 'All' if quality.length < 1
+
+    ga('send', 'event', 'SearchYoutube', 'Player', 'Download', quality)
 
     $scope.$emit 'download', $scope.video, $scope.playlist, quality
 

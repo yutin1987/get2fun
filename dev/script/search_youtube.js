@@ -221,6 +221,7 @@ SearchCtrl = function($scope) {
     if (page < 1 || page > $scope.page.total) {
       return;
     }
+    ga('send', 'event', 'SearchYoutube', 'Page', 'goto', page);
     $scope.page.now = page;
     return $scope.page.start = ($scope.page.now - 1) * $scope.page.count;
   };
@@ -283,6 +284,7 @@ SearchCtrl = function($scope) {
     });
   };
   $scope.search = function(definition) {
+    ga('send', 'event', 'SearchYoutube', 'Search', (definition ? 'SearchHigh' : 'SearchAny'), $scope.keyword);
     $scope.videoDefinition = definition ? 'high' : 'any';
     $scope.items = [];
     $scope.page.now = 1;
@@ -299,6 +301,7 @@ SearchCtrl = function($scope) {
     var item;
 
     item = $scope.items[index + $scope.page.start];
+    ga('send', 'event', 'SearchYoutube', 'Search', 'Download');
     return $scope.$emit('download', item, $scope.playlist, ['Highest', 'Audio']);
   };
   return $scope.look = function(index) {
@@ -389,6 +392,7 @@ PlayerCtrl = function($scope, $timeout) {
         quality.push('All');
       }
     }
+    ga('send', 'event', 'SearchYoutube', 'Player', 'Download', quality);
     return $scope.$emit('download', $scope.video, $scope.playlist, quality);
   };
 };
