@@ -79,8 +79,8 @@ body {
   background: none;
 }
 /* line 71, /Users/justin/WebServer/hg2/dev/sass/global.sass */
-body.device-android {
-  zoom: 0.5;
+body.device-zoom2 {
+  zoom: 2;
 }
 
 /* line 74, /Users/justin/WebServer/hg2/dev/sass/global.sass */
@@ -89,11 +89,4 @@ body.device-android {
   white-space: nowrap;
   text-overflow: ellipsis;
   display: block;
-}
-
-/* line 80, /Users/justin/WebServer/hg2/dev/sass/global.sass */
-.container {
-  width: 940px;
-  position: relative;
-  margin: 0 auto;
 }
