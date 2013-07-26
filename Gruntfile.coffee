@@ -37,7 +37,7 @@ module.exports = (grunt) ->
           compress: false
           report: false
         files:
-          #'./script/app.js': ['./dev/script/app.js'],
+          './script/app.js': ['./dev/script/app.js'],
           "./script/search_youtube.js": ["./dev/script/search_youtube.js"]
     cssmin:
       combine:
