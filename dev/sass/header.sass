@@ -18,30 +18,30 @@ $nav-height: 80px
   @keyframes #{$name}
     @content
 
-+keyframes('running')
-  0%
-    +rotate(0deg)
-  50%
-    +rotate(180deg)
-    +single-box-shadow(#00ccff, 0, 0, 17px)
-  100%
-    +rotate(360deg)
+// +keyframes('running')
+//   0%
+//     +rotate(0deg)
+//   50%
+//     +rotate(180deg)
+//     +single-box-shadow(#00ccff, 0, 0, 17px)
+//   100%
+//     +rotate(360deg)
 
-+keyframes('stoppe')
-  0%
-    border-color: #ff0000 rgba(0, 0, 0, 0)
-  50%
-    border-color: rgba(0, 0, 0, 0) #ff0000
-  100%
-    border-color: #ff0000 rgba(0, 0, 0, 0)
+// +keyframes('stoppe')
+//   0%
+//     border-color: #ff0000 rgba(0, 0, 0, 0)
+//   50%
+//     border-color: rgba(0, 0, 0, 0) #ff0000
+//   100%
+//     border-color: #ff0000 rgba(0, 0, 0, 0)
 
-+keyframes('paused')
-  0%
-    border-color: rgba(0, 0, 0, 0) #ff9900
-  50%
-    border-color: rgba(0, 0, 0, 0)
-  100%
-    border-color: rgba(0, 0, 0, 0) #ff9900
+// +keyframes('paused')
+//   0%
+//     border-color: rgba(0, 0, 0, 0) #ff9900
+//   50%
+//     border-color: rgba(0, 0, 0, 0)
+//   100%
+//     border-color: rgba(0, 0, 0, 0) #ff9900
 
 #header
   overflow: hidden
@@ -100,55 +100,55 @@ $nav-height: 80px
         background-image: inline-image('youtube_nav_downloadlist.png')
       &.nav-page
         background-image: inline-image('youtube_nav_page.png')
-  .control
-    position: absolute
-    top: 10px
-    left: 50%
-    width: $control-width
-    height: $control-height
-    margin-left: -$control-width/2
-    .circle,
-    .img
-      position: absolute
-      top: 0px
-      left: 0px
-      border-radius: $control-width/2
-    .circle
-      width: $control-width - 12px
-      height: $control-height - 12px
-      background-color: rgba(0, 0, 0, 0)
-      border: 6px solid rgba(0, 0, 0, 0)
-      opacity: 0.9
-    .img
-      width: $control-width
-      height: $control-height
-      background: no-repeat center center
-      background-size: $control-width $control-height
-    &.server-running
-      .img
-        background-image: inline-image('control_online.png')
-      .text
-        color: #2187e7
-        &.text-running
-          display: block
-      .circle
-        border-color: #00ccff rgba(0, 0, 0, 0)
-        +single-box-shadow(#2187e7, 0, 0, 35px)
-        +experimental('animation', running 3s infinite linear)
-    &.server-stopped
-      .img
-        background-image: inline-image('control_offline.png')
-      .text
-        color: #ff0000
-        &.text-stopped
-          display: block
-        &.text-running,
-        &.text-paused
-          display: none
-      .circle
-        border-color: #ff0000 rgba(0, 0, 0, 0)
-        +single-box-shadow(#666, 0, 0, 17px)
-        +experimental('animation', stoppe 1.8s infinite ease-in-out)
+  // .control
+  //   position: absolute
+  //   top: 10px
+  //   left: 50%
+  //   width: $control-width
+  //   height: $control-height
+  //   margin-left: -$control-width/2
+  //   .circle,
+  //   .img
+  //     position: absolute
+  //     top: 0px
+  //     left: 0px
+  //     border-radius: $control-width/2
+  //   .circle
+  //     width: $control-width - 12px
+  //     height: $control-height - 12px
+  //     background-color: rgba(0, 0, 0, 0)
+  //     border: 6px solid rgba(0, 0, 0, 0)
+  //     opacity: 0.9
+  //   .img
+  //     width: $control-width
+  //     height: $control-height
+  //     background: no-repeat center center
+  //     background-size: $control-width $control-height
+  //   &.server-running
+  //     .img
+  //       background-image: inline-image('control_online.png')
+  //     .text
+  //       color: #2187e7
+  //       &.text-running
+  //         display: block
+  //     .circle
+  //       border-color: #00ccff rgba(0, 0, 0, 0)
+  //       +single-box-shadow(#2187e7, 0, 0, 35px)
+  //       +experimental('animation', running 3s infinite linear)
+  //   &.server-stopped
+  //     .img
+  //       background-image: inline-image('control_offline.png')
+  //     .text
+  //       color: #ff0000
+  //       &.text-stopped
+  //         display: block
+  //       &.text-running,
+  //       &.text-paused
+  //         display: none
+  //     .circle
+  //       border-color: #ff0000 rgba(0, 0, 0, 0)
+  //       +single-box-shadow(#666, 0, 0, 17px)
+  //       +experimental('animation', stoppe 1.8s infinite ease-in-out)
 
 
 #header

@@ -32,16 +32,16 @@ html(ng-app='hg2')
   body#viewport(ng-controller="MainCtrl")
     #header
       .logo.pull-left(href='#')
-      .control(href='#',ng-class="'server-'+serverStatus")
-        .circle
-        .img
-        span.text.text-running.i18n(text='running')
-        span.text.text-stopped.i18n(text='stopped')
-        span.text.text-paused.i18n(text='paused')
+      //- .control(href='#',ng-class="'server-'+serverStatus")
+      //-   .circle
+      //-   .img
+      //-   span.text.text-running.i18n(text='running')
+      //-   span.text.text-stopped.i18n(text='stopped')
+      //-   span.text.text-paused.i18n(text='paused')
       p.ver V2.0
       ul.nav
-        li: a.nav-logout.i18n(href='#logout',text='extension',ng-click="logout()") Logout
-        li.separation
+        li(ng-show='user'): a.nav-logout.i18n(href='#logout',text='extension',ng-click="logout()") Logout
+        li(ng-show='user').separation
         li: a.nav-page.i18n(href='https://www.facebook.com/ILoveHappyget',target='_blank',text='extension') Page
         li.separation
         li: a.nav-downloadlist.i18n(href='./index.html',text='refresh') List

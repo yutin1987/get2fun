@@ -23,7 +23,7 @@ $(() ->
   body.removeClass 'device-mobile' if os is 'ipad'
 )
 
-hg2App = angular.module('hg2', []);
+hg2App = angular.module('hg2', ['ngCookies']);
 
 hg2App.filter 'startFrom', () ->
   (input, start) -> input.slice(start)
@@ -121,10 +121,10 @@ MainCtrl = ($scope,$timeout) ->
           quality: quality #'1080P','720P','360P','Original','Audio','Highest','All'
         ]
 
-LoginCtrl = ($scope) ->
-  $scope.username = ''
-  $scope.password = ''
-  $scope.remember = on
+LoginCtrl = ($scope, $cookies) ->
+  $scope.username = $cookies['m_user']
+  $scope.password = $cookies['m_pass']
+  $scope.remember = parseInt($cookies['m_reme'], 10)
   $scope.error = no
   $scope.reqServer = off
 
@@ -141,8 +141,16 @@ LoginCtrl = ($scope) ->
       timeout: 4000
     .always (res, status) ->
       if status is 'success' and String(res) is 'true'
-        $scope.updateUser username, if $scope.username is 'admin' then yes else no
+        $scope.updateUser username, if username is 'admin' then yes else no
         $scope.error = no
+        if $scope.remember
+          $cookies.m_user = username
+          $cookies.m_pass = $scope.password
+          $cookies.m_reme = '1'
+        else
+          $cookies.m_user = ''
+          $cookies.m_pass = ''
+          $cookies.m_reme = ''
       else
         $scope.updateUser null, no 
         $scope.error = yes
