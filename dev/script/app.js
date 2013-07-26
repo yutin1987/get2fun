@@ -111,6 +111,11 @@ $(function() {
 
   var load, login_action, sys_status, sys_user;
 
+  $('#username').val($.cookie('m_user'));
+  $('#password').val($.cookie('m_pass'));
+  if (parseInt($.cookie('m_reme'), 10)) {
+    $('#remember').addClass('checked');
+  }
   $('#logo').click(function() {
     $('body').toggleClass('temp-green');
     if ($('body').hasClass('temp-green')) {
@@ -302,10 +307,11 @@ $(function() {
     }
   });
   login_action = function() {
-    var data, pwd, user;
+    var data, pwd, reme, user;
 
     user = $('#username').val();
     pwd = $('#password').val();
+    reme = $('#remember').hasClass('checked');
     data = {
       _: Math.random(),
       user: user,
@@ -321,6 +327,21 @@ $(function() {
       success: function(res) {
         if (String(res) === 'true') {
           $('body').removeClass('guest');
+          if (reme) {
+            $.cookie('m_user', user, {
+              expiress: 365
+            });
+            $.cookie('m_pass', pwd, {
+              expiress: 365
+            });
+            $.cookie('m_reme', 1, {
+              expiress: 365
+            });
+          } else {
+            $.removeCookie('m_user');
+            $.removeCookie('m_pass');
+            $.removeCookie('m_reme');
+          }
         } else {
           $('.login').addClass('invalid');
           $('body').addClass('guest');

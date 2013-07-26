@@ -81,6 +81,10 @@ $ ->
   Initialization button
   ###
 
+  $('#username').val $.cookie('m_user')
+  $('#password').val $.cookie('m_pass')
+  $('#remember').addClass('checked') if parseInt($.cookie('m_reme'), 10)
+
   # Logo
   $('#logo').click ->
     $('body').toggleClass('temp-green')
@@ -237,6 +241,7 @@ $ ->
   login_action = ->
     user = $('#username').val()
     pwd = $('#password').val()
+    reme = $('#remember').hasClass('checked')
 
     data =
       _ : Math.random()
@@ -253,6 +258,14 @@ $ ->
       success: (res) ->
         if String(res) is 'true'
           $('body').removeClass 'guest'
+          if reme
+            $.cookie 'm_user', user, { expiress: 365}
+            $.cookie 'm_pass', pwd, { expiress: 365}
+            $.cookie 'm_reme', 1, { expiress: 365}
+          else
+            $.removeCookie 'm_user'
+            $.removeCookie 'm_pass'
+            $.removeCookie 'm_reme'
         else
           $('.login').addClass 'invalid'
           $('body').addClass 'guest'
