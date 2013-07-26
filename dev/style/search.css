@@ -272,16 +272,21 @@
   -o-background-size: 23px 20px;
   background-size: 23px 20px;
 }
+/* line 183, /Users/justin/WebServer/hg2/dev/sass/search.sass */
+#search .page-tools .now-page {
+  color: #0060ff;
+  font-weight: bold;
+}
 
-/* line 184, /Users/justin/WebServer/hg2/dev/sass/search.sass */
+/* line 187, /Users/justin/WebServer/hg2/dev/sass/search.sass */
 .device-mobile #search {
   width: 100%;
 }
-/* line 187, /Users/justin/WebServer/hg2/dev/sass/search.sass */
+/* line 190, /Users/justin/WebServer/hg2/dev/sass/search.sass */
 .device-mobile #search .page-tools .item {
   display: none;
 }
-/* line 189, /Users/justin/WebServer/hg2/dev/sass/search.sass */
+/* line 192, /Users/justin/WebServer/hg2/dev/sass/search.sass */
 .device-mobile #search .page-tools .prev-page,
 .device-mobile #search .page-tools .next-page,
 .device-mobile #search .page-tools .now-page {

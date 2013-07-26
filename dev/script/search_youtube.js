@@ -29,7 +29,7 @@ $(function() {
   }
 });
 
-hg2App = angular.module('hg2', []);
+hg2App = angular.module('hg2', ['ngCookies']);
 
 hg2App.filter('startFrom', function() {
   return function(input, start) {
@@ -148,10 +148,10 @@ MainCtrl = function($scope, $timeout) {
   });
 };
 
-LoginCtrl = function($scope) {
-  $scope.username = '';
-  $scope.password = '';
-  $scope.remember = true;
+LoginCtrl = function($scope, $cookies) {
+  $scope.username = $cookies['m_user'];
+  $scope.password = $cookies['m_pass'];
+  $scope.remember = parseInt($cookies['m_reme'], 10);
   $scope.error = false;
   $scope.reqServer = false;
   return $scope.login = function() {
@@ -170,8 +170,17 @@ LoginCtrl = function($scope) {
       timeout: 4000
     }).always(function(res, status) {
       if (status === 'success' && String(res) === 'true') {
-        $scope.updateUser(username, $scope.username === 'admin' ? true : false);
+        $scope.updateUser(username, username === 'admin' ? true : false);
         $scope.error = false;
+        if ($scope.remember) {
+          $cookies.m_user = username;
+          $cookies.m_pass = $scope.password;
+          $cookies.m_reme = '1';
+        } else {
+          $cookies.m_user = '';
+          $cookies.m_pass = '';
+          $cookies.m_reme = '';
+        }
       } else {
         $scope.updateUser(null, false);
         $scope.error = true;
